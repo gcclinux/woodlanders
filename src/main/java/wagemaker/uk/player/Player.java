@@ -50,6 +50,8 @@ public class Player {
     private float hungerTimer = 0; // Timer accumulator for hunger increase
     private float previousHunger = 0; // Track previous hunger for change detection
     private static final float HUNGER_INTERVAL = 60.0f; // 60 seconds per 1% hunger increase
+    private static final float TREE_ATTACK_HOLD_INTERVAL = 0.25f; // Seconds between hold attacks
+    private float treeAttackHoldTimer = 0f;
     
     // Multiplayer fields
     private String playerId; // Unique identifier for multiplayer
@@ -455,8 +457,22 @@ public class Player {
                 consumeSelectedItem();
             } else {
                 // Normal mode: use spacebar to attack
-                attackNearbyTargets();
+                attackNearbyTargets(false);
             }
+        }
+
+        // Allow holding spacebar to continuously attack trees (but never for planting or consuming)
+        boolean menuInactive = gameMenu == null || !gameMenu.isAnyMenuOpen();
+        boolean inventoryIdle = inventoryManager == null || inventoryManager.getSelectedSlot() == -1;
+        boolean canAutoAttackTrees = menuInactive && inventoryIdle && !targetingSystem.isActive();
+        if (canAutoAttackTrees && Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+            treeAttackHoldTimer += deltaTime;
+            if (treeAttackHoldTimer >= TREE_ATTACK_HOLD_INTERVAL) {
+                treeAttackHoldTimer = 0f;
+                attackNearbyTargets(true);
+            }
+        } else {
+            treeAttackHoldTimer = 0f;
         }
 
         // update animation time
@@ -720,25 +736,27 @@ public class Player {
         this.y = newY;
     }
 
-    private void attackNearbyTargets() {
-        // Priority 1: Check for remote players in range
-        RemotePlayer targetPlayer = findNearestRemotePlayerInRange();
-        if (targetPlayer != null && gameClient != null && gameClient.isConnected() && isLocalPlayer) {
-            // TODO: Cooldown for player attacks (currently disabled for testing)
-            // Check cooldown for player attacks only (0.5 seconds since last player attack)
-            // float currentTime = System.currentTimeMillis() / 1000.0f; // Convert to seconds
-            // if (currentTime - lastPlayerAttackTime < PLAYER_ATTACK_COOLDOWN) {
-            //     // Still on cooldown for player attacks
-            //     System.out.println("Player attack on cooldown");
-            //     return;
-            // }
-            
-            // Attack the remote player
-            String targetPlayerId = targetPlayer.getPlayerId();
-            gameClient.sendAttackAction(targetPlayerId);
-            // lastPlayerAttackTime = currentTime; // Disabled with cooldown
-            System.out.println("Attacking player: " + targetPlayerId);
-            return; // Don't attack trees if we attacked a player
+    private void attackNearbyTargets(boolean treeOnly) {
+        if (!treeOnly) {
+            // Priority 1: Check for remote players in range
+            RemotePlayer targetPlayer = findNearestRemotePlayerInRange();
+            if (targetPlayer != null && gameClient != null && gameClient.isConnected() && isLocalPlayer) {
+                // TODO: Cooldown for player attacks (currently disabled for testing)
+                // Check cooldown for player attacks only (0.5 seconds since last player attack)
+                // float currentTime = System.currentTimeMillis() / 1000.0f; // Convert to seconds
+                // if (currentTime - lastPlayerAttackTime < PLAYER_ATTACK_COOLDOWN) {
+                //     // Still on cooldown for player attacks
+                //     System.out.println("Player attack on cooldown");
+                //     return;
+                // }
+                
+                // Attack the remote player
+                String targetPlayerId = targetPlayer.getPlayerId();
+                gameClient.sendAttackAction(targetPlayerId);
+                // lastPlayerAttackTime = currentTime; // Disabled with cooldown
+                System.out.println("Attacking player: " + targetPlayerId);
+                return; // Don't attack trees if we attacked a player
+            }
         }
         
         // Priority 2: Attack trees if no players in range (no cooldown for trees)
