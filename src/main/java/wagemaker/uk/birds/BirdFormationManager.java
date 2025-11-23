@@ -55,8 +55,8 @@ public class BirdFormationManager {
     public void initialize() {
         // Load bird textures for animation
         try {
-            birdTexture1 = new Texture(Gdx.files.internal("assets/sprites/bird.png"));
-            birdTexture2 = new Texture(Gdx.files.internal("assets/sprites/bird2.png"));
+            birdTexture1 = new Texture(Gdx.files.internal("sprites/bird.png"));
+            birdTexture2 = new Texture(Gdx.files.internal("sprites/bird2.png"));
             System.out.println("[BIRDS] Bird system initialized successfully with 2 animation frames");
         } catch (Exception e) {
             System.err.println("[BIRDS] Failed to load bird textures: " + e.getMessage());
