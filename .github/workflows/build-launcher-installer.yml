@@ -48,7 +48,8 @@ jobs:
       
       - name: Create installer script
         run: |
-          $installerScript = @'
+          # Create the installer script by writing it directly to avoid nested here-string issues
+          $scriptContent = @"
           # Woodlanders Launcher - Windows Installer with JRE Auto-Download
           # Auto-generated installer script
           
@@ -171,30 +172,8 @@ jobs:
           }
           
           function Create-LauncherScript {
-              $launcherScript = @'
-          @echo off
-          setlocal
-          
-          set "APP_DIR=%~dp0"
-          set "JAVAFX_CACHE=%USERPROFILE%\.cache\woodlanders-javafx"
-          
-          if exist "%APP_DIR%jre\bin\java.exe" (
-              set "JAVA_CMD=%APP_DIR%jre\bin\java.exe"
-          ) else (
-              set "JAVA_CMD=java"
-          )
-          
-          "%JAVA_CMD%" -Djavafx.cachedir="%JAVAFX_CACHE%" -jar "%APP_DIR%woodlanders-launcher.jar"
-          if %ERRORLEVEL% neq 0 (
-              echo.
-              echo Application failed to start.
-              pause
-          )
-          
-          endlocal
-          '@
-          
-              $launcherScript | Out-File -FilePath "$INSTALL_DIR\launcher.bat" -Encoding ASCII -Force
+              `$batContent = "@echo off``r``nsetlocal``r``nset APP_DIR=%~dp0``r``nset JAVAFX_CACHE=%USERPROFILE%\.cache\woodlanders-javafx``r``nif exist %APP_DIR%jre\bin\java.exe (set JAVA_CMD=%APP_DIR%jre\bin\java.exe) else (set JAVA_CMD=java)``r``n%JAVA_CMD% -Djavafx.cachedir=%JAVAFX_CACHE% -jar %APP_DIR%woodlanders-launcher.jar``r``nif %ERRORLEVEL% neq 0 (echo. & echo Application failed to start. & pause)``r``nendlocal"
+              `$batContent | Out-File -FilePath "`$INSTALL_DIR\launcher.bat" -Encoding ASCII -Force
               Write-Success "Launcher script created"
           }
           
@@ -282,9 +261,12 @@ jobs:
               }
               exit 1
           }
-          '@
+          "@
           
-          $installerScript | Out-File -FilePath installer-staging\install.ps1 -Encoding UTF8
+          # Fix the scriptDir line for ps2exe compatibility
+          $scriptContent = $scriptContent -replace '\`$scriptDir = if \(\`$PSScriptRoot\) \{ \`$PSScriptRoot \} else \{ Split-Path -Parent \`$MyInvocation\.MyCommand\.Path \}', '`$scriptDir = if ($PSScriptRoot) { $PSScriptRoot } elseif ($MyInvocation.MyCommand.Path) { Split-Path -Parent $MyInvocation.MyCommand.Path } else { Get-Location | Select-Object -ExpandProperty Path }'
+          
+          $scriptContent | Out-File -FilePath installer-staging\install.ps1 -Encoding UTF8
       
       - name: Create README for installer
         run: |

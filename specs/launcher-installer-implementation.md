@@ -93,7 +93,15 @@ The release workflow now includes:
 
 **Solution:** Created `Main.java` wrapper class that calls `LauncherApplication.launch()` instead of extending Application.
 
-### Challenge 2: ps2exe Script Directory
+### Challenge 2: Nested Here-Strings in GitHub Actions
+**Issue:** GitHub Actions PowerShell runner fails when there are nested here-strings (a here-string inside another here-string).
+
+**Solution:** 
+- Changed outer here-string from `@'...'@` to `@"..."@` to allow variable expansion
+- Replaced inner here-string (batch script) with inline string using escape sequences
+- Applied regex replacement to fix `$scriptDir` after script creation
+
+### Challenge 3: ps2exe Script Directory
 **Issue:** When PowerShell script is compiled to EXE with ps2exe, `$PSScriptRoot` and `$MyInvocation.MyCommand.Path` become null.
 
 **Solution:** Added fallback to `Get-Location` for compiled EXE:
@@ -103,7 +111,7 @@ $scriptDir = if ($PSScriptRoot) { $PSScriptRoot }
              else { Get-Location | Select-Object -ExpandProperty Path }
 ```
 
-### Challenge 3: Icon Format
+### Challenge 4: Icon Format
 **Issue:** ps2exe requires ICO format, but we have PNG.
 
 **Solution:** 
@@ -111,7 +119,7 @@ $scriptDir = if ($PSScriptRoot) { $PSScriptRoot }
 - Removed icon parameter from ps2exe (not needed for installer EXE)
 - Icon is used for shortcuts after installation
 
-### Challenge 4: EXE File Dependencies
+### Challenge 5: EXE File Dependencies
 **Issue:** ps2exe doesn't embed large files like JAR into the EXE.
 
 **Solution:** 
