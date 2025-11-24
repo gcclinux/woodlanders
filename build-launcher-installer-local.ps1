@@ -306,35 +306,34 @@ Write-Host "=========================================" -ForegroundColor Green
 Write-Host "  Build Complete!" -ForegroundColor Green
 Write-Host "=========================================" -ForegroundColor Green
 Write-Host ""
-Write-Host "Created files:" -ForegroundColor Cyan
-Write-Host ""
 
-$exeFile = Get-Item build\distributions\woodlanders-setup-launcher.exe
 $zipFile = Get-Item build\distributions\woodlanders-launcher-installer.zip
 
-Write-Host "  EXE Installer:" -ForegroundColor Yellow
-Write-Host "    Path: $($exeFile.FullName)" -ForegroundColor Gray
-Write-Host "    Size: $([math]::Round($exeFile.Length / 1MB, 2)) MB" -ForegroundColor Gray
-Write-Host ""
-Write-Host "  ZIP Package:" -ForegroundColor Yellow
-Write-Host "    Path: $($zipFile.FullName)" -ForegroundColor Gray
-Write-Host "    Size: $([math]::Round($zipFile.Length / 1MB, 2)) MB" -ForegroundColor Gray
+Write-Host "Created installer package:" -ForegroundColor Cyan
+Write-Host "  Path: $($zipFile.FullName)" -ForegroundColor Yellow
+Write-Host "  Size: $([math]::Round($zipFile.Length / 1MB, 2)) MB" -ForegroundColor Gray
 Write-Host ""
 
-Write-Host "IMPORTANT: The EXE installer needs these files in the same folder:" -ForegroundColor Yellow
-Write-Host "  - woodlanders-setup-launcher.exe" -ForegroundColor Gray
-Write-Host "  - woodlanders-launcher.jar" -ForegroundColor Gray
-Write-Host "  - launcher.ico" -ForegroundColor Gray
-Write-Host ""
-Write-Host "You can now test the installer by running:" -ForegroundColor Cyan
-Write-Host "  .\build\distributions\woodlanders-setup-launcher.exe" -ForegroundColor White
-Write-Host ""
-Write-Host "Or extract and run the ZIP package which contains everything." -ForegroundColor Cyan
+Write-Host "ZIP Contents:" -ForegroundColor Cyan
+Write-Host "  - woodlanders-setup-launcher.exe (installer)" -ForegroundColor Gray
+Write-Host "  - woodlanders-launcher.jar (application)" -ForegroundColor Gray
+Write-Host "  - launcher.ico (icon)" -ForegroundColor Gray
+Write-Host "  - install.ps1 (PowerShell alternative)" -ForegroundColor Gray
+Write-Host "  - README.txt (instructions)" -ForegroundColor Gray
 Write-Host ""
 
-$test = Read-Host "Would you like to test the installer now? (Y/n)"
+Write-Host "To test the installer:" -ForegroundColor Cyan
+Write-Host "  1. Extract the ZIP file" -ForegroundColor White
+Write-Host "  2. Run woodlanders-setup-launcher.exe from the extracted folder" -ForegroundColor White
+Write-Host ""
+
+$test = Read-Host "Would you like to extract and test the installer now? (Y/n)"
 if ($test -ne 'n' -and $test -ne 'N') {
     Write-Host ""
+    Write-Host "Extracting ZIP..." -ForegroundColor Cyan
+    $testDir = "build\distributions\test-installer"
+    if (Test-Path $testDir) { Remove-Item $testDir -Recurse -Force }
+    Expand-Archive -Path build\distributions\woodlanders-launcher-installer.zip -DestinationPath $testDir
     Write-Host "Launching installer..." -ForegroundColor Cyan
-    Start-Process -FilePath "build\distributions\woodlanders-setup-launcher.exe" -Wait
+    Start-Process -FilePath "$testDir\woodlanders-setup-launcher.exe" -WorkingDirectory $testDir -Wait
 }

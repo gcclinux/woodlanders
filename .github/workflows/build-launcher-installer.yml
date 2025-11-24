@@ -1,4 +1,4 @@
-name: Build Launcher Installer
+name: Build Launcher Installer (Standalone)
 
 on:
   push:
@@ -182,16 +182,13 @@ jobs:
         with:
           tag_name: ${{ steps.get_tag.outputs.tag_name }}
           files: |
-            build/distributions/woodlanders-setup-launcher.exe
             build/distributions/woodlanders-launcher-installer.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Upload artifacts
+      - name: Upload artifacts as backup
         uses: actions/upload-artifact@v4
         with:
           name: launcher-installer
-          path: |
-            build/distributions/woodlanders-setup-launcher.exe
-            build/distributions/woodlanders-launcher-installer.zip
+          path: build/distributions/woodlanders-launcher-installer.zip
           retention-days: 90

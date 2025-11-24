@@ -34,6 +34,112 @@ jobs:
       - name: Build JARs with Gradle
         run: gradle build -x test --no-daemon
       
+      - name: Build Launcher Installer
+        run: |
+          # Create installer directory structure
+          New-Item -ItemType Directory -Force -Path installer-staging
+          New-Item -ItemType Directory -Force -Path build\distributions
+          
+          # Copy launcher JAR and icon
+          Copy-Item launcher\build\libs\woodlanders-launcher.jar -Destination installer-staging\
+          if (Test-Path assets\icon\icon.png) {
+            Copy-Item assets\icon\icon.png -Destination installer-staging\launcher.ico
+          }
+          
+          # Create installer script from template
+          $scriptContent = Get-Content -Path .github\scripts\windows-installer-template.ps1 -Raw
+          $scriptContent = $scriptContent -replace '\$\{VERSION\}', '${{ github.ref_name }}'
+          $scriptContent = $scriptContent -replace '\$scriptDir = if \(\$PSScriptRoot\) \{ \$PSScriptRoot \} else \{ Split-Path -Parent \$MyInvocation\.MyCommand\.Path \}', '$scriptDir = if ($PSScriptRoot) { $PSScriptRoot } elseif ($MyInvocation.MyCommand.Path) { Split-Path -Parent $MyInvocation.MyCommand.Path } else { Get-Location | Select-Object -ExpandProperty Path }'
+          $scriptContent | Out-File -FilePath installer-staging\install.ps1 -Encoding UTF8
+          
+          # Create README
+          $readmeLines = @(
+            "# Woodlanders Launcher Installer",
+            "",
+            "## Installation Instructions",
+            "",
+            "IMPORTANT: Extract the entire ZIP file before running the installer.",
+            "The installer needs all files in the same folder to work correctly.",
+            "",
+            "### Option 1: Run the EXE (Recommended)",
+            "1. Extract the ZIP file",
+            "2. Double-click woodlanders-setup-launcher.exe",
+            "3. Follow the prompts",
+            "",
+            "### Option 2: Run PowerShell Script",
+            "1. Extract the ZIP file",
+            "2. Right-click install.ps1",
+            "3. Select Run with PowerShell",
+            "",
+            "## What Gets Installed",
+            "",
+            "- Woodlanders Launcher application",
+            "- Java 21 with JavaFX (if not already installed)",
+            "- Desktop shortcut with icon",
+            "- Start Menu entry with icon",
+            "",
+            "## Installation Location",
+            "",
+            "%LOCALAPPDATA%\Woodlanders\Launcher",
+            "",
+            "## Features",
+            "",
+            "- Auto-updates game from GitHub releases",
+            "- Multi-language support (EN, PL, PT, NL, DE)",
+            "- Offline mode support",
+            "- No manual Java installation required",
+            "",
+            "## Uninstallation",
+            "",
+            "To uninstall:",
+            "1. Delete: %LOCALAPPDATA%\Woodlanders\Launcher",
+            "2. Delete desktop shortcut",
+            "3. Delete: %APPDATA%\Microsoft\Windows\Start Menu\Programs\Woodlanders",
+            "",
+            "## Troubleshooting",
+            "",
+            "If the installer fails:",
+            "- Ensure all files from the ZIP are in the same folder",
+            "- Check internet connection for first-time setup",
+            "- Check Windows Defender is not blocking the installer",
+            "- Run the installer as Administrator",
+            "",
+            "For help: https://github.com/gcclinux/Woodlanders"
+          )
+          $readmeLines -join "`r`n" | Out-File -FilePath installer-staging\README.txt -Encoding UTF8
+          
+          # Install ps2exe and convert to EXE
+          Install-Module -Name ps2exe -Force -Scope CurrentUser -AllowClobber
+          Import-Module ps2exe
+          Invoke-ps2exe `
+            -inputFile installer-staging\install.ps1 `
+            -outputFile build\distributions\woodlanders-setup-launcher.exe `
+            -title "Woodlanders Launcher Installer" `
+            -description "Woodlanders Game Launcher Installer" `
+            -company "Wagemaker UK" `
+            -version "1.0.0.0" `
+            -requireAdmin `
+            -noConsole:$false
+          
+          # Create distribution package
+          Copy-Item installer-staging\woodlanders-launcher.jar -Destination build\distributions\ -Force
+          Copy-Item installer-staging\launcher.ico -Destination build\distributions\ -Force -ErrorAction SilentlyContinue
+          Copy-Item installer-staging\install.ps1 -Destination build\distributions\ -Force
+          Copy-Item installer-staging\README.txt -Destination build\distributions\ -Force
+          
+          # Create ZIP with all installer files
+          $zipFiles = @(
+            "build\distributions\woodlanders-setup-launcher.exe",
+            "build\distributions\woodlanders-launcher.jar",
+            "build\distributions\launcher.ico",
+            "build\distributions\install.ps1",
+            "build\distributions\README.txt"
+          )
+          $zipFiles = $zipFiles | Where-Object { Test-Path $_ }
+          Compress-Archive -Path $zipFiles -DestinationPath build\distributions\woodlanders-launcher-installer.zip -Force
+          
+          Write-Host "Launcher installer created successfully"
+      
       - name: Create jpackage directory
         run: mkdir jpackage-input
       
@@ -107,16 +213,20 @@ jobs:
             ## Downloads
             - **Woodlanders-Windows-Portable.zip** - Windows executable with bundled JRE (no Java installation required)
             - **Woodlanders-Linux-x86_64.AppImage** - Linux executable with bundled JRE (no Java installation required)
-            - **woodlanders-launcher.jar** - Game launcher with auto-update (requires Java 21+)
+            - **woodlanders-launcher-installer.zip** - Launcher installer with auto Java/JavaFX setup (recommended for new users)
+            - **woodlanders-launcher.jar** - Standalone launcher JAR (requires Java 21+)
             - **woodlanders-client.jar** - Client JAR (requires Java 21+)
             - **woodlanders-server.jar** - Dedicated server JAR (requires Java 21+)
             
-            ## Launcher Features
-            The launcher provides:
-            - Automatic game updates from GitHub releases
+            ## Launcher Installer
+            The launcher installer (`woodlanders-launcher-installer.zip`) provides:
+            - Automatic Java 21 + JavaFX installation (if needed)
+            - Desktop and Start Menu shortcuts
             - Multi-language support (English, Polish, Portuguese, Dutch, German)
+            - Auto-updates game from GitHub releases
             - Version management and offline mode
-            - Simple one-click game launch
+            
+            **Installation:** Extract the ZIP and run `woodlanders-setup-launcher.exe`
             
             ## Server Requirements by Player Count
             | Players | CPU Cores | RAM | Upload Speed |
@@ -175,15 +285,20 @@ jobs:
             ```
           files: |
             ./dist/Woodlanders-Windows-Portable.zip
+            ./build/distributions/woodlanders-launcher-installer.zip
             ./build/libs/woodlanders-client.jar
             ./build/libs/woodlanders-server.jar
             ./build/libs/woodlanders-launcher.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Upload artifact as backup
+      - name: Upload artifacts as backup
         uses: actions/upload-artifact@v4
         with:
-          name: Woodlanders-Windows-Portable
-          path: dist/Woodlanders-Windows-Portable.zip
+          name: Woodlanders-Release-Artifacts
+          path: |
+            dist/Woodlanders-Windows-Portable.zip
+            build/libs/woodlanders-client.jar
+            build/libs/woodlanders-server.jar
+            build/libs/woodlanders-launcher.jar
           retention-days: 90
