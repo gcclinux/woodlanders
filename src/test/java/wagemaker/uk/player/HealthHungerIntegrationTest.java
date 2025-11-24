@@ -79,13 +79,19 @@ public class HealthHungerIntegrationTest {
     @Test
     @Order(2)
     public void testHungerCapsAt100Percent() {
-        // Set hunger to 99%
-        player.setHunger(99);
+        // Set hunger to 98%
+        player.setHunger(98);
         
-        // Simulate 120 seconds (should try to add 2%, but cap at 100%)
-        player.update(120.0f);
+        // Simulate 60 seconds (should add 1%, reaching 99%)
+        player.update(60.0f);
+        assertEquals(99, player.getHunger(), 0.01f, "Hunger should be 99% after 60 seconds");
         
-        assertEquals(100, player.getHunger(), 0.01f, "Hunger should cap at 100%");
+        // Simulate another 60 seconds (should add 1%, capping at 100% before death)
+        // Note: At 100%, player dies and respawns with hunger reset to 0
+        player.update(60.0f);
+        
+        // After reaching 100%, player respawns with hunger at 0%
+        assertEquals(0, player.getHunger(), 0.01f, "Hunger should be 0% after death/respawn at 100%");
     }
     
     /**
