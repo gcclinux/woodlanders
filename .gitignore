@@ -6,3 +6,15 @@
 out/
 /gradlew
 /server.log
+*.class
+
+# Launcher build artifacts
+launcher/build/
+launcher/.gradle/
+launcher/out/
+
+# Launcher runtime/cache
+launcher/*.jar
+launcher/*.log
+
+installer-staging/

@@ -59,6 +59,23 @@ run {
     workingDir = project.rootDir
 }
 
+// Separate task to run the main application
+task runApp(type: JavaExec) {
+    group = 'application'
+    description = 'Run the main Woodlanders application'
+    dependsOn classes
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'wagemaker.uk.desktop.DesktopLauncher'
+    workingDir = project.rootDir
+}
+
+// Separate task to run the launcher - delegates to launcher subproject
+task runLauncher {
+    group = 'application'
+    description = 'Run the Woodlanders launcher'
+    dependsOn ':launcher:run'
+}
+
 // Client JAR task (full game with rendering)
 jar {
     archiveBaseName = 'woodlanders-client'
@@ -119,5 +136,24 @@ task serverJar(type: Jar) {
     exclude 'music/**'
 }
 
-// Make build task create both JARs
-build.dependsOn serverJar
+// Task to copy launcher JAR to root build/libs
+task copyLauncherJar(type: Copy) {
+    dependsOn ':launcher:jar'
+    from project(':launcher').layout.buildDirectory.file('libs/woodlanders-launcher.jar')
+    into layout.buildDirectory.dir('libs')
+    mustRunAfter jar
+}
+
+// Make build task create all three JARs
+build.dependsOn serverJar, copyLauncherJar
+
+// Ensure proper task ordering
+tasks.named('startScripts').configure {
+    mustRunAfter copyLauncherJar
+}
+tasks.named('distZip').configure {
+    mustRunAfter copyLauncherJar
+}
+tasks.named('distTar').configure {
+    mustRunAfter copyLauncherJar
+}

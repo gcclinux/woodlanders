@@ -1,6 +1,6 @@
 # Woodlanders - A 2D Multiplayer Adventure
 
-## 🌐 [Play Woodlanders - Official Game Homepage](https://gcclinux.github.io/Woodlanders/)
+## 🌐 [Play Woodlanders - Official Game Homepage](https://gcclinux.github.io/woodlanders/)
 
 ## 🎮 The AI-Driven Game Development Story
 

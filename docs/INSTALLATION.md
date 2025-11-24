@@ -60,7 +60,8 @@ sdk install gradle 9.2.0
 ### Run from Source
 ```bash
 cd <project folder>/Woodlanders
-gradle run
+gradle runApp - Launches the main Woodlanders application
+gradle runLauncher - Launches the launcher UI
 ```
 
 ### Build and Run Client JAR

@@ -1,0 +1,32 @@
+{
+  "launcher": {
+    "title": "Woodlanders Launcher",
+    "project_site": "Projectsite: gcclinux.github.io/Woodlanders",
+    "version_format": "Lokaal: {0} | Extern: {1}",
+    "button": {
+      "launch": "Start Woodlanders",
+      "launch_offline": "Start Offline",
+      "update": "Update naar {0}",
+      "download": "Download {0}",
+      "retry": "Opnieuw Proberen",
+      "downloading": "Downloaden…",
+      "launching": "Starten…"
+    },
+    "status": {
+      "checking": "Controleren op updates…",
+      "offline_ready": "Offline modus: gebruik van gecachte client.",
+      "ready": "Nieuwste versie {0} is klaar.",
+      "update_available": "Een nieuwere versie is beschikbaar.",
+      "download_required": "Download vereist voor eerste start.",
+      "downloading": "Downloaden {0}…",
+      "launching": "Woodlanders client starten…",
+      "launched": "Client gestart. Gebruik dit venster voor updates.",
+      "updated": "Bijgewerkt naar {0}.",
+      "no_connection": "Kan GitHub niet bereiken. Maak verbinding met internet en probeer opnieuw.",
+      "no_metadata": "Release metadata niet beschikbaar. Probeer opnieuw.",
+      "download_failed": "Download mislukt: {0}",
+      "download_interrupted": "Download onderbroken. Probeer opnieuw wanneer u klaar bent.",
+      "launch_failed": "Starten mislukt: {0}"
+    }
+  }
+}

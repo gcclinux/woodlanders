@@ -1,0 +1,32 @@
+{
+  "launcher": {
+    "title": "Woodlanders Launcher",
+    "project_site": "Strona projektu: gcclinux.github.io/Woodlanders",
+    "version_format": "Lokalna: {0} | Zdalna: {1}",
+    "button": {
+      "launch": "Uruchom Woodlanders",
+      "launch_offline": "Uruchom Offline",
+      "update": "Aktualizuj do {0}",
+      "download": "Pobierz {0}",
+      "retry": "Ponów",
+      "downloading": "Pobieranie…",
+      "launching": "Uruchamianie…"
+    },
+    "status": {
+      "checking": "Sprawdzanie aktualizacji…",
+      "offline_ready": "Tryb offline: używanie zapisanej wersji.",
+      "ready": "Najnowsza wersja {0} jest gotowa.",
+      "update_available": "Dostępna jest nowsza wersja.",
+      "download_required": "Wymagane pobranie przed pierwszym uruchomieniem.",
+      "downloading": "Pobieranie {0}…",
+      "launching": "Uruchamianie klienta Woodlanders…",
+      "launched": "Klient uruchomiony. Użyj tego okna do aktualizacji.",
+      "updated": "Zaktualizowano do {0}.",
+      "no_connection": "Nie można połączyć się z GitHub. Połącz się z internetem i spróbuj ponownie.",
+      "no_metadata": "Metadane wydania niedostępne. Spróbuj ponownie.",
+      "download_failed": "Pobieranie nie powiodło się: {0}",
+      "download_interrupted": "Pobieranie przerwane. Spróbuj ponownie gdy będziesz gotowy.",
+      "launch_failed": "Uruchomienie nie powiodło się: {0}"
+    }
+  }
+}

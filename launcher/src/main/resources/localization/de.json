@@ -1,0 +1,32 @@
+{
+  "launcher": {
+    "title": "Woodlanders Launcher",
+    "project_site": "Projektseite: gcclinux.github.io/Woodlanders",
+    "version_format": "Lokal: {0} | Remote: {1}",
+    "button": {
+      "launch": "Woodlanders Starten",
+      "launch_offline": "Offline Starten",
+      "update": "Auf {0} Aktualisieren",
+      "download": "{0} Herunterladen",
+      "retry": "Erneut Versuchen",
+      "downloading": "Wird heruntergeladen…",
+      "launching": "Wird gestartet…"
+    },
+    "status": {
+      "checking": "Suche nach Updates…",
+      "offline_ready": "Offline-Modus: Verwende zwischengespeicherten Client.",
+      "ready": "Neueste Version {0} ist bereit.",
+      "update_available": "Eine neuere Version ist verfügbar.",
+      "download_required": "Download vor dem ersten Start erforderlich.",
+      "downloading": "Lade {0} herunter…",
+      "launching": "Starte Woodlanders Client…",
+      "launched": "Client gestartet. Verwenden Sie dieses Fenster für Updates.",
+      "updated": "Auf {0} aktualisiert.",
+      "no_connection": "GitHub kann nicht erreicht werden. Verbinden Sie sich mit dem Internet und versuchen Sie es erneut.",
+      "no_metadata": "Release-Metadaten nicht verfügbar. Bitte erneut versuchen.",
+      "download_failed": "Download fehlgeschlagen: {0}",
+      "download_interrupted": "Download unterbrochen. Versuchen Sie es erneut, wenn Sie bereit sind.",
+      "launch_failed": "Start fehlgeschlagen: {0}"
+    }
+  }
+}

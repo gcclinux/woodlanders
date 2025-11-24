@@ -1,0 +1,32 @@
+.root {
+    -fx-font-family: "Ubuntu";
+    -fx-background-color: #0e4d26;
+    -fx-padding: 20;
+}
+
+.label,
+.button,
+.hyperlink {
+    -fx-text-fill: #f0f0f0;
+}
+
+.launcher-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+.launcher-status {
+    -fx-font-size: 14px;
+}
+
+.button {
+    -fx-font-size: 16px;
+    -fx-padding: 10 14;
+    -fx-text-fill: #683c27;
+    font-weight: bold;
+    -fx-font-weight: bold;
+}
+
+.hyperlink {
+    -fx-text-fill: #9bd1ff;
+}
