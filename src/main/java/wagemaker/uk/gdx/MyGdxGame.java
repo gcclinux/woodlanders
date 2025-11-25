@@ -353,6 +353,9 @@ public class MyGdxGame extends ApplicationAdapter {
         // Load player position from save file if it exists
         gameMenu.loadPlayerPosition();
         
+        // Show controls dialog on first startup
+        gameMenu.showControlsOnStartup();
+        
         // Initialize connection quality indicator (will be set when connecting)
         connectionQualityIndicator = new wagemaker.uk.ui.ConnectionQualityIndicator(null, gameMenu.getFont());
         

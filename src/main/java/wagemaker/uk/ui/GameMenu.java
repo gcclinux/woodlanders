@@ -85,6 +85,11 @@ public class GameMenu implements LanguageChangeListener, FontChangeListener {
     
     // Compass reference for custom target
     private Compass compass;
+    
+    // First launch flag for showing controls on startup
+    private boolean hasShownControlsOnStartup = false;
+    private boolean shouldShowControlsOnStartup = false;
+    private int startupFrameCounter = 0;
 
 
     public GameMenu() {
@@ -683,6 +688,9 @@ public class GameMenu implements LanguageChangeListener, FontChangeListener {
     }
 
     public void update() {
+        // Check if we should show controls on startup (after a few frames)
+        checkStartupControlsDisplay();
+        
         // Update save notification timer
         if (showSaveNotification) {
             saveNotificationTimer -= Gdx.graphics.getDeltaTime();
@@ -1084,6 +1092,34 @@ public class GameMenu implements LanguageChangeListener, FontChangeListener {
     private void openControlsDialog() {
         isOpen = false; // Close main menu
         controlsDialog.show();
+    }
+    
+    /**
+     * Marks that the controls dialog should be shown on startup.
+     * This is called during game initialization.
+     * The actual display is delayed by a few frames to allow the world to load properly.
+     */
+    public void showControlsOnStartup() {
+        if (!hasShownControlsOnStartup) {
+            shouldShowControlsOnStartup = true;
+            startupFrameCounter = 0;
+        }
+    }
+    
+    /**
+     * Checks if controls should be shown after a few frames have passed.
+     * This ensures the world has loaded and camera is positioned correctly.
+     */
+    private void checkStartupControlsDisplay() {
+        if (shouldShowControlsOnStartup) {
+            startupFrameCounter++;
+            // Wait 3 frames before showing controls to allow world to load
+            if (startupFrameCounter >= 3) {
+                controlsDialog.show();
+                hasShownControlsOnStartup = true;
+                shouldShowControlsOnStartup = false;
+            }
+        }
     }
     
     /**
