@@ -131,7 +131,9 @@ jobs:
             -outputFile build\distributions\woodlanders-setup-launcher.exe `
             -title "Woodlanders Launcher Installer" `
             -description "Woodlanders Game Launcher Installer" `
-            -company "Wagemaker UK" `
+            -company "Ricardo Wagemaker" `
+            -product "Woodlanders Launcher" `
+            -copyright "Copyright (c) 2025 Ricardo Wagemaker" `
             -version "1.0.0.0" `
             -requireAdmin `
             -noConsole:$false
@@ -141,7 +143,9 @@ jobs:
             -outputFile build\distributions\uninstall-launcher.exe `
             -title "Woodlanders Launcher Uninstaller" `
             -description "Uninstall Woodlanders Game Launcher" `
-            -company "Wagemaker UK" `
+            -company "Ricardo Wagemaker" `
+            -product "Woodlanders Launcher" `
+            -copyright "Copyright (c) 2025 Ricardo Wagemaker" `
             -version "1.0.0.0" `
             -requireAdmin `
             -noConsole:$false
