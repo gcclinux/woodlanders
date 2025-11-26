@@ -42,8 +42,10 @@ jobs:
       - name: Copy launcher JAR and icon to staging
         run: |
           Copy-Item launcher\build\libs\woodlanders-launcher.jar -Destination installer-staging\
-          if (Test-Path assets\icon\icon.png) {
-            Copy-Item assets\icon\icon.png -Destination installer-staging\launcher.ico
+          if (Test-Path assets\icon\icon.ico) {
+            Copy-Item assets\icon\icon.ico -Destination installer-staging\launcher.ico
+          } elseif (Test-Path assets\icon\icon.png) {
+            Copy-Item assets\icon\icon.png -Destination installer-staging\launcher.png
           }
       
       - name: Create installer script from template
@@ -140,12 +142,14 @@ jobs:
           Copy-Item installer-staging\launcher.ico -Destination build\distributions\ -Force -ErrorAction SilentlyContinue
           Copy-Item installer-staging\install.ps1 -Destination build\distributions\ -Force
           Copy-Item installer-staging\README.txt -Destination build\distributions\ -Force
+          Copy-Item launcher\uninstall.ps1 -Destination build\distributions\ -Force
           
           $zipFiles = @(
             "build\distributions\woodlanders-setup-launcher.exe",
             "build\distributions\woodlanders-launcher.jar",
             "build\distributions\launcher.ico",
             "build\distributions\install.ps1",
+            "build\distributions\uninstall.ps1",
             "build\distributions\README.txt"
           )
           $zipFiles = $zipFiles | Where-Object { Test-Path $_ }

@@ -35,10 +35,13 @@ if (Test-Path launcher\build\libs\woodlanders-launcher.jar) {
     exit 1
 }
 
-# Copy icon if it exists (rename to match template expectations)
-if (Test-Path assets\icon\icon.png) {
-    Copy-Item assets\icon\icon.png -Destination installer-staging\launcher.ico
-    Write-Host "Icon copied" -ForegroundColor Green
+# Copy icon (use .ico for Windows)
+if (Test-Path assets\icon\icon.ico) {
+    Copy-Item assets\icon\icon.ico -Destination installer-staging\launcher.ico
+    Write-Host "Icon copied (.ico)" -ForegroundColor Green
+} elseif (Test-Path assets\icon\icon.png) {
+    Copy-Item assets\icon\icon.png -Destination installer-staging\launcher.png
+    Write-Host "Icon copied (.png)" -ForegroundColor Green
 } else {
     Write-Host "Icon not found (optional)" -ForegroundColor Yellow
 }
@@ -142,8 +145,10 @@ function Install-Application {
         Write-ErrorMsg "Application JAR not found"
         return $false
     }
-    if (Test-Path "$scriptDir\launcher-icon.png") {
-        Copy-Item "$scriptDir\launcher-icon.png" -Destination $INSTALL_DIR -Force
+    if (Test-Path "$scriptDir\launcher.ico") {
+        Copy-Item "$scriptDir\launcher.ico" -Destination $INSTALL_DIR -Force
+    } elseif (Test-Path "$scriptDir\launcher.png") {
+        Copy-Item "$scriptDir\launcher.png" -Destination $INSTALL_DIR -Force
     }
     return $true
 }
@@ -160,8 +165,8 @@ function New-Shortcuts {
     $Shortcut.TargetPath = "$INSTALL_DIR\launcher.bat"
     $Shortcut.WorkingDirectory = $INSTALL_DIR
     $Shortcut.Description = "Woodlanders Game Launcher"
-    if (Test-Path "$INSTALL_DIR\launcher-icon.png") {
-        $Shortcut.IconLocation = "$INSTALL_DIR\launcher-icon.png"
+    if (Test-Path "$INSTALL_DIR\launcher.ico") {
+        $Shortcut.IconLocation = "$INSTALL_DIR\launcher.ico"
     }
     $Shortcut.Save()
     Write-Success "Desktop shortcut created"
@@ -170,8 +175,8 @@ function New-Shortcuts {
     $StartMenuShortcut.TargetPath = "$INSTALL_DIR\launcher.bat"
     $StartMenuShortcut.WorkingDirectory = $INSTALL_DIR
     $StartMenuShortcut.Description = "Woodlanders Game Launcher"
-    if (Test-Path "$INSTALL_DIR\launcher-icon.png") {
-        $StartMenuShortcut.IconLocation = "$INSTALL_DIR\launcher-icon.png"
+    if (Test-Path "$INSTALL_DIR\launcher.ico") {
+        $StartMenuShortcut.IconLocation = "$INSTALL_DIR\launcher.ico"
     }
     $StartMenuShortcut.Save()
     Write-Success "Start Menu shortcut created"
@@ -293,8 +298,10 @@ Write-Host "[7/7] Creating distribution package..." -ForegroundColor Yellow
 # Copy all necessary files to distributions folder
 Copy-Item installer-staging\woodlanders-launcher.jar -Destination build\distributions\ -Force
 Copy-Item installer-staging\launcher.ico -Destination build\distributions\ -Force -ErrorAction SilentlyContinue
+Copy-Item installer-staging\launcher.png -Destination build\distributions\ -Force -ErrorAction SilentlyContinue
 Copy-Item installer-staging\install.ps1 -Destination build\distributions\ -Force
 Copy-Item installer-staging\README.txt -Destination build\distributions\ -Force
+Copy-Item launcher\uninstall.ps1 -Destination build\distributions\ -Force
 
 # Create ZIP with all installer files
 $zipFiles = @(
@@ -302,6 +309,7 @@ $zipFiles = @(
     "build\distributions\woodlanders-launcher.jar",
     "build\distributions\launcher.ico",
     "build\distributions\install.ps1",
+    "build\distributions\uninstall.ps1",
     "build\distributions\README.txt"
 )
 $zipFiles = $zipFiles | Where-Object { Test-Path $_ }
@@ -336,20 +344,5 @@ Write-Host "  1. Extract the ZIP file" -ForegroundColor White
 Write-Host "  2. Run woodlanders-setup-launcher.exe from the extracted folder" -ForegroundColor White
 Write-Host ""
 
-$test = Read-Host "Would you like to extract and test the installer now? (Y/n)"
-if ($test -ne 'n' -and $test -ne 'N') {
-    Write-Host ""
-    Write-Host "Extracting ZIP..." -ForegroundColor Cyan
-    $testDir = "build\distributions\test-installer"
-    if (Test-Path $testDir) { Remove-Item $testDir -Recurse -Force }
-    
-    # Try Expand-Archive first, fallback to .NET if module not available
-    try {
-        Expand-Archive -Path build\distributions\woodlanders-launcher-installer.zip -DestinationPath $testDir -ErrorAction Stop
-    } catch {
-        Add-Type -AssemblyName System.IO.Compression.FileSystem
-        [System.IO.Compression.ZipFile]::ExtractToDirectory("$PWD\build\distributions\woodlanders-launcher-installer.zip", "$PWD\$testDir")
-    }
-    Write-Host "Launching installer..." -ForegroundColor Cyan
-    Start-Process -FilePath "$testDir\woodlanders-setup-launcher.exe" -WorkingDirectory $testDir -Wait
-}
+Write-Host "Build complete! Run the installer from:" -ForegroundColor Cyan
+Write-Host "  build\distributions\test-installer\woodlanders-setup-launcher.exe" -ForegroundColor White
