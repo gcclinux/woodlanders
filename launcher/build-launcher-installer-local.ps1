@@ -285,10 +285,29 @@ $ps2exeParams = @{
 Invoke-ps2exe @ps2exeParams
 
 if (Test-Path build\distributions\woodlanders-setup-launcher.exe) {
-    Write-Host "EXE created successfully" -ForegroundColor Green
+    Write-Host "Installer EXE created successfully" -ForegroundColor Green
 } else {
-    Write-Host "Failed to create EXE" -ForegroundColor Red
+    Write-Host "Failed to create installer EXE" -ForegroundColor Red
     exit 1
+}
+
+Write-Host "  Converting uninstaller to EXE..." -ForegroundColor Gray
+$uninstallParams = @{
+    inputFile = "launcher\uninstall.ps1"
+    outputFile = "build\distributions\uninstall-launcher.exe"
+    title = "Woodlanders Launcher Uninstaller"
+    description = "Uninstall Woodlanders Game Launcher"
+    company = "Wagemaker UK"
+    version = "1.0.0.0"
+    requireAdmin = $true
+    noConsole = $false
+}
+Invoke-ps2exe @uninstallParams
+
+if (Test-Path build\distributions\uninstall-launcher.exe) {
+    Write-Host "Uninstaller EXE created successfully" -ForegroundColor Green
+} else {
+    Write-Host "Failed to create uninstaller EXE" -ForegroundColor Red
 }
 Write-Host ""
 
@@ -306,6 +325,7 @@ Copy-Item launcher\uninstall.ps1 -Destination build\distributions\ -Force
 # Create ZIP with all installer files
 $zipFiles = @(
     "build\distributions\woodlanders-setup-launcher.exe",
+    "build\distributions\uninstall-launcher.exe",
     "build\distributions\woodlanders-launcher.jar",
     "build\distributions\launcher.ico",
     "build\distributions\install.ps1",
@@ -333,9 +353,11 @@ Write-Host ""
 
 Write-Host "ZIP Contents:" -ForegroundColor Cyan
 Write-Host "  - woodlanders-setup-launcher.exe (installer)" -ForegroundColor Gray
+Write-Host "  - uninstall-launcher.exe (uninstaller)" -ForegroundColor Gray
 Write-Host "  - woodlanders-launcher.jar (application)" -ForegroundColor Gray
 Write-Host "  - launcher.ico (icon)" -ForegroundColor Gray
-Write-Host "  - install.ps1 (PowerShell alternative)" -ForegroundColor Gray
+Write-Host "  - install.ps1 (PowerShell script)" -ForegroundColor Gray
+Write-Host "  - uninstall.ps1 (PowerShell script)" -ForegroundColor Gray
 Write-Host "  - README.txt (instructions)" -ForegroundColor Gray
 Write-Host ""
 
