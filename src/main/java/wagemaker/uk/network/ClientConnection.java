@@ -74,6 +74,7 @@ public class ClientConnection implements Runnable {
         this.playerState = new PlayerState();
         this.playerState.setPlayerId(clientId);
         this.playerState.setPlayerName("Player_" + clientId.substring(0, 8));
+        this.playerState.setCharacterSprite("boy_navy_start.png"); // Default character sprite
         this.playerState.setX(0);
         this.playerState.setY(0);
         this.playerState.setDirection(Direction.DOWN);
@@ -109,9 +110,26 @@ public class ClientConnection implements Runnable {
             // Add player to world state
             server.getWorldState().addOrUpdatePlayer(playerState);
             
+            // Request all existing clients to broadcast their character sprites to the new client
+            // This ensures the new client sees everyone's correct character sprites
+            System.out.println("[SERVER] Requesting all existing clients to send their character sprites to new client " + clientId);
+            
+            // Create a special message type to request character sprite broadcast
+            // We'll use a PlayerJoinMessage with a special marker to trigger the broadcast
+            wagemaker.uk.network.PlayerJoinMessage refreshRequest = 
+                new wagemaker.uk.network.PlayerJoinMessage(
+                    "server",
+                    "REFRESH_CHARACTER_SPRITES",
+                    clientId, // Put the new client ID in the characterSprite field as a marker
+                    0,
+                    0
+                );
+            server.broadcastToAllExcept(refreshRequest, clientId);
+            
             // Notify other clients about new player
             PlayerJoinMessage joinMessage = new PlayerJoinMessage(clientId, 
-                playerState.getPlayerName(), playerState.getX(), playerState.getY());
+                playerState.getPlayerName(), playerState.getCharacterSprite(), 
+                playerState.getX(), playerState.getY());
             server.broadcastToAllExcept(joinMessage, clientId);
             
             // Start message receiving loop
@@ -269,6 +287,10 @@ public class ClientConnection implements Runnable {
                 
             case PLAYER_FALL:
                 handlePlayerFall((PlayerFallMessage) message);
+                break;
+                
+            case PLAYER_INFO:
+                handlePlayerInfo((PlayerInfoMessage) message);
                 break;
                 
             case RESOURCE_RESPAWN:
@@ -1230,6 +1252,56 @@ public class ClientConnection implements Runnable {
             puddleId
         );
         server.broadcastToAll(broadcastMsg);
+    }
+    
+    /**
+     * Handles a player info message to update player name and character sprite.
+     * @param message The player info message
+     */
+    private void handlePlayerInfo(PlayerInfoMessage message) {
+        // Validate message data
+        if (message == null) {
+            logSecurityViolation("Null player info message");
+            return;
+        }
+        
+        String playerName = message.getPlayerName();
+        String characterSprite = message.getCharacterSprite();
+        
+        // Validate player name
+        if (playerName != null && !playerName.isEmpty() && playerName.length() <= 50) {
+            playerState.setPlayerName(playerName);
+            System.out.println("[SERVER] Updated player name for " + clientId + ": " + playerName);
+        }
+        
+        // Validate character sprite
+        if (characterSprite != null && !characterSprite.isEmpty()) {
+            // Basic validation - check if it's a valid sprite filename
+            if (characterSprite.matches("^(boy|girl)_(red|navy|green|walnut)_start\\.png$")) {
+                playerState.setCharacterSprite(characterSprite);
+                System.out.println("[SERVER] Updated character sprite for " + clientId + ": " + characterSprite);
+                
+                // Broadcast updated player info to all clients
+                PlayerJoinMessage updateMsg = new PlayerJoinMessage(
+                    clientId,
+                    playerState.getPlayerName(),
+                    playerState.getCharacterSprite(),
+                    playerState.getX(),
+                    playerState.getY()
+                );
+                System.out.println("[SERVER] Broadcasting character update to other clients:");
+                System.out.println("  Player: " + clientId + " (" + playerState.getPlayerName() + ")");
+                System.out.println("  Sprite: " + characterSprite);
+                System.out.println("  Position: (" + playerState.getX() + ", " + playerState.getY() + ")");
+                server.broadcastToAllExcept(updateMsg, clientId);
+            } else {
+                System.err.println("[SERVER] Invalid character sprite from " + clientId + ": " + characterSprite);
+                logSecurityViolation("Invalid character sprite: " + characterSprite);
+            }
+        }
+        
+        // Update in world state
+        server.getWorldState().addOrUpdatePlayer(playerState);
     }
     
     /**

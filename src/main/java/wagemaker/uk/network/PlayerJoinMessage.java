@@ -9,6 +9,7 @@ public class PlayerJoinMessage extends NetworkMessage {
     
     private String playerId;
     private String playerName;
+    private String characterSprite;  // Character sprite filename (e.g., "girl_red_start.png")
     private float x;
     private float y;
     
@@ -23,13 +24,15 @@ public class PlayerJoinMessage extends NetworkMessage {
      * Creates a new player join message.
      * @param playerId The unique ID of the joining player
      * @param playerName The name of the joining player
+     * @param characterSprite The character sprite filename
      * @param x The initial x position of the player
      * @param y The initial y position of the player
      */
-    public PlayerJoinMessage(String playerId, String playerName, float x, float y) {
+    public PlayerJoinMessage(String playerId, String playerName, String characterSprite, float x, float y) {
         super(playerId);
         this.playerId = playerId;
         this.playerName = playerName;
+        this.characterSprite = characterSprite;
         this.x = x;
         this.y = y;
     }
@@ -53,6 +56,14 @@ public class PlayerJoinMessage extends NetworkMessage {
      */
     public String getPlayerName() {
         return playerName;
+    }
+    
+    /**
+     * Gets the character sprite filename of the joining player.
+     * @return The character sprite filename
+     */
+    public String getCharacterSprite() {
+        return characterSprite;
     }
     
     /**

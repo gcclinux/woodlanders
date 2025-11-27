@@ -38,5 +38,6 @@ public enum MessageType {
     ITEM_CONSUMPTION,
     PLAYER_RESPAWN,
     FREE_WORLD_ACTIVATION,
-    PLAYER_FALL
+    PLAYER_FALL,
+    PLAYER_INFO
 }

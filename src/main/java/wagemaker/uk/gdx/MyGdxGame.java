@@ -1643,6 +1643,17 @@ public class MyGdxGame extends ApplicationAdapter {
                 gameMenu.savePlayerPosition();
             }
             
+            // Ensure character sprite is saved to PlayerConfig before hosting
+            // This ensures the host's character sprite is available when they connect
+            wagemaker.uk.client.PlayerConfig config = wagemaker.uk.client.PlayerConfig.load();
+            if (config.getSelectedCharacter() == null || config.getSelectedCharacter().isEmpty()) {
+                // No character selected yet, save the default
+                config.saveSelectedCharacter("boy_navy_start.png");
+                System.out.println("[HOST] Saved default character sprite to PlayerConfig");
+            } else {
+                System.out.println("[HOST] Character sprite already in PlayerConfig: " + config.getSelectedCharacter());
+            }
+            
             // Clear local world before starting multiplayer
             clearLocalWorld();
             
@@ -1833,6 +1844,7 @@ public class MyGdxGame extends ApplicationAdapter {
                 wagemaker.uk.network.PlayerJoinMessage joinMessage = new wagemaker.uk.network.PlayerJoinMessage(
                     playerState.getPlayerId(),
                     playerState.getPlayerName(),
+                    playerState.getCharacterSprite(),
                     playerState.getX(),
                     playerState.getY()
                 );
@@ -3860,23 +3872,52 @@ public class MyGdxGame extends ApplicationAdapter {
                 continue;
             }
             
-            // Create new remote player (safe on main thread)
-            // Default direction is DOWN since PlayerJoinMessage doesn't include direction
-            RemotePlayer remotePlayer = new RemotePlayer(
-                playerId, 
-                playerName, 
-                message.getX(), 
-                message.getY(),
-                wagemaker.uk.network.Direction.DOWN,
-                100.0f,
-                false
-            );
-            
-            remotePlayers.put(playerId, remotePlayer);
-            
-            // Display join notification
-            System.out.println("Player joined: " + playerName);
-            displayNotification(playerName + " joined the game");
+            // Check if player already exists (this could be a character sprite update)
+            RemotePlayer existingPlayer = remotePlayers.get(playerId);
+            if (existingPlayer != null) {
+                // Player already exists - this is a character sprite update
+                // We need to recreate the player with the new sprite
+                String characterSprite = message.getCharacterSprite();
+                System.out.println("[CLIENT] Updating character sprite for " + playerName + " to " + characterSprite);
+                
+                // Dispose old player
+                existingPlayer.dispose();
+                
+                // Create new player with updated sprite
+                RemotePlayer updatedPlayer = new RemotePlayer(
+                    playerId,
+                    playerName,
+                    characterSprite,
+                    existingPlayer.getX(),  // Keep current position
+                    existingPlayer.getY(),
+                    existingPlayer.getCurrentDirection(),
+                    existingPlayer.getHealth(),
+                    existingPlayer.isMoving()
+                );
+                
+                remotePlayers.put(playerId, updatedPlayer);
+            } else {
+                // Create new remote player (safe on main thread)
+                // Default direction is DOWN since PlayerJoinMessage doesn't include direction
+                String characterSprite = message.getCharacterSprite();
+                System.out.println("[CLIENT] Creating new remote player: " + playerName + " with sprite: " + characterSprite);
+                RemotePlayer remotePlayer = new RemotePlayer(
+                    playerId, 
+                    playerName,
+                    characterSprite,
+                    message.getX(), 
+                    message.getY(),
+                    wagemaker.uk.network.Direction.DOWN,
+                    100.0f,
+                    false
+                );
+                
+                remotePlayers.put(playerId, remotePlayer);
+                
+                // Display join notification
+                System.out.println("[CLIENT] Player joined: " + playerName);
+                displayNotification(playerName + " joined the game");
+            }
         }
     }
     

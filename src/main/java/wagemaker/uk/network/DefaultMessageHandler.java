@@ -155,6 +155,10 @@ public class DefaultMessageHandler implements MessageHandler {
                     handleFreeWorldActivation((FreeWorldActivationMessage) message);
                     break;
                     
+                case PLAYER_INFO:
+                    handlePlayerInfo((PlayerInfoMessage) message);
+                    break;
+                    
                 default:
                     System.err.println("Unknown message type: " + message.getType());
             }
@@ -479,5 +483,14 @@ public class DefaultMessageHandler implements MessageHandler {
      */
     protected void handleFreeWorldActivation(FreeWorldActivationMessage message) {
         System.out.println("Free World activation: " + message.isActivated());
+    }
+    
+    /**
+     * Handles PLAYER_INFO message.
+     * Override this method to update player information (name and character sprite).
+     */
+    protected void handlePlayerInfo(PlayerInfoMessage message) {
+        System.out.println("Player info update: " + message.getPlayerName() + 
+                         ", sprite: " + message.getCharacterSprite());
     }
 }

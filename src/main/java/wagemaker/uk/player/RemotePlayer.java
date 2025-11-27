@@ -16,6 +16,7 @@ import wagemaker.uk.network.Direction;
 public class RemotePlayer {
     private String playerId;
     private String playerName;
+    private String characterSprite;  // Character sprite filename
     private float x;
     private float y;
     private Direction currentDirection;
@@ -45,10 +46,12 @@ public class RemotePlayer {
     private float targetY;
     private static final float INTERPOLATION_SPEED = 500f; // Units per second (faster than player speed for responsiveness)
     
-    public RemotePlayer(String playerId, String playerName, float x, float y, 
+    public RemotePlayer(String playerId, String playerName, String characterSprite, float x, float y, 
                        Direction direction, float health, boolean isMoving) {
         this.playerId = playerId;
         this.playerName = playerName;
+        this.characterSprite = characterSprite != null && !characterSprite.isEmpty() 
+            ? characterSprite : "boy_navy_start.png";  // Default if not provided
         this.x = x;
         this.y = y;
         this.targetX = x;
@@ -71,8 +74,10 @@ public class RemotePlayer {
      * Load player sprite sheet and create animations.
      */
     private void loadAnimations() {
-        // Load the same sprite sheet as the local player
-        spriteSheet = new Texture("sprites/player/remote_start.png");
+        // Load the character sprite selected by the remote player
+        String spritePath = "sprites/player/" + characterSprite;
+        spriteSheet = new Texture(spritePath);
+        System.out.println("RemotePlayer " + playerId + " loaded sprite: " + spritePath);
         
         // Create animation frames for each direction
         TextureRegion[] walkUpFrames = new TextureRegion[9];

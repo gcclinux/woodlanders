@@ -10,6 +10,7 @@ public class PlayerState implements Serializable {
     
     private String playerId;
     private String playerName;
+    private String characterSprite;  // Character sprite filename (e.g., "girl_red_start.png")
     private float x;
     private float y;
     private Direction direction;
@@ -57,6 +58,14 @@ public class PlayerState implements Serializable {
     
     public void setPlayerName(String playerName) {
         this.playerName = playerName;
+    }
+    
+    public String getCharacterSprite() {
+        return characterSprite;
+    }
+    
+    public void setCharacterSprite(String characterSprite) {
+        this.characterSprite = characterSprite;
     }
     
     public float getX() {

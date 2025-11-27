@@ -2,6 +2,10 @@ SOme screenshots are older the idea is to start adding them based on their versi
 
 <div align="center">
 
+### Multi Character selection
+![Latest 0.0.25](../screenshots/multi-character-selection.png)
+*New multi character selection with multiplayer synchronisation*
+
 ### Initial Character selection idea
 ![Latest 0.0.21](../www/images/Character-selection-birds-rain-puddle.png)
 *Initial charcter selection design idea allowing player to select different characters*

@@ -71,6 +71,26 @@ public class GameMessageHandler extends DefaultMessageHandler {
         }
         
         System.out.println("Connected to server. Client ID: " + message.getAssignedClientId());
+        
+        // Send player info (character sprite) to server
+        PlayerConfig config = PlayerConfig.load();
+        String characterSprite = config.getSelectedCharacter();
+        if (characterSprite == null || characterSprite.isEmpty()) {
+            characterSprite = "boy_navy_start.png"; // Default
+        }
+        
+        System.out.println("[CLIENT] My selected character sprite: " + characterSprite);
+        
+        // Use client ID as player name (server will generate a default name)
+        String playerName = "Player_" + message.getAssignedClientId().substring(0, Math.min(8, message.getAssignedClientId().length()));
+        
+        wagemaker.uk.network.PlayerInfoMessage playerInfo = new wagemaker.uk.network.PlayerInfoMessage(
+            message.getAssignedClientId(),
+            playerName,
+            characterSprite
+        );
+        game.getGameClient().sendMessage(playerInfo);
+        System.out.println("[CLIENT] Sent player info to server: " + playerName + ", sprite: " + characterSprite);
     }
     
     @Override
@@ -164,6 +184,7 @@ public class GameMessageHandler extends DefaultMessageHandler {
             PlayerJoinMessage joinMessage = new PlayerJoinMessage(
                 playerId,
                 "Player_" + playerId.substring(0, 8), // Default name
+                "boy_navy_start.png", // Default character sprite
                 message.getX(),
                 message.getY()
             );
@@ -174,6 +195,42 @@ public class GameMessageHandler extends DefaultMessageHandler {
     @Override
     protected void handlePlayerJoin(PlayerJoinMessage message) {
         super.handlePlayerJoin(message);
+        
+        // Check if this is a refresh request from the server
+        if ("server".equals(message.getPlayerId()) && 
+            "REFRESH_CHARACTER_SPRITES".equals(message.getPlayerName())) {
+            // Server is requesting us to broadcast our character sprite to a new client
+            String newClientId = message.getCharacterSprite(); // The new client ID is in this field
+            System.out.println("[CLIENT] Server requested character sprite broadcast for new client: " + newClientId);
+            
+            // Send our character sprite to the server (which will broadcast to the new client)
+            if (game.getGameClient() != null && game.getGameClient().isConnected()) {
+                String clientId = game.getGameClient().getClientId();
+                if (clientId != null) {
+                    wagemaker.uk.client.PlayerConfig config = wagemaker.uk.client.PlayerConfig.load();
+                    String characterSprite = config.getSelectedCharacter();
+                    if (characterSprite == null || characterSprite.isEmpty()) {
+                        characterSprite = "boy_navy_start.png";
+                    }
+                    
+                    String playerName = "Player_" + clientId.substring(0, Math.min(8, clientId.length()));
+                    wagemaker.uk.network.PlayerInfoMessage playerInfo = 
+                        new wagemaker.uk.network.PlayerInfoMessage(
+                            clientId,
+                            playerName,
+                            characterSprite
+                        );
+                    game.getGameClient().sendMessage(playerInfo);
+                    System.out.println("[CLIENT] Broadcasting my character sprite: " + characterSprite);
+                }
+            }
+            return; // Don't process this as a normal player join
+        }
+        
+        System.out.println("[CLIENT] Received PlayerJoinMessage:");
+        System.out.println("  Player: " + message.getPlayerId() + " (" + message.getPlayerName() + ")");
+        System.out.println("  Sprite: " + message.getCharacterSprite());
+        System.out.println("  Position: (" + message.getX() + ", " + message.getY() + ")");
         
         // Queue the player join to be processed on the main thread
         // This is necessary because RemotePlayer creation involves OpenGL operations

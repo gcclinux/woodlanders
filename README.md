@@ -18,9 +18,9 @@ The goal was simple yet audacious: **build a complete, enjoyable multiplayer gam
 
 <div align="center">
 
-### Initial Character selection idea
-![Latest 0.0.21](/www/images/Character-selection-birds-rain-puddle.png)
-*Initial charcter selection design idea also featuring birds, rain and puddles system*
+### Multi Character selection
+![Latest 0.0.25](screenshots/multi-character-selection.png)
+*New multi character selection with multiplayer synchronisation*
 
 </div>
 

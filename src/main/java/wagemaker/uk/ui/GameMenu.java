@@ -1761,6 +1761,11 @@ public class GameMenu implements LanguageChangeListener, FontChangeListener {
                 selectedCharacter = pendingCharacterSelection;
                 characterWasChanged = true;
                 System.out.println("Saving pending character selection: " + selectedCharacter);
+                
+                // Save to PlayerConfig so it persists across games
+                PlayerConfig playerConfig = PlayerConfig.load();
+                playerConfig.saveSelectedCharacter(selectedCharacter);
+                System.out.println("Saved character to PlayerConfig: " + selectedCharacter);
             } else {
                 PlayerConfig playerConfig = PlayerConfig.load();
                 selectedCharacter = playerConfig.getSelectedCharacter();
@@ -1791,6 +1796,24 @@ public class GameMenu implements LanguageChangeListener, FontChangeListener {
             if (characterWasChanged) {
                 System.out.println("Reloading player character sprite to apply changes...");
                 player.reloadCharacter();
+                
+                // If in multiplayer, broadcast character change to other players
+                if (gameInstance != null && gameInstance.getGameClient() != null && 
+                    gameInstance.getGameClient().isConnected()) {
+                    String clientId = gameInstance.getGameClient().getClientId();
+                    if (clientId != null) {
+                        String playerName = "Player_" + clientId.substring(0, Math.min(8, clientId.length()));
+                        wagemaker.uk.network.PlayerInfoMessage playerInfo = 
+                            new wagemaker.uk.network.PlayerInfoMessage(
+                                clientId,
+                                playerName,
+                                selectedCharacter
+                            );
+                        gameInstance.getGameClient().sendMessage(playerInfo);
+                        System.out.println("[CLIENT] Broadcasting character change to server: " + selectedCharacter);
+                    }
+                }
+                
                 clearPendingCharacterSelection(); // Clear after reloading
             }
             
