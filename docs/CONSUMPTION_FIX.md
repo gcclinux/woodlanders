@@ -50,7 +50,7 @@ if (newSelection != -1) {
 When selected, these items do NOT activate targeting. Press SPACE to consume directly.
 
 ### Plantable Items (Activates Targeting)
-- **Baby Bamboo**: Can be planted
+- **Bamboo Sapling**: Can be planted
 - **Bamboo Stack**: Can be placed
 - **Wood Stack**: Can be placed
 - **Pebble**: Can be placed
@@ -79,7 +79,7 @@ When selected, these items activate the targeting system. Use WASD to move targe
 - [x] Press space with apple selected → should consume apple
 - [x] Select banana → targeting should NOT activate
 - [x] Press space with banana selected → should consume banana
-- [x] Select baby bamboo → targeting SHOULD activate
-- [x] Press space with baby bamboo selected → should plant item
+- [x] Select bamboo sapling → targeting SHOULD activate
+- [x] Press space with bamboo sapling selected → should plant item
 - [ ] Verify in multiplayer mode
 - [ ] Verify consumption syncs correctly across clients

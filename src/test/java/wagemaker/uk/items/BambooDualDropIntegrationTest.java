@@ -24,14 +24,14 @@ import org.junit.jupiter.api.Test;
 public class BambooDualDropIntegrationTest {
     
     private Map<String, MockBambooStack> bambooStacks;
-    private Map<String, MockBabyBamboo> babyBamboos;
+    private Map<String, MockBambooSapling> bambooSaplings;
     private Map<String, MockBambooTree> bambooTrees;
     private Map<String, Boolean> clearedPositions;
     
     @BeforeEach
     public void setUp() {
         bambooStacks = new HashMap<>();
-        babyBamboos = new HashMap<>();
+        bambooSaplings = new HashMap<>();
         bambooTrees = new HashMap<>();
         clearedPositions = new HashMap<>();
     }
@@ -114,13 +114,13 @@ public class BambooDualDropIntegrationTest {
     }
     
     /**
-     * Mock BabyBamboo class for testing without OpenGL context.
+     * Mock BambooSapling class for testing without OpenGL context.
      */
-    private static class MockBabyBamboo {
+    private static class MockBambooSapling {
         private float x, y;
         private final AtomicBoolean disposed = new AtomicBoolean(false);
         
-        public MockBabyBamboo(float x, float y) {
+        public MockBambooSapling(float x, float y) {
             this.x = x;
             this.y = y;
         }
@@ -158,7 +158,7 @@ public class BambooDualDropIntegrationTest {
      * SHALL spawn one BambooStack item at the tree's base position"
      * 
      * Requirement 1.2: "WHEN a BambooTree health reaches zero, THE Game System 
-     * SHALL spawn one BabyBamboo item at the tree's base position offset by 8 
+     * SHALL spawn one BambooSapling item at the tree's base position offset by 8 
      * pixels horizontally from the BambooStack"
      */
     @Test
@@ -184,9 +184,9 @@ public class BambooDualDropIntegrationTest {
             bambooStacks.put(treeKey + "-bamboostack", 
                 new MockBambooStack(bambooTree.getX(), bambooTree.getY()));
             
-            // Spawn BabyBamboo offset by 8 pixels horizontally
-            babyBamboos.put(treeKey + "-babybamboo", 
-                new MockBabyBamboo(bambooTree.getX() + 8, bambooTree.getY()));
+            // Spawn BambooSapling offset by 8 pixels horizontally
+            bambooSaplings.put(treeKey + "-babybamboo", 
+                new MockBambooSapling(bambooTree.getX() + 8, bambooTree.getY()));
             
             bambooTree.dispose();
             bambooTrees.remove(treeKey);
@@ -195,7 +195,7 @@ public class BambooDualDropIntegrationTest {
         
         // Verify two items were spawned
         assertEquals(1, bambooStacks.size(), "Should have 1 BambooStack");
-        assertEquals(1, babyBamboos.size(), "Should have 1 BabyBamboo");
+        assertEquals(1, bambooSaplings.size(), "Should have 1 BambooSapling");
         
         // Verify BambooStack position
         MockBambooStack bambooStack = bambooStacks.get(treeKey + "-bamboostack");
@@ -203,11 +203,11 @@ public class BambooDualDropIntegrationTest {
         assertEquals(treeX, bambooStack.getX(), 0.01f, "BambooStack X should match tree X");
         assertEquals(treeY, bambooStack.getY(), 0.01f, "BambooStack Y should match tree Y");
         
-        // Verify BabyBamboo position (8 pixels offset)
-        MockBabyBamboo babyBamboo = babyBamboos.get(treeKey + "-babybamboo");
-        assertNotNull(babyBamboo, "BabyBamboo should exist");
-        assertEquals(treeX + 8, babyBamboo.getX(), 0.01f, "BabyBamboo X should be offset by 8 pixels");
-        assertEquals(treeY, babyBamboo.getY(), 0.01f, "BabyBamboo Y should match tree Y");
+        // Verify BambooSapling position (8 pixels offset)
+        MockBambooSapling bambooSapling = bambooSaplings.get(treeKey + "-babybamboo");
+        assertNotNull(bambooSapling, "BambooSapling should exist");
+        assertEquals(treeX + 8, bambooSapling.getX(), 0.01f, "BambooSapling X should be offset by 8 pixels");
+        assertEquals(treeY, bambooSapling.getY(), 0.01f, "BambooSapling Y should match tree Y");
         
         // Verify tree was removed
         assertFalse(bambooTrees.containsKey(treeKey), "Tree should be removed from map");
@@ -215,7 +215,7 @@ public class BambooDualDropIntegrationTest {
         
         // Clean up
         bambooStack.dispose();
-        babyBamboo.dispose();
+        bambooSapling.dispose();
     }
     
     /**
@@ -237,21 +237,21 @@ public class BambooDualDropIntegrationTest {
         
         // Spawn items
         MockBambooStack bambooStack = new MockBambooStack(bambooTree.getX(), bambooTree.getY());
-        MockBabyBamboo babyBamboo = new MockBabyBamboo(bambooTree.getX() + 8, bambooTree.getY());
+        MockBambooSapling bambooSapling = new MockBambooSapling(bambooTree.getX() + 8, bambooTree.getY());
         
         bambooStacks.put(treeKey + "-bamboostack", bambooStack);
-        babyBamboos.put(treeKey + "-babybamboo", babyBamboo);
+        bambooSaplings.put(treeKey + "-babybamboo", bambooSapling);
         
         // Verify horizontal spacing
-        float horizontalDistance = babyBamboo.getX() - bambooStack.getX();
+        float horizontalDistance = bambooSapling.getX() - bambooStack.getX();
         assertEquals(8.0f, horizontalDistance, 0.01f, "Items should be 8 pixels apart horizontally");
         
         // Verify same Y coordinate
-        assertEquals(bambooStack.getY(), babyBamboo.getY(), 0.01f, "Items should have same Y coordinate");
+        assertEquals(bambooStack.getY(), bambooSapling.getY(), 0.01f, "Items should have same Y coordinate");
         
         // Clean up
         bambooStack.dispose();
-        babyBamboo.dispose();
+        bambooSapling.dispose();
         bambooTree.dispose();
     }
     
@@ -259,27 +259,27 @@ public class BambooDualDropIntegrationTest {
      * Test that items use correct texture coordinates and render at 32x32 pixels.
      * 
      * Requirement 2.1: "THE MyGdxGame Class SHALL render BambooStack items at 32x32 pixels on screen"
-     * Requirement 2.2: "THE MyGdxGame Class SHALL render BabyBamboo items at 32x32 pixels on screen"
+     * Requirement 2.2: "THE MyGdxGame Class SHALL render BambooSapling items at 32x32 pixels on screen"
      */
     @Test
     public void testItemTexturesAndRenderSize() {
         // Create items
         MockBambooStack bambooStack = new MockBambooStack(0, 0);
-        MockBabyBamboo babyBamboo = new MockBabyBamboo(8, 0);
+        MockBambooSapling bambooSapling = new MockBambooSapling(8, 0);
         
         // Verify texture dimensions (source is 64x64, but rendered at 32x32)
         // The texture itself is 64x64 from sprite sheet
         assertEquals(64, bambooStack.getTextureWidth(), "BambooStack texture width should be 64");
         assertEquals(64, bambooStack.getTextureHeight(), "BambooStack texture height should be 64");
-        assertEquals(64, babyBamboo.getTextureWidth(), "BabyBamboo texture width should be 64");
-        assertEquals(64, babyBamboo.getTextureHeight(), "BabyBamboo texture height should be 64");
+        assertEquals(64, bambooSapling.getTextureWidth(), "BambooSapling texture width should be 64");
+        assertEquals(64, bambooSapling.getTextureHeight(), "BambooSapling texture height should be 64");
         
-        // Note: Render size of 32x32 is enforced in MyGdxGame.drawBambooStacks() and drawBabyBamboos()
+        // Note: Render size of 32x32 is enforced in MyGdxGame.drawBambooStacks() and drawBambooSaplings()
         // This test verifies the texture source dimensions are correct
         
         // Clean up
         bambooStack.dispose();
-        babyBamboo.dispose();
+        bambooSapling.dispose();
     }
     
     /**
@@ -317,36 +317,36 @@ public class BambooDualDropIntegrationTest {
     }
     
     /**
-     * Test pickup detection for BabyBamboo items.
+     * Test pickup detection for BambooSapling items.
      * 
-     * Requirement 3.2: "WHEN the player's collision box overlaps with a BabyBamboo item, 
-     * THE Player Class SHALL remove the BabyBamboo from the game world"
+     * Requirement 3.2: "WHEN the player's collision box overlaps with a BambooSapling item, 
+     * THE Player Class SHALL remove the BambooSapling from the game world"
      */
     @Test
-    public void testBabyBambooPickup() {
-        // Create BabyBamboo at position (108, 100)
+    public void testBambooSaplingPickup() {
+        // Create BambooSapling at position (108, 100)
         String itemKey = "100,100-babybamboo";
-        MockBabyBamboo babyBamboo = new MockBabyBamboo(108, 100);
-        babyBamboos.put(itemKey, babyBamboo);
+        MockBambooSapling bambooSapling = new MockBambooSapling(108, 100);
+        bambooSaplings.put(itemKey, bambooSapling);
         
         // Verify item exists
-        assertEquals(1, babyBamboos.size(), "Should have 1 BabyBamboo before pickup");
-        assertNotNull(babyBamboos.get(itemKey), "BabyBamboo should exist");
+        assertEquals(1, bambooSaplings.size(), "Should have 1 BambooSapling before pickup");
+        assertNotNull(bambooSaplings.get(itemKey), "BambooSapling should exist");
         
         // Simulate pickup (player walks over item)
         AtomicBoolean pickedUp = new AtomicBoolean(false);
         
-        if (babyBamboos.containsKey(itemKey)) {
-            MockBabyBamboo item = babyBamboos.get(itemKey);
+        if (bambooSaplings.containsKey(itemKey)) {
+            MockBambooSapling item = bambooSaplings.get(itemKey);
             item.dispose();
-            babyBamboos.remove(itemKey);
+            bambooSaplings.remove(itemKey);
             pickedUp.set(true);
         }
         
         // Verify pickup
         assertTrue(pickedUp.get(), "Item should be picked up");
-        assertEquals(0, babyBamboos.size(), "BabyBamboo should be removed from map");
-        assertFalse(babyBamboos.containsKey(itemKey), "BabyBamboo key should not exist");
+        assertEquals(0, bambooSaplings.size(), "BambooSapling should be removed from map");
+        assertFalse(bambooSaplings.containsKey(itemKey), "BambooSapling key should not exist");
     }
     
     /**
@@ -359,30 +359,30 @@ public class BambooDualDropIntegrationTest {
         
         // Create both items
         MockBambooStack bambooStack = new MockBambooStack(200, 200);
-        MockBabyBamboo babyBamboo = new MockBabyBamboo(208, 200);
+        MockBambooSapling bambooSapling = new MockBambooSapling(208, 200);
         
         bambooStacks.put(treeKey + "-bamboostack", bambooStack);
-        babyBamboos.put(treeKey + "-babybamboo", babyBamboo);
+        bambooSaplings.put(treeKey + "-babybamboo", bambooSapling);
         
         // Verify both items exist
         assertEquals(1, bambooStacks.size(), "Should have 1 BambooStack");
-        assertEquals(1, babyBamboos.size(), "Should have 1 BabyBamboo");
+        assertEquals(1, bambooSaplings.size(), "Should have 1 BambooSapling");
         
         // Pick up BambooStack first
         MockBambooStack stack = bambooStacks.remove(treeKey + "-bamboostack");
         stack.dispose();
         
-        // Verify BambooStack removed but BabyBamboo still exists
+        // Verify BambooStack removed but BambooSapling still exists
         assertEquals(0, bambooStacks.size(), "BambooStack should be removed");
-        assertEquals(1, babyBamboos.size(), "BabyBamboo should still exist");
+        assertEquals(1, bambooSaplings.size(), "BambooSapling should still exist");
         
-        // Pick up BabyBamboo
-        MockBabyBamboo baby = babyBamboos.remove(treeKey + "-babybamboo");
+        // Pick up BambooSapling
+        MockBambooSapling baby = bambooSaplings.remove(treeKey + "-babybamboo");
         baby.dispose();
         
         // Verify both items removed
         assertEquals(0, bambooStacks.size(), "BambooStack should be removed");
-        assertEquals(0, babyBamboos.size(), "BabyBamboo should be removed");
+        assertEquals(0, bambooSaplings.size(), "BambooSapling should be removed");
     }
     
     /**
@@ -409,30 +409,30 @@ public class BambooDualDropIntegrationTest {
             // Spawn items
             bambooStacks.put(treeKey + "-bamboostack", 
                 new MockBambooStack(bambooTree.getX(), bambooTree.getY()));
-            babyBamboos.put(treeKey + "-babybamboo", 
-                new MockBabyBamboo(bambooTree.getX() + 8, bambooTree.getY()));
+            bambooSaplings.put(treeKey + "-babybamboo", 
+                new MockBambooSapling(bambooTree.getX() + 8, bambooTree.getY()));
             
             bambooTree.dispose();
         }
         
         // Verify correct number of items spawned
         assertEquals(3, bambooStacks.size(), "Should have 3 BambooStacks");
-        assertEquals(3, babyBamboos.size(), "Should have 3 BabyBamboos");
+        assertEquals(3, bambooSaplings.size(), "Should have 3 BambooSaplings");
         
         // Verify each tree spawned both items
         for (float[] pos : positions) {
             String treeKey = pos[0] + "," + pos[1];
             assertTrue(bambooStacks.containsKey(treeKey + "-bamboostack"), 
                 "BambooStack should exist for tree at " + treeKey);
-            assertTrue(babyBamboos.containsKey(treeKey + "-babybamboo"), 
-                "BabyBamboo should exist for tree at " + treeKey);
+            assertTrue(bambooSaplings.containsKey(treeKey + "-babybamboo"), 
+                "BambooSapling should exist for tree at " + treeKey);
         }
         
         // Clean up
         for (MockBambooStack stack : bambooStacks.values()) {
             stack.dispose();
         }
-        for (MockBabyBamboo baby : babyBamboos.values()) {
+        for (MockBambooSapling baby : bambooSaplings.values()) {
             baby.dispose();
         }
     }
@@ -462,22 +462,22 @@ public class BambooDualDropIntegrationTest {
         String babyBambooKey = treeKey + "-babybamboo";
         
         bambooStacks.put(bambooStackKey, new MockBambooStack(bambooTree.getX(), bambooTree.getY()));
-        babyBamboos.put(babyBambooKey, new MockBabyBamboo(bambooTree.getX() + 8, bambooTree.getY()));
+        bambooSaplings.put(babyBambooKey, new MockBambooSapling(bambooTree.getX() + 8, bambooTree.getY()));
         
         // Verify keys are correct
         assertEquals("128.0,256.0-bamboostack", bambooStackKey, "BambooStack key should match pattern");
-        assertEquals("128.0,256.0-babybamboo", babyBambooKey, "BabyBamboo key should match pattern");
+        assertEquals("128.0,256.0-babybamboo", babyBambooKey, "BambooSapling key should match pattern");
         
         // Verify keys are unique
         assertFalse(bambooStackKey.equals(babyBambooKey), "Item keys should be unique");
         
         // Verify items can be retrieved by key
         assertNotNull(bambooStacks.get(bambooStackKey), "BambooStack should be retrievable by key");
-        assertNotNull(babyBamboos.get(babyBambooKey), "BabyBamboo should be retrievable by key");
+        assertNotNull(bambooSaplings.get(babyBambooKey), "BambooSapling should be retrievable by key");
         
         // Clean up
         bambooStacks.get(bambooStackKey).dispose();
-        babyBamboos.get(babyBambooKey).dispose();
+        bambooSaplings.get(babyBambooKey).dispose();
         bambooTree.dispose();
     }
 }

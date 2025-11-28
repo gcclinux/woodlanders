@@ -2,7 +2,7 @@
 
 ## Overview
 
-The bamboo planting system enables players to plant baby bamboo items from their inventory onto sand tiles. The system integrates with the existing inventory, biome, and tree management systems. When planted, baby bamboo remains visible for 120 seconds before automatically transforming into a mature bamboo tree.
+The bamboo planting system enables players to plant bamboo sapling items from their inventory onto sand tiles. The system integrates with the existing inventory, biome, and tree management systems. When planted, bamboo sapling remains visible for 120 seconds before automatically transforming into a mature bamboo tree.
 
 This feature extends the existing game mechanics by:
 - Adding a new player action (planting with "p" key)
@@ -17,7 +17,7 @@ This feature extends the existing game mechanics by:
 The bamboo planting system consists of four main components:
 
 1. **PlantingSystem**: Core planting logic and validation
-2. **PlantedBamboo**: Represents a planted baby bamboo with growth timer
+2. **PlantedBamboo**: Represents a planted bamboo sapling with growth timer
 3. **Player Integration**: Handles "p" key input and planting action
 4. **MyGdxGame Integration**: Manages planted bamboo collection and rendering
 
@@ -60,7 +60,7 @@ After 120 seconds: Transform to BambooTree
 **Key Methods**:
 ```java
 public class PlantingSystem {
-    // Attempt to plant baby bamboo at player's current position
+    // Attempt to plant bamboo sapling at player's current position
     public boolean attemptPlant(Player player, BiomeManager biomeManager, 
                                 Map<String, PlantedBamboo> plantedBamboos,
                                 Map<String, BambooTree> bambooTrees);
@@ -80,22 +80,22 @@ public class PlantingSystem {
 ```
 
 **Responsibilities**:
-- Validate player has baby bamboo in inventory
+- Validate player has bamboo sapling in inventory
 - Check if player is standing on sand tile using BiomeManager
 - Verify tile is not already occupied by planted bamboo or bamboo tree
-- Deduct baby bamboo from inventory
+- Deduct bamboo sapling from inventory
 - Create and return PlantedBamboo instance
 - Generate unique keys for planted bamboo based on tile position
 
 **Integration Points**:
 - `Player`: Receives player position and inventory manager
 - `BiomeManager`: Queries biome type at player position
-- `InventoryManager`: Checks and deducts baby bamboo
+- `InventoryManager`: Checks and deducts bamboo sapling
 - `PlantedBamboo`: Creates new instances
 
 ### 2. PlantedBamboo
 
-**Purpose**: Represents a planted baby bamboo with growth lifecycle
+**Purpose**: Represents a planted bamboo sapling with growth lifecycle
 
 **Location**: `src/main/java/wagemaker/uk/planting/PlantedBamboo.java`
 
@@ -129,7 +129,7 @@ public class PlantedBamboo {
 
 **Responsibilities**:
 - Track growth timer (0 to 120 seconds)
-- Render baby bamboo sprite at tile position
+- Render bamboo sapling sprite at tile position
 - Signal when transformation to bamboo tree should occur
 - Provide position for bamboo tree spawning
 - Manage texture lifecycle
@@ -137,7 +137,7 @@ public class PlantedBamboo {
 **Integration Points**:
 - `MyGdxGame`: Updated in main game loop
 - `BambooTree`: Spawned at same position after growth completes
-- Reuses existing `BabyBamboo` texture loading logic
+- Reuses existing `BambooSapling` texture loading logic
 
 ### 3. Player Integration
 
@@ -148,7 +148,7 @@ public class PlantedBamboo {
 private void handlePlantingAction() {
     if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
         if (plantingSystem != null && inventoryManager != null) {
-            // Check if baby bamboo is selected (item slot 2, index 2)
+            // Check if bamboo sapling is selected (item slot 2, index 2)
             if (inventoryManager.getSelectedSlot() == 2) {
                 plantingSystem.attemptPlant(this, biomeManager, 
                                            plantedBamboos, bambooTrees);
@@ -256,7 +256,7 @@ for (PlantedBamboo planted : plantedBamboos.values()) {
 Based on existing `InventoryRenderer.java`:
 - Slot 0: Apple
 - Slot 1: Banana
-- Slot 2: Baby Bamboo (item 3 in user's description)
+- Slot 2: Bamboo Sapling (item 3 in user's description)
 - Slot 3: Bamboo Stack
 - Slot 4: Wood Stack
 
@@ -264,11 +264,11 @@ Based on existing `InventoryRenderer.java`:
 
 ### Validation Failures
 
-**No Baby Bamboo Selected**:
+**No Bamboo Sapling Selected**:
 - Action: Silent failure (no action taken)
 - User feedback: None (expected behavior)
 
-**No Baby Bamboo in Inventory**:
+**No Bamboo Sapling in Inventory**:
 - Action: Silent failure (inventory check prevents deduction)
 - User feedback: None (player can see inventory count is 0)
 
@@ -303,11 +303,11 @@ Based on existing `InventoryRenderer.java`:
 ### Unit Testing
 
 **PlantingSystem Tests**:
-- Test valid planting on sand tile with baby bamboo in inventory
+- Test valid planting on sand tile with bamboo sapling in inventory
 - Test rejection when not on sand tile
 - Test rejection when tile is occupied by planted bamboo
 - Test rejection when tile is occupied by bamboo tree
-- Test rejection when no baby bamboo in inventory
+- Test rejection when no bamboo sapling in inventory
 - Test tile grid snapping (various coordinates → correct tile alignment)
 - Test key generation uniqueness
 
@@ -320,7 +320,7 @@ Based on existing `InventoryRenderer.java`:
 ### Integration Testing
 
 **Player Integration**:
-- Test "p" key triggers planting when baby bamboo selected
+- Test "p" key triggers planting when bamboo sapling selected
 - Test "p" key does nothing when other items selected
 - Test "p" key does nothing when no item selected
 - Test inventory deduction after successful planting
@@ -335,30 +335,30 @@ Based on existing `InventoryRenderer.java`:
 ### Manual Testing Scenarios
 
 1. **Basic Planting Flow**:
-   - Start game, collect baby bamboo from destroyed bamboo tree
+   - Start game, collect bamboo sapling from destroyed bamboo tree
    - Walk to sand area
-   - Select baby bamboo (press "3")
+   - Select bamboo sapling (press "3")
    - Press "p" to plant
-   - Verify baby bamboo appears on ground
+   - Verify bamboo sapling appears on ground
    - Verify inventory count decreases by 1
 
 2. **Growth and Transformation**:
-   - Plant baby bamboo on sand
+   - Plant bamboo sapling on sand
    - Wait 120 seconds (or adjust timer for testing)
-   - Verify baby bamboo disappears
+   - Verify bamboo sapling disappears
    - Verify bamboo tree appears at same location
 
 3. **Multiple Planting**:
-   - Plant baby bamboo on sand tile A
+   - Plant bamboo sapling on sand tile A
    - Move to adjacent sand tile B
-   - Plant another baby bamboo
+   - Plant another bamboo sapling
    - Verify both bamboos grow independently
    - Verify both transform to trees at correct times
 
 4. **Validation Testing**:
    - Try planting on grass (should fail silently)
    - Try planting on occupied sand tile (should fail silently)
-   - Try planting with no baby bamboo (should fail silently)
+   - Try planting with no bamboo sapling (should fail silently)
    - Try planting with different item selected (should fail silently)
 
 5. **Edge Case Testing**:
@@ -414,7 +414,7 @@ if (biome == BiomeType.SAND) {
 
 ### Texture Reuse
 
-PlantedBamboo reuses the existing BabyBamboo texture loading logic:
+PlantedBamboo reuses the existing BambooSapling texture loading logic:
 
 ```java
 private void createTexture() {
@@ -423,7 +423,7 @@ private void createTexture() {
     spriteSheet.getTextureData().prepare();
     Pixmap sheetPixmap = spriteSheet.getTextureData().consumePixmap();
     
-    // BabyBamboo coordinates: 192 from left, 128 from top, 64x64 size
+    // BambooSapling coordinates: 192 from left, 128 from top, 64x64 size
     pixmap.drawPixmap(sheetPixmap, 0, 0, 192, 128, 64, 64);
     
     texture = new Texture(pixmap);
@@ -433,7 +433,7 @@ private void createTexture() {
 }
 ```
 
-This ensures visual consistency with baby bamboo items dropped from trees.
+This ensures visual consistency with bamboo sapling items dropped from trees.
 
 ### Performance Considerations
 

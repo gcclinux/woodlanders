@@ -32,12 +32,12 @@ Woodlanders is a 2D multiplayer adventure game that serves as an ambitious exper
 - **Health Regeneration**: Damaged trees slowly recover health over time
 - **Resource Drops**: Trees drop specific items when destroyed (apples, bananas, wood, bamboo)
 - **Environmental Hazards**: Cacti that damage players on contact
-- **Planting System**: Plant baby bamboo on sand tiles; grows into harvestable bamboo trees (120s growth time)
+- **Planting System**: Plant bamboo sapling on sand tiles; grows into harvestable bamboo trees (120s growth time)
 - **Resource Respawn**: Destroyed resources respawn after 15 minutes with visual indicators
 
 ### Inventory & Items
 - **6-Slot Inventory System**: Separate inventories for singleplayer and multiplayer modes
-- **Item Types**: Apples, bananas, baby bamboo, bamboo stacks, wood stacks, pebbles
+- **Item Types**: Apples, bananas, bamboo sapling, bamboo stacks, wood stacks, pebbles
 - **Manual Consumption**: Select items with number keys, consume with spacebar
 - **Automatic Pickup**: Items collected when walking near them (within 32 pixels)
 - **Tile Targeting System**: Visual targeting indicator for precise item placement with WASD controls

@@ -6,9 +6,9 @@ Modified bamboo tree drops to randomly spawn one of three possible item combinat
 ## Drop Patterns
 When a bamboo tree is destroyed, it will randomly drop one of the following:
 
-1. **33% chance**: 1x BambooStack + 1x BabyBamboo (original behavior)
+1. **33% chance**: 1x BambooStack + 1x BambooSapling (original behavior)
 2. **33% chance**: 2x BambooStack
-3. **33% chance**: 2x BabyBamboo
+3. **33% chance**: 2x BambooSapling
 
 ## Implementation Details
 
@@ -29,8 +29,8 @@ Modified the `handleAttackAction()` method to use the same random drop logic for
 - Drop pattern thresholds:
   - 0.00 - 0.33: Pattern 1 (mixed)
   - 0.33 - 0.66: Pattern 2 (2x BambooStack)
-  - 0.66 - 1.00: Pattern 3 (2x BabyBamboo)
+  - 0.66 - 1.00: Pattern 3 (2x BambooSapling)
 
 ## Testing Notes
 
-Existing tests in `BambooDualDropIntegrationTest.java` expect the original behavior (always 1 BambooStack + 1 BabyBamboo). These tests will need to be updated to account for the random drop behavior if test coverage is required.
+Existing tests in `BambooDualDropIntegrationTest.java` expect the original behavior (always 1 BambooStack + 1 BambooSapling). These tests will need to be updated to account for the random drop behavior if test coverage is required.

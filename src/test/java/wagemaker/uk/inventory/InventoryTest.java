@@ -26,7 +26,7 @@ public class InventoryTest {
     public void testInitialInventoryIsEmpty() {
         assertEquals(0, inventory.getAppleCount(), "Initial apple count should be 0");
         assertEquals(0, inventory.getBananaCount(), "Initial banana count should be 0");
-        assertEquals(0, inventory.getBabyBambooCount(), "Initial baby bamboo count should be 0");
+        assertEquals(0, inventory.getBambooSaplingCount(), "Initial baby bamboo count should be 0");
         assertEquals(0, inventory.getBambooStackCount(), "Initial bamboo stack count should be 0");
         assertEquals(0, inventory.getWoodStackCount(), "Initial wood stack count should be 0");
     }
@@ -112,34 +112,34 @@ public class InventoryTest {
         assertEquals(0, inventory.getBananaCount(), "Negative banana count should be prevented");
     }
     
-    // ===== BabyBamboo Tests =====
+    // ===== BambooSapling Tests =====
     
     @Test
-    public void testAddBabyBamboo() {
-        inventory.addBabyBamboo(12);
-        assertEquals(12, inventory.getBabyBambooCount(), "Should have 12 baby bamboos after adding");
+    public void testAddBambooSapling() {
+        inventory.addBambooSapling(12);
+        assertEquals(12, inventory.getBambooSaplingCount(), "Should have 12 baby bamboos after adding");
     }
     
     @Test
-    public void testRemoveBabyBambooSuccess() {
-        inventory.addBabyBamboo(15);
-        boolean result = inventory.removeBabyBamboo(7);
+    public void testRemoveBambooSaplingSuccess() {
+        inventory.addBambooSapling(15);
+        boolean result = inventory.removeBambooSapling(7);
         assertTrue(result, "Should successfully remove 7 baby bamboos");
-        assertEquals(8, inventory.getBabyBambooCount(), "Should have 8 baby bamboos remaining");
+        assertEquals(8, inventory.getBambooSaplingCount(), "Should have 8 baby bamboos remaining");
     }
     
     @Test
-    public void testRemoveBabyBambooInsufficientQuantity() {
-        inventory.addBabyBamboo(5);
-        boolean result = inventory.removeBabyBamboo(10);
+    public void testRemoveBambooSaplingInsufficientQuantity() {
+        inventory.addBambooSapling(5);
+        boolean result = inventory.removeBambooSapling(10);
         assertFalse(result, "Should fail to remove more baby bamboos than available");
-        assertEquals(5, inventory.getBabyBambooCount(), "Baby bamboo count should remain unchanged");
+        assertEquals(5, inventory.getBambooSaplingCount(), "Baby bamboo count should remain unchanged");
     }
     
     @Test
-    public void testSetBabyBambooCountNegativePrevented() {
-        inventory.setBabyBambooCount(-3);
-        assertEquals(0, inventory.getBabyBambooCount(), "Negative baby bamboo count should be prevented");
+    public void testSetBambooSaplingCountNegativePrevented() {
+        inventory.setBambooSaplingCount(-3);
+        assertEquals(0, inventory.getBambooSaplingCount(), "Negative baby bamboo count should be prevented");
     }
     
     // ===== BambooStack Tests =====
@@ -209,7 +209,7 @@ public class InventoryTest {
         inventory.clear();
         assertEquals(0, inventory.getAppleCount(), "Apple count should be 0 after clear");
         assertEquals(0, inventory.getBananaCount(), "Banana count should be 0 after clear");
-        assertEquals(0, inventory.getBabyBambooCount(), "Baby bamboo count should be 0 after clear");
+        assertEquals(0, inventory.getBambooSaplingCount(), "Baby bamboo count should be 0 after clear");
         assertEquals(0, inventory.getBambooStackCount(), "Bamboo stack count should be 0 after clear");
         assertEquals(0, inventory.getWoodStackCount(), "Wood stack count should be 0 after clear");
     }
@@ -218,7 +218,7 @@ public class InventoryTest {
     public void testClearPopulatedInventory() {
         inventory.addApple(10);
         inventory.addBanana(5);
-        inventory.addBabyBamboo(20);
+        inventory.addBambooSapling(20);
         inventory.addBambooStack(8);
         inventory.addWoodStack(15);
         
@@ -226,7 +226,7 @@ public class InventoryTest {
         
         assertEquals(0, inventory.getAppleCount(), "Apple count should be 0 after clear");
         assertEquals(0, inventory.getBananaCount(), "Banana count should be 0 after clear");
-        assertEquals(0, inventory.getBabyBambooCount(), "Baby bamboo count should be 0 after clear");
+        assertEquals(0, inventory.getBambooSaplingCount(), "Baby bamboo count should be 0 after clear");
         assertEquals(0, inventory.getBambooStackCount(), "Bamboo stack count should be 0 after clear");
         assertEquals(0, inventory.getWoodStackCount(), "Wood stack count should be 0 after clear");
     }

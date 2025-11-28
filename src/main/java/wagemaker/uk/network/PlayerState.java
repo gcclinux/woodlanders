@@ -22,7 +22,7 @@ public class PlayerState implements Serializable {
     // Inventory fields
     private int appleCount;
     private int bananaCount;
-    private int babyBambooCount;
+    private int bambooSaplingCount;
     private int bambooStackCount;
     private int babyTreeCount;
     private int woodStackCount;
@@ -141,12 +141,12 @@ public class PlayerState implements Serializable {
         this.bananaCount = bananaCount;
     }
     
-    public int getBabyBambooCount() {
-        return babyBambooCount;
+    public int getBambooSaplingCount() {
+        return bambooSaplingCount;
     }
     
-    public void setBabyBambooCount(int babyBambooCount) {
-        this.babyBambooCount = babyBambooCount;
+    public void setBambooSaplingCount(int bambooSaplingCount) {
+        this.bambooSaplingCount = bambooSaplingCount;
     }
     
     public int getBambooStackCount() {

@@ -45,7 +45,7 @@ public class PlantedBamboo {
             spriteSheet.getTextureData().prepare();
             Pixmap sheetPixmap = spriteSheet.getTextureData().consumePixmap();
             
-            // BabyBamboo coordinates: 192 from left, 128 from top, 64x64 size
+            // BambooSapling coordinates: 192 from left, 128 from top, 64x64 size
             pixmap.drawPixmap(sheetPixmap, 0, 0, 192, 128, 64, 64);
             
             sharedTexture = new Texture(pixmap);

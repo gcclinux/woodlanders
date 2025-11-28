@@ -52,7 +52,7 @@ Added comprehensive documentation for the tile targeting system and planting mec
 
 **Key Features Documented:**
 ```markdown
-- Baby Bamboo Planting: Using targeting system on sand tiles
+- Bamboo Sapling Planting: Using targeting system on sand tiles
 - Growth Mechanics: 120 seconds to bamboo tree
 - Biome Restrictions: Sand tiles only
 - Tile Occupation Check: No planting on occupied tiles

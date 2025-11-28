@@ -1,7 +1,7 @@
 # BabyTree Planting System Implementation Plan
 
 ## Overview
-Implement a planting system for BabyTree items that follows the same pattern as the existing BabyBamboo planting system. Players will be able to plant BabyTree items from their inventory, which will grow into SmallTree instances after 120 seconds.
+Implement a planting system for BabyTree items that follows the same pattern as the existing BambooSapling planting system. Players will be able to plant BabyTree items from their inventory, which will grow into SmallTree instances after 120 seconds.
 
 ## Requirements Analysis
 
@@ -267,4 +267,4 @@ if (selectedSlot == 5) { // BabyTree slot
 6. **Testing**: Unit and integration tests
 7. **Polish**: Error handling, edge cases
 
-This plan ensures a systematic implementation that follows the established patterns in the codebase while providing the same functionality as the BabyBamboo system but for trees on grass biomes.
+This plan ensures a systematic implementation that follows the established patterns in the codebase while providing the same functionality as the BambooSapling system but for trees on grass biomes.

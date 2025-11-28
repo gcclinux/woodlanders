@@ -22,7 +22,7 @@ Currently:
 
 This leads to:
 - Confusing user experience (targeting shows valid, but planting fails)
-- Wasted baby bamboo items when server rejects out-of-range plantings
+- Wasted bamboo sapling items when server rejects out-of-range plantings
 - Need to rebuild and redeploy to adjust range settings
 
 ## Goals

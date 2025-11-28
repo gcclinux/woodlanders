@@ -449,7 +449,7 @@ public class GameMenu implements LanguageChangeListener, FontChangeListener {
                     // Load singleplayer inventory
                     int spApple = parseJsonObjectInt(jsonContent, "\"singleplayerInventory\"", "apple");
                     int spBanana = parseJsonObjectInt(jsonContent, "\"singleplayerInventory\"", "banana");
-                    int spBabyBamboo = parseJsonObjectInt(jsonContent, "\"singleplayerInventory\"", "babyBamboo");
+                    int spBambooSapling = parseJsonObjectInt(jsonContent, "\"singleplayerInventory\"", "babyBamboo");
                     int spBambooStack = parseJsonObjectInt(jsonContent, "\"singleplayerInventory\"", "bambooStack");
                     int spBabyTree = 0;
                     try {
@@ -474,7 +474,7 @@ public class GameMenu implements LanguageChangeListener, FontChangeListener {
                     wagemaker.uk.inventory.Inventory spInv = inventoryManager.getSingleplayerInventory();
                     spInv.setAppleCount(spApple);
                     spInv.setBananaCount(spBanana);
-                    spInv.setBabyBambooCount(spBabyBamboo);
+                    spInv.setBambooSaplingCount(spBambooSapling);
                     spInv.setBambooStackCount(spBambooStack);
                     spInv.setBabyTreeCount(spBabyTree);
                     spInv.setWoodStackCount(spWoodStack);
@@ -482,7 +482,7 @@ public class GameMenu implements LanguageChangeListener, FontChangeListener {
                     spInv.setPalmFiberCount(spPalmFiber);
                     
                     System.out.println("Singleplayer inventory loaded: Apple=" + spApple + 
-                                      ", Banana=" + spBanana + ", BabyBamboo=" + spBabyBamboo + 
+                                      ", Banana=" + spBanana + ", BambooSapling=" + spBambooSapling + 
                                       ", BambooStack=" + spBambooStack + ", BabyTree=" + spBabyTree +
                                       ", WoodStack=" + spWoodStack + ", Pebble=" + spPebble);
                 } catch (Exception e) {
@@ -493,7 +493,7 @@ public class GameMenu implements LanguageChangeListener, FontChangeListener {
                     // Load multiplayer inventory
                     int mpApple = parseJsonObjectInt(jsonContent, "\"multiplayerInventory\"", "apple");
                     int mpBanana = parseJsonObjectInt(jsonContent, "\"multiplayerInventory\"", "banana");
-                    int mpBabyBamboo = parseJsonObjectInt(jsonContent, "\"multiplayerInventory\"", "babyBamboo");
+                    int mpBambooSapling = parseJsonObjectInt(jsonContent, "\"multiplayerInventory\"", "babyBamboo");
                     int mpBambooStack = parseJsonObjectInt(jsonContent, "\"multiplayerInventory\"", "bambooStack");
                     int mpBabyTree = 0;
                     try {
@@ -518,7 +518,7 @@ public class GameMenu implements LanguageChangeListener, FontChangeListener {
                     wagemaker.uk.inventory.Inventory mpInv = inventoryManager.getMultiplayerInventory();
                     mpInv.setAppleCount(mpApple);
                     mpInv.setBananaCount(mpBanana);
-                    mpInv.setBabyBambooCount(mpBabyBamboo);
+                    mpInv.setBambooSaplingCount(mpBambooSapling);
                     mpInv.setBambooStackCount(mpBambooStack);
                     mpInv.setBabyTreeCount(mpBabyTree);
                     mpInv.setWoodStackCount(mpWoodStack);
@@ -526,7 +526,7 @@ public class GameMenu implements LanguageChangeListener, FontChangeListener {
                     mpInv.setPalmFiberCount(mpPalmFiber);
                     
                     System.out.println("Multiplayer inventory loaded: Apple=" + mpApple + 
-                                      ", Banana=" + mpBanana + ", BabyBamboo=" + mpBabyBamboo + 
+                                      ", Banana=" + mpBanana + ", BambooSapling=" + mpBambooSapling + 
                                       ", BambooStack=" + mpBambooStack + ", BabyTree=" + mpBabyTree +
                                       ", WoodStack=" + mpWoodStack + ", Pebble=" + mpPebble);
                 } catch (Exception e) {
@@ -1938,7 +1938,7 @@ public class GameMenu implements LanguageChangeListener, FontChangeListener {
                 jsonBuilder.append("  \"singleplayerInventory\": {\n");
                 jsonBuilder.append(String.format("    \"apple\": %d,\n", spInv.getAppleCount()));
                 jsonBuilder.append(String.format("    \"banana\": %d,\n", spInv.getBananaCount()));
-                jsonBuilder.append(String.format("    \"babyBamboo\": %d,\n", spInv.getBabyBambooCount()));
+                jsonBuilder.append(String.format("    \"babyBamboo\": %d,\n", spInv.getBambooSaplingCount()));
                 jsonBuilder.append(String.format("    \"bambooStack\": %d,\n", spInv.getBambooStackCount()));
                 jsonBuilder.append(String.format("    \"babyTree\": %d,\n", spInv.getBabyTreeCount()));
                 jsonBuilder.append(String.format("    \"woodStack\": %d,\n", spInv.getWoodStackCount()));
@@ -1965,7 +1965,7 @@ public class GameMenu implements LanguageChangeListener, FontChangeListener {
                 jsonBuilder.append("  \"multiplayerInventory\": {\n");
                 jsonBuilder.append(String.format("    \"apple\": %d,\n", mpInv.getAppleCount()));
                 jsonBuilder.append(String.format("    \"banana\": %d,\n", mpInv.getBananaCount()));
-                jsonBuilder.append(String.format("    \"babyBamboo\": %d,\n", mpInv.getBabyBambooCount()));
+                jsonBuilder.append(String.format("    \"babyBamboo\": %d,\n", mpInv.getBambooSaplingCount()));
                 jsonBuilder.append(String.format("    \"bambooStack\": %d,\n", mpInv.getBambooStackCount()));
                 jsonBuilder.append(String.format("    \"babyTree\": %d,\n", mpInv.getBabyTreeCount()));
                 jsonBuilder.append(String.format("    \"woodStack\": %d,\n", mpInv.getWoodStackCount()));

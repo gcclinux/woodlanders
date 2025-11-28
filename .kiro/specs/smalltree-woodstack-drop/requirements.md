@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This feature implements a dual-item random drop system for SmallTree destruction. When a SmallTree is destroyed, it will drop two items randomly selected from three possible combinations: 2x BabyTree, 2x WoodStack, or 1x BabyTree + 1x WoodStack. Each combination has an equal 33% probability. This follows the same random drop pattern used by BambooTree (which drops BambooStack and BabyBamboo).
+This feature implements a dual-item random drop system for SmallTree destruction. When a SmallTree is destroyed, it will drop two items randomly selected from three possible combinations: 2x BabyTree, 2x WoodStack, or 1x BabyTree + 1x WoodStack. Each combination has an equal 33% probability. This follows the same random drop pattern used by BambooTree (which drops BambooStack and BambooSapling).
 
 ## Glossary
 

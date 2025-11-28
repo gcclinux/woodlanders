@@ -83,14 +83,14 @@ public class InventorySaveLoadIntegrationTest {
         Inventory spInv = inventoryManager.getSingleplayerInventory();
         spInv.setAppleCount(5);
         spInv.setBananaCount(3);
-        spInv.setBabyBambooCount(12);
+        spInv.setBambooSaplingCount(12);
         spInv.setBambooStackCount(8);
         spInv.setWoodStackCount(15);
         
         Inventory mpInv = inventoryManager.getMultiplayerInventory();
         mpInv.setAppleCount(2);
         mpInv.setBananaCount(7);
-        mpInv.setBabyBambooCount(0);
+        mpInv.setBambooSaplingCount(0);
         mpInv.setBambooStackCount(4);
         mpInv.setWoodStackCount(10);
         
@@ -111,7 +111,7 @@ public class InventorySaveLoadIntegrationTest {
         jsonBuilder.append("  \"singleplayerInventory\": {\n");
         jsonBuilder.append(String.format("    \"apple\": %d,\n", spInv.getAppleCount()));
         jsonBuilder.append(String.format("    \"banana\": %d,\n", spInv.getBananaCount()));
-        jsonBuilder.append(String.format("    \"babyBamboo\": %d,\n", spInv.getBabyBambooCount()));
+        jsonBuilder.append(String.format("    \"babyBamboo\": %d,\n", spInv.getBambooSaplingCount()));
         jsonBuilder.append(String.format("    \"bambooStack\": %d,\n", spInv.getBambooStackCount()));
         jsonBuilder.append(String.format("    \"woodStack\": %d\n", spInv.getWoodStackCount()));
         jsonBuilder.append("  },\n");
@@ -123,7 +123,7 @@ public class InventorySaveLoadIntegrationTest {
         jsonBuilder.append("  \"multiplayerInventory\": {\n");
         jsonBuilder.append(String.format("    \"apple\": %d,\n", mpInv.getAppleCount()));
         jsonBuilder.append(String.format("    \"banana\": %d,\n", mpInv.getBananaCount()));
-        jsonBuilder.append(String.format("    \"babyBamboo\": %d,\n", mpInv.getBabyBambooCount()));
+        jsonBuilder.append(String.format("    \"babyBamboo\": %d,\n", mpInv.getBambooSaplingCount()));
         jsonBuilder.append(String.format("    \"bambooStack\": %d,\n", mpInv.getBambooStackCount()));
         jsonBuilder.append(String.format("    \"woodStack\": %d\n", mpInv.getWoodStackCount()));
         jsonBuilder.append("  },\n");
@@ -191,42 +191,42 @@ public class InventorySaveLoadIntegrationTest {
         // Parse singleplayer inventory
         int spApple = parseJsonObjectInt(loadedContent, "\"singleplayerInventory\"", "apple");
         int spBanana = parseJsonObjectInt(loadedContent, "\"singleplayerInventory\"", "banana");
-        int spBabyBamboo = parseJsonObjectInt(loadedContent, "\"singleplayerInventory\"", "babyBamboo");
+        int spBambooSapling = parseJsonObjectInt(loadedContent, "\"singleplayerInventory\"", "babyBamboo");
         int spBambooStack = parseJsonObjectInt(loadedContent, "\"singleplayerInventory\"", "bambooStack");
         int spWoodStack = parseJsonObjectInt(loadedContent, "\"singleplayerInventory\"", "woodStack");
         
         Inventory spInv = inventoryManager.getSingleplayerInventory();
         spInv.setAppleCount(spApple);
         spInv.setBananaCount(spBanana);
-        spInv.setBabyBambooCount(spBabyBamboo);
+        spInv.setBambooSaplingCount(spBambooSapling);
         spInv.setBambooStackCount(spBambooStack);
         spInv.setWoodStackCount(spWoodStack);
         
         // Parse multiplayer inventory
         int mpApple = parseJsonObjectInt(loadedContent, "\"multiplayerInventory\"", "apple");
         int mpBanana = parseJsonObjectInt(loadedContent, "\"multiplayerInventory\"", "banana");
-        int mpBabyBamboo = parseJsonObjectInt(loadedContent, "\"multiplayerInventory\"", "babyBamboo");
+        int mpBambooSapling = parseJsonObjectInt(loadedContent, "\"multiplayerInventory\"", "babyBamboo");
         int mpBambooStack = parseJsonObjectInt(loadedContent, "\"multiplayerInventory\"", "bambooStack");
         int mpWoodStack = parseJsonObjectInt(loadedContent, "\"multiplayerInventory\"", "woodStack");
         
         Inventory mpInv = inventoryManager.getMultiplayerInventory();
         mpInv.setAppleCount(mpApple);
         mpInv.setBananaCount(mpBanana);
-        mpInv.setBabyBambooCount(mpBabyBamboo);
+        mpInv.setBambooSaplingCount(mpBambooSapling);
         mpInv.setBambooStackCount(mpBambooStack);
         mpInv.setWoodStackCount(mpWoodStack);
         
         // Verify singleplayer inventory was loaded correctly
         assertEquals(10, spInv.getAppleCount(), "SP apple count should be loaded");
         assertEquals(5, spInv.getBananaCount(), "SP banana count should be loaded");
-        assertEquals(20, spInv.getBabyBambooCount(), "SP baby bamboo count should be loaded");
+        assertEquals(20, spInv.getBambooSaplingCount(), "SP baby bamboo count should be loaded");
         assertEquals(15, spInv.getBambooStackCount(), "SP bamboo stack count should be loaded");
         assertEquals(25, spInv.getWoodStackCount(), "SP wood stack count should be loaded");
         
         // Verify multiplayer inventory was loaded correctly
         assertEquals(3, mpInv.getAppleCount(), "MP apple count should be loaded");
         assertEquals(8, mpInv.getBananaCount(), "MP banana count should be loaded");
-        assertEquals(1, mpInv.getBabyBambooCount(), "MP baby bamboo count should be loaded");
+        assertEquals(1, mpInv.getBambooSaplingCount(), "MP baby bamboo count should be loaded");
         assertEquals(6, mpInv.getBambooStackCount(), "MP bamboo stack count should be loaded");
         assertEquals(12, mpInv.getWoodStackCount(), "MP wood stack count should be loaded");
     }
@@ -323,7 +323,7 @@ public class InventorySaveLoadIntegrationTest {
         Inventory spInv = inventoryManager.getSingleplayerInventory();
         spInv.setAppleCount(15);
         spInv.setBananaCount(10);
-        spInv.setBabyBambooCount(25);
+        spInv.setBambooSaplingCount(25);
         spInv.setBambooStackCount(20);
         spInv.setWoodStackCount(30);
         
@@ -341,7 +341,7 @@ public class InventorySaveLoadIntegrationTest {
         jsonBuilder.append("  \"singleplayerInventory\": {\n");
         jsonBuilder.append(String.format("    \"apple\": %d,\n", spInv.getAppleCount()));
         jsonBuilder.append(String.format("    \"banana\": %d,\n", spInv.getBananaCount()));
-        jsonBuilder.append(String.format("    \"babyBamboo\": %d,\n", spInv.getBabyBambooCount()));
+        jsonBuilder.append(String.format("    \"babyBamboo\": %d,\n", spInv.getBambooSaplingCount()));
         jsonBuilder.append(String.format("    \"bambooStack\": %d,\n", spInv.getBambooStackCount()));
         jsonBuilder.append(String.format("    \"woodStack\": %d\n", spInv.getWoodStackCount()));
         jsonBuilder.append("  },\n");
@@ -359,13 +359,13 @@ public class InventorySaveLoadIntegrationTest {
         String loadedContent = new String(Files.readAllBytes(Paths.get(testConfigFile.getAbsolutePath())));
         int apple = parseJsonObjectInt(loadedContent, "\"singleplayerInventory\"", "apple");
         int banana = parseJsonObjectInt(loadedContent, "\"singleplayerInventory\"", "banana");
-        int babyBamboo = parseJsonObjectInt(loadedContent, "\"singleplayerInventory\"", "babyBamboo");
+        int bambooSapling = parseJsonObjectInt(loadedContent, "\"singleplayerInventory\"", "babyBamboo");
         int bambooStack = parseJsonObjectInt(loadedContent, "\"singleplayerInventory\"", "bambooStack");
         int woodStack = parseJsonObjectInt(loadedContent, "\"singleplayerInventory\"", "woodStack");
         
         inventoryManager.getSingleplayerInventory().setAppleCount(apple);
         inventoryManager.getSingleplayerInventory().setBananaCount(banana);
-        inventoryManager.getSingleplayerInventory().setBabyBambooCount(babyBamboo);
+        inventoryManager.getSingleplayerInventory().setBambooSaplingCount(bambooSapling);
         inventoryManager.getSingleplayerInventory().setBambooStackCount(bambooStack);
         inventoryManager.getSingleplayerInventory().setWoodStackCount(woodStack);
         
@@ -374,7 +374,7 @@ public class InventorySaveLoadIntegrationTest {
             "SP apple count should be restored");
         assertEquals(10, inventoryManager.getSingleplayerInventory().getBananaCount(), 
             "SP banana count should be restored");
-        assertEquals(25, inventoryManager.getSingleplayerInventory().getBabyBambooCount(), 
+        assertEquals(25, inventoryManager.getSingleplayerInventory().getBambooSaplingCount(), 
             "SP baby bamboo count should be restored");
         assertEquals(20, inventoryManager.getSingleplayerInventory().getBambooStackCount(), 
             "SP bamboo stack count should be restored");
@@ -388,7 +388,7 @@ public class InventorySaveLoadIntegrationTest {
         Inventory mpInv = inventoryManager.getMultiplayerInventory();
         mpInv.setAppleCount(7);
         mpInv.setBananaCount(12);
-        mpInv.setBabyBambooCount(3);
+        mpInv.setBambooSaplingCount(3);
         mpInv.setBambooStackCount(9);
         mpInv.setWoodStackCount(18);
         
@@ -406,7 +406,7 @@ public class InventorySaveLoadIntegrationTest {
         jsonBuilder.append("  \"multiplayerInventory\": {\n");
         jsonBuilder.append(String.format("    \"apple\": %d,\n", mpInv.getAppleCount()));
         jsonBuilder.append(String.format("    \"banana\": %d,\n", mpInv.getBananaCount()));
-        jsonBuilder.append(String.format("    \"babyBamboo\": %d,\n", mpInv.getBabyBambooCount()));
+        jsonBuilder.append(String.format("    \"babyBamboo\": %d,\n", mpInv.getBambooSaplingCount()));
         jsonBuilder.append(String.format("    \"bambooStack\": %d,\n", mpInv.getBambooStackCount()));
         jsonBuilder.append(String.format("    \"woodStack\": %d\n", mpInv.getWoodStackCount()));
         jsonBuilder.append("  },\n");
@@ -424,13 +424,13 @@ public class InventorySaveLoadIntegrationTest {
         String loadedContent = new String(Files.readAllBytes(Paths.get(testConfigFile.getAbsolutePath())));
         int apple = parseJsonObjectInt(loadedContent, "\"multiplayerInventory\"", "apple");
         int banana = parseJsonObjectInt(loadedContent, "\"multiplayerInventory\"", "banana");
-        int babyBamboo = parseJsonObjectInt(loadedContent, "\"multiplayerInventory\"", "babyBamboo");
+        int bambooSapling = parseJsonObjectInt(loadedContent, "\"multiplayerInventory\"", "babyBamboo");
         int bambooStack = parseJsonObjectInt(loadedContent, "\"multiplayerInventory\"", "bambooStack");
         int woodStack = parseJsonObjectInt(loadedContent, "\"multiplayerInventory\"", "woodStack");
         
         inventoryManager.getMultiplayerInventory().setAppleCount(apple);
         inventoryManager.getMultiplayerInventory().setBananaCount(banana);
-        inventoryManager.getMultiplayerInventory().setBabyBambooCount(babyBamboo);
+        inventoryManager.getMultiplayerInventory().setBambooSaplingCount(bambooSapling);
         inventoryManager.getMultiplayerInventory().setBambooStackCount(bambooStack);
         inventoryManager.getMultiplayerInventory().setWoodStackCount(woodStack);
         
@@ -439,7 +439,7 @@ public class InventorySaveLoadIntegrationTest {
             "MP apple count should be restored");
         assertEquals(12, inventoryManager.getMultiplayerInventory().getBananaCount(), 
             "MP banana count should be restored");
-        assertEquals(3, inventoryManager.getMultiplayerInventory().getBabyBambooCount(), 
+        assertEquals(3, inventoryManager.getMultiplayerInventory().getBambooSaplingCount(), 
             "MP baby bamboo count should be restored");
         assertEquals(9, inventoryManager.getMultiplayerInventory().getBambooStackCount(), 
             "MP bamboo stack count should be restored");

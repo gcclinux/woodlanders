@@ -345,7 +345,7 @@ if (inventoryManager.getSelectedSlot() == -1) {
     return;  // Silent fail, no action
 }
 
-// Item not consumable (e.g., baby bamboo)
+// Item not consumable (e.g., bamboo sapling)
 if (!itemType.restoresHealth() && !itemType.reducesHunger()) {
     System.out.println("Selected item cannot be consumed");
     return;

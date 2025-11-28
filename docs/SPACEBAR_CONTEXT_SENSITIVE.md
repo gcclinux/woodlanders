@@ -67,7 +67,7 @@ private void handleSpacebarPlanting() {
 3. Keep pressing **SPACEBAR** → Continues attacking until tree is destroyed
 
 ### Targeting Mode (Item Selected)
-1. Press **'3'** to select baby bamboo → White targeting dot appears
+1. Press **'3'** to select bamboo sapling → White targeting dot appears
 2. Use **A/W/D/S** to move the target
 3. Press **SPACEBAR** → Plants bamboo at target location
 4. Target remains active, move to new location

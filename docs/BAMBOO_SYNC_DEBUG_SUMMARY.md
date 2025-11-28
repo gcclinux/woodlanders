@@ -1,7 +1,7 @@
-# Baby Bamboo Multiplayer Synchronization - Debug Summary
+# Bamboo Sapling Multiplayer Synchronization - Debug Summary
 
 ## Problem Statement
-When Player 1 plants ~20 baby bamboo trees in a square pattern, Player 2 only sees 2 of them. Once the bamboos grow into full trees, both players can see them correctly.
+When Player 1 plants ~20 bamboo sapling trees in a square pattern, Player 2 only sees 2 of them. Once the bamboos grow into full trees, both players can see them correctly.
 
 ## Root Cause Analysis
 
@@ -91,8 +91,8 @@ The code has been rebuilt with debug logging.
 ```
 
 ### Step 4: Reproduce the Issue
-1. Have Player 1 collect baby bamboo items
-2. Have Player 1 plant multiple baby bamboos around Player 2 (recreate the square pattern)
+1. Have Player 1 collect bamboo sapling items
+2. Have Player 1 plant multiple bamboo saplings around Player 2 (recreate the square pattern)
 3. Observe how many bamboos Player 2 can see
 4. Check the debug logs
 

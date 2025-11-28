@@ -1,4 +1,4 @@
-# Testing the Baby Bamboo Fix
+# Testing the Bamboo Sapling Fix
 
 ## What Was Fixed
 
@@ -23,7 +23,7 @@
 ```
 
 ### Step 2: Reproduce Original Issue
-1. Have Player 1 collect baby bamboo items
+1. Have Player 1 collect bamboo sapling items
 2. Have Player 1 plant 10-15 bamboos rapidly around Player 2
 3. **Check Player 2's screen immediately**
 

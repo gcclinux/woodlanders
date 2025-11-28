@@ -39,7 +39,7 @@ Add a "Free World" mode accessible from the Main Menu that grants players 250 of
 - Item types to grant:
   - Apples
   - Bananas
-  - Baby Bamboo
+  - Bamboo Sapling
   - Bamboo Stacks
   - Wood Stacks
   - Pebbles

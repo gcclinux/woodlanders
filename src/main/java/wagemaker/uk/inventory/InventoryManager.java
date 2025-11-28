@@ -106,7 +106,7 @@ public class InventoryManager {
                 inventory.addBanana(amount);
                 break;
             case BABY_BAMBOO:
-                inventory.addBabyBamboo(amount);
+                inventory.addBambooSapling(amount);
                 break;
             case BAMBOO_STACK:
                 inventory.addBambooStack(amount);
@@ -142,7 +142,7 @@ public class InventoryManager {
                 gameClient.getClientId(),
                 inventory.getAppleCount(),
                 inventory.getBananaCount(),
-                inventory.getBabyBambooCount(),
+                inventory.getBambooSaplingCount(),
                 inventory.getBambooStackCount(),
                 inventory.getBabyTreeCount(),
                 inventory.getWoodStackCount(),
@@ -170,13 +170,13 @@ public class InventoryManager {
      * Used to synchronize inventory state with authoritative server.
      * @param appleCount The apple count from server
      * @param bananaCount The banana count from server
-     * @param babyBambooCount The baby bamboo count from server
+     * @param bambooSaplingCount The baby bamboo count from server
      * @param bambooStackCount The bamboo stack count from server
      * @param babyTreeCount The baby tree count from server
      * @param woodStackCount The wood stack count from server
      * @param pebbleCount The pebble count from server
      */
-    public void syncFromServer(int appleCount, int bananaCount, int babyBambooCount, 
+    public void syncFromServer(int appleCount, int bananaCount, int bambooSaplingCount, 
                                 int bambooStackCount, int babyTreeCount, int woodStackCount, int pebbleCount, int palmFiberCount) {
         if (!isMultiplayerMode) {
             return; // Only sync in multiplayer mode
@@ -185,7 +185,7 @@ public class InventoryManager {
         Inventory inventory = getCurrentInventory();
         inventory.setAppleCount(appleCount);
         inventory.setBananaCount(bananaCount);
-        inventory.setBabyBambooCount(babyBambooCount);
+        inventory.setBambooSaplingCount(bambooSaplingCount);
         inventory.setBambooStackCount(bambooStackCount);
         inventory.setBabyTreeCount(babyTreeCount);
         inventory.setWoodStackCount(woodStackCount);
@@ -194,7 +194,7 @@ public class InventoryManager {
         
         System.out.println("Inventory synced from server: Apples=" + appleCount +
                          ", Bananas=" + bananaCount +
-                         ", BabyBamboo=" + babyBambooCount +
+                         ", BambooSapling=" + bambooSaplingCount +
                          ", BambooStack=" + bambooStackCount +
                          ", BabyTree=" + babyTreeCount +
                          ", WoodStack=" + woodStackCount +
@@ -325,7 +325,7 @@ public class InventoryManager {
         switch (selectedSlot) {
             case 0: itemCount = inventory.getAppleCount(); break;
             case 1: itemCount = inventory.getBananaCount(); break;
-            case 2: itemCount = inventory.getBabyBambooCount(); break;
+            case 2: itemCount = inventory.getBambooSaplingCount(); break;
             case 3: itemCount = inventory.getBambooStackCount(); break;
             case 4: itemCount = inventory.getBabyTreeCount(); break;
             case 5: itemCount = inventory.getWoodStackCount(); break;

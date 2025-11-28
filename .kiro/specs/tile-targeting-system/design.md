@@ -278,7 +278,7 @@ If targeting mode is activated while already active:
 
 3. **Edge Cases**
    - Test targeting at world boundaries
-   - Test targeting with no baby bamboo in inventory
+   - Test targeting with no bamboo sapling in inventory
    - Test targeting on various biome types
    - Test targeting on occupied tiles
 
@@ -299,7 +299,7 @@ The targeting system uses the following key bindings:
 Targeting mode is activated when:
 1. Player presses "P" key
 2. Baby bamboo is selected in inventory (slot 2)
-3. Player has at least 1 baby bamboo in inventory
+3. Player has at least 1 bamboo sapling in inventory
 
 ### Tile Grid Alignment
 

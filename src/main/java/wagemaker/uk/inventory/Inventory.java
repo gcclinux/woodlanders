@@ -8,7 +8,7 @@ package wagemaker.uk.inventory;
 public class Inventory {
     private int appleCount;
     private int bananaCount;
-    private int babyBambooCount;
+    private int bambooSaplingCount;
     private int bambooStackCount;
     private int babyTreeCount;
     private int woodStackCount;
@@ -18,7 +18,7 @@ public class Inventory {
     public Inventory() {
         this.appleCount = 0;
         this.bananaCount = 0;
-        this.babyBambooCount = 0;
+        this.bambooSaplingCount = 0;
         this.bambooStackCount = 0;
         this.babyTreeCount = 0;
         this.woodStackCount = 0;
@@ -68,22 +68,22 @@ public class Inventory {
         return false;
     }
     
-    // BabyBamboo methods
-    public int getBabyBambooCount() {
-        return babyBambooCount;
+    // BambooSapling methods
+    public int getBambooSaplingCount() {
+        return bambooSaplingCount;
     }
     
-    public void setBabyBambooCount(int count) {
-        this.babyBambooCount = Math.max(0, count);
+    public void setBambooSaplingCount(int count) {
+        this.bambooSaplingCount = Math.max(0, count);
     }
     
-    public void addBabyBamboo(int amount) {
-        this.babyBambooCount += amount;
+    public void addBambooSapling(int amount) {
+        this.bambooSaplingCount += amount;
     }
     
-    public boolean removeBabyBamboo(int amount) {
-        if (babyBambooCount >= amount) {
-            babyBambooCount -= amount;
+    public boolean removeBambooSapling(int amount) {
+        if (bambooSaplingCount >= amount) {
+            bambooSaplingCount -= amount;
             return true;
         }
         return false;
@@ -200,7 +200,7 @@ public class Inventory {
     public void clear() {
         this.appleCount = 0;
         this.bananaCount = 0;
-        this.babyBambooCount = 0;
+        this.bambooSaplingCount = 0;
         this.bambooStackCount = 0;
         this.babyTreeCount = 0;
         this.woodStackCount = 0;

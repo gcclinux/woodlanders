@@ -24,21 +24,21 @@ Player.attackNearbyTargets() detects destruction
 [Single-Player Mode]                    [Multiplayer Mode]
     ↓                                       ↓
 Create BambooStack at (x, y)           Server handles destruction
-Create BabyBamboo at (x+8, y)          Server spawns items
+Create BambooSapling at (x+8, y)          Server spawns items
 Add to collections                      Broadcasts ItemSpawnMessage
     ↓                                       ↓
 MyGdxGame.render()                     Client receives messages
     ↓                                   Adds items to collections
 drawBambooStacks()                          ↓
-drawBabyBamboos()                      MyGdxGame.render()
+drawBambooSaplings()                      MyGdxGame.render()
     ↓                                       ↓
 Player walks over items                drawBambooStacks()
-    ↓                                   drawBabyBamboos()
+    ↓                                   drawBambooSaplings()
 checkBambooStackPickups()                   ↓
-checkBabyBambooPickups()               Player walks over items
+checkBambooSaplingPickups()               Player walks over items
     ↓                                       ↓
 Remove from collections                checkBambooStackPickups()
-Dispose textures                       checkBabyBambooPickups()
+Dispose textures                       checkBambooSaplingPickups()
                                             ↓
                                        Send ItemPickupMessage
                                        Server broadcasts removal
@@ -61,9 +61,9 @@ Dispose textures                       checkBabyBambooPickups()
 
 **No changes needed** - The existing implementation is correct.
 
-### 2. BabyBamboo Item Class
+### 2. BambooSapling Item Class
 
-**Location:** `src/main/java/wagemaker/uk/items/BabyBamboo.java`
+**Location:** `src/main/java/wagemaker/uk/items/BambooSapling.java`
 
 **Status:** Already created by user
 
@@ -84,13 +84,13 @@ Dispose textures                       checkBabyBambooPickups()
 #### Add Item Collections (around line 167)
 ```java
 Map<String, BambooStack> bambooStacks;
-Map<String, BabyBamboo> babyBamboos;
+Map<String, BambooSapling> bambooSaplings;
 ```
 
 #### Initialize Collections in create() (around line 238)
 ```java
 bambooStacks = new HashMap<>();
-babyBamboos = new HashMap<>();
+bambooSaplings = new HashMap<>();
 ```
 
 #### Add Rendering Methods (after drawBananas(), around line 725)
@@ -109,13 +109,13 @@ private void drawBambooStacks() {
     }
 }
 
-private void drawBabyBamboos() {
+private void drawBambooSaplings() {
     float camX = camera.position.x;
     float camY = camera.position.y;
     float viewWidth = viewport.getWorldWidth() / 2;
     float viewHeight = viewport.getWorldHeight() / 2;
     
-    for (BabyBamboo babyBamboo : babyBamboos.values()) {
+    for (BambooSapling babyBamboo : bambooSaplings.values()) {
         if (Math.abs(babyBamboo.getX() - camX) < viewWidth && 
             Math.abs(babyBamboo.getY() - camY) < viewHeight) {
             batch.draw(babyBamboo.getTexture(), babyBamboo.getX(), babyBamboo.getY(), 32, 32);
@@ -127,7 +127,7 @@ private void drawBabyBamboos() {
 #### Call Rendering Methods in render() (after drawBananas(), around line 451)
 ```java
 drawBambooStacks();
-drawBabyBamboos();
+drawBambooSaplings();
 ```
 
 ### 4. Player Class Modifications
@@ -139,7 +139,7 @@ drawBabyBamboos();
 #### Add Item Collection References (around line 53)
 ```java
 private Map<String, BambooStack> bambooStacks;
-private Map<String, BabyBamboo> babyBamboos;
+private Map<String, BambooSapling> bambooSaplings;
 ```
 
 #### Add Setter Methods (after setBananas(), around line 96)
@@ -148,8 +148,8 @@ public void setBambooStacks(Map<String, BambooStack> bambooStacks) {
     this.bambooStacks = bambooStacks;
 }
 
-public void setBabyBamboos(Map<String, BabyBamboo> babyBamboos) {
-    this.babyBamboos = babyBamboos;
+public void setBambooSaplings(Map<String, BambooSapling> bambooSaplings) {
+    this.bambooSaplings = bambooSaplings;
 }
 ```
 
@@ -162,12 +162,12 @@ if (destroyed) {
     bambooStacks.put(targetKey + "-bamboostack", 
         new BambooStack(targetBambooTree.getX(), targetBambooTree.getY()));
     
-    // Spawn BabyBamboo offset by 8 pixels horizontally
-    babyBamboos.put(targetKey + "-babybamboo", 
-        new BabyBamboo(targetBambooTree.getX() + 8, targetBambooTree.getY()));
+    // Spawn BambooSapling offset by 8 pixels horizontally
+    bambooSaplings.put(targetKey + "-babybamboo", 
+        new BambooSapling(targetBambooTree.getX() + 8, targetBambooTree.getY()));
     
     System.out.println("BambooStack dropped at: " + targetBambooTree.getX() + ", " + targetBambooTree.getY());
-    System.out.println("BabyBamboo dropped at: " + (targetBambooTree.getX() + 8) + ", " + targetBambooTree.getY());
+    System.out.println("BambooSapling dropped at: " + (targetBambooTree.getX() + 8) + ", " + targetBambooTree.getY());
     
     targetBambooTree.dispose();
     bambooTrees.remove(targetKey);
@@ -211,10 +211,10 @@ private void pickupBambooStack(String bambooStackKey) {
     }
 }
 
-private void checkBabyBambooPickups() {
-    if (babyBamboos != null) {
-        for (Map.Entry<String, BabyBamboo> entry : babyBamboos.entrySet()) {
-            BabyBamboo babyBamboo = entry.getValue();
+private void checkBambooSaplingPickups() {
+    if (bambooSaplings != null) {
+        for (Map.Entry<String, BambooSapling> entry : bambooSaplings.entrySet()) {
+            BambooSapling babyBamboo = entry.getValue();
             String babyBambooKey = entry.getKey();
             
             // Check if player is close enough to pick up (32px range)
@@ -222,25 +222,25 @@ private void checkBabyBambooPickups() {
             float dy = Math.abs((y + 32) - (babyBamboo.getY() + 16));
             
             if (dx <= 32 && dy <= 32) {
-                pickupBabyBamboo(babyBambooKey);
+                pickupBambooSapling(babyBambooKey);
                 break;
             }
         }
     }
 }
 
-private void pickupBabyBamboo(String babyBambooKey) {
+private void pickupBambooSapling(String babyBambooKey) {
     if (gameClient != null && gameClient.isConnected() && isLocalPlayer) {
         gameClient.sendItemPickup(babyBambooKey);
     } else {
         // Single-player mode: handle locally
-        System.out.println("BabyBamboo picked up!");
+        System.out.println("BambooSapling picked up!");
         
-        if (babyBamboos.containsKey(babyBambooKey)) {
-            BabyBamboo babyBamboo = babyBamboos.get(babyBambooKey);
+        if (bambooSaplings.containsKey(babyBambooKey)) {
+            BambooSapling babyBamboo = bambooSaplings.get(babyBambooKey);
             babyBamboo.dispose();
-            babyBamboos.remove(babyBambooKey);
-            System.out.println("BabyBamboo removed from game");
+            bambooSaplings.remove(babyBambooKey);
+            System.out.println("BambooSapling removed from game");
         }
     }
 }
@@ -249,13 +249,13 @@ private void pickupBabyBamboo(String babyBambooKey) {
 #### Call Pickup Checks in update() (after checkBananaPickups(), around line 298)
 ```java
 checkBambooStackPickups();
-checkBabyBambooPickups();
+checkBambooSaplingPickups();
 ```
 
 #### Wire Collections in MyGdxGame.create() (after player.setBananas(), around line 270)
 ```java
 player.setBambooStacks(bambooStacks);
-player.setBabyBamboos(babyBamboos);
+player.setBambooSaplings(bambooSaplings);
 ```
 
 ## Data Models
@@ -266,7 +266,7 @@ player.setBabyBamboos(babyBamboos);
 - X: `bambooTree.getX()` (tree's base X coordinate)
 - Y: `bambooTree.getY()` (tree's base Y coordinate)
 
-**BabyBamboo Position:**
+**BambooSapling Position:**
 - X: `bambooTree.getX() + 8` (8 pixels right of BambooStack)
 - Y: `bambooTree.getY()` (same Y as BambooStack)
 
@@ -276,7 +276,7 @@ player.setBabyBamboos(babyBamboos);
 
 Items use the tree's position key with suffixes:
 - BambooStack: `"{x},{y}-bamboostack"`
-- BabyBamboo: `"{x},{y}-babybamboo"`
+- BambooSapling: `"{x},{y}-babybamboo"`
 
 **Example:** Tree at (128, 256) produces:
 - `"128,256-bamboostack"`
@@ -336,7 +336,7 @@ This prevents desync where items appear picked up locally but still exist on ser
 4. Verify items are positioned 8 pixels apart horizontally
 5. Verify items render at 32x32 pixels
 6. Walk over BambooStack - verify pickup and removal
-7. Walk over BabyBamboo - verify pickup and removal
+7. Walk over BambooSapling - verify pickup and removal
 8. Verify console logs show correct positions and pickup messages
 
 **Multiplayer Mode:**
@@ -346,12 +346,12 @@ This prevents desync where items appear picked up locally but still exist on ser
 4. Verify items appear on other connected clients
 5. Client picks up BambooStack
 6. Verify removal on all clients
-7. Client picks up BabyBamboo
+7. Client picks up BambooSapling
 8. Verify removal on all clients
 
 **Visual Verification:**
 1. Compare BambooStack sprite to expected sprite sheet coordinates (128, 128)
-2. Compare BabyBamboo sprite to expected sprite sheet coordinates (192, 128)
+2. Compare BambooSapling sprite to expected sprite sheet coordinates (192, 128)
 3. Verify 8-pixel horizontal spacing between items
 4. Verify items render at appropriate size (32x32)
 

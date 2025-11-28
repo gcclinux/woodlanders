@@ -19,7 +19,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import wagemaker.uk.items.Apple;
-import wagemaker.uk.items.BabyBamboo;
+import wagemaker.uk.items.BambooSapling;
 import wagemaker.uk.items.BabyTree;
 import wagemaker.uk.items.BambooStack;
 import wagemaker.uk.items.Banana;
@@ -186,7 +186,7 @@ public class MyGdxGame extends ApplicationAdapter {
     Map<String, Apple> apples;
     Map<String, Banana> bananas;
     Map<String, BambooStack> bambooStacks;
-    Map<String, BabyBamboo> babyBamboos;
+    Map<String, BambooSapling> bambooSaplings;
     Map<String, BabyTree> babyTrees;
     Map<String, WoodStack> woodStacks;
     Map<String, Pebble> pebbles;
@@ -279,7 +279,7 @@ public class MyGdxGame extends ApplicationAdapter {
         apples = new HashMap<>();
         bananas = new HashMap<>();
         bambooStacks = new HashMap<>();
-        babyBamboos = new HashMap<>();
+        bambooSaplings = new HashMap<>();
         babyTrees = new HashMap<>();
         woodStacks = new HashMap<>();
         pebbles = new HashMap<>();
@@ -326,7 +326,7 @@ public class MyGdxGame extends ApplicationAdapter {
         player.setApples(apples);
         player.setBananas(bananas);
         player.setBambooStacks(bambooStacks);
-        player.setBabyBamboos(babyBamboos);
+        player.setBambooSaplings(bambooSaplings);
         player.setBabyTrees(babyTrees);
         player.setWoodStacks(woodStacks);
         player.setPebbles(pebbles);
@@ -708,7 +708,7 @@ public class MyGdxGame extends ApplicationAdapter {
         drawApples();
         drawBananas();
         drawBambooStacks();
-        drawBabyBamboos();
+        drawBambooSaplings();
         drawBabyTrees();
         drawWoodStacks();
         drawPebbles();
@@ -1231,16 +1231,16 @@ public class MyGdxGame extends ApplicationAdapter {
         }
     }
     
-    private void drawBabyBamboos() {
+    private void drawBambooSaplings() {
         float camX = camera.position.x;
         float camY = camera.position.y;
         float viewWidth = viewport.getWorldWidth() / 2;
         float viewHeight = viewport.getWorldHeight() / 2;
         
-        for (BabyBamboo babyBamboo : babyBamboos.values()) {
-            if (Math.abs(babyBamboo.getX() - camX) < viewWidth && 
-                Math.abs(babyBamboo.getY() - camY) < viewHeight) {
-                batch.draw(babyBamboo.getTexture(), babyBamboo.getX(), babyBamboo.getY(), 32, 32);
+        for (BambooSapling bambooSapling : bambooSaplings.values()) {
+            if (Math.abs(bambooSapling.getX() - camX) < viewWidth && 
+                Math.abs(bambooSapling.getY() - camY) < viewHeight) {
+                batch.draw(bambooSapling.getTexture(), bambooSapling.getX(), bambooSapling.getY(), 32, 32);
             }
         }
     }
@@ -2415,7 +2415,7 @@ public class MyGdxGame extends ApplicationAdapter {
         if (bambooStacks.containsKey(itemId)) {
             return wagemaker.uk.inventory.ItemType.BAMBOO_STACK;
         }
-        if (babyBamboos.containsKey(itemId)) {
+        if (bambooSaplings.containsKey(itemId)) {
             return wagemaker.uk.inventory.ItemType.BABY_BAMBOO;
         }
         if (babyTrees.containsKey(itemId)) {
@@ -2456,10 +2456,10 @@ public class MyGdxGame extends ApplicationAdapter {
             return;
         }
         
-        BabyBamboo babyBamboo = babyBamboos.remove(itemId);
-        if (babyBamboo != null) {
+        BambooSapling bambooSapling = bambooSaplings.remove(itemId);
+        if (bambooSapling != null) {
             // Defer texture disposal to render thread
-            deferOperation(() -> babyBamboo.dispose());
+            deferOperation(() -> bambooSapling.dispose());
             return;
         }
         
@@ -3198,7 +3198,7 @@ public class MyGdxGame extends ApplicationAdapter {
                 if (targetInventory != null) {
                     targetInventory.setAppleCount(saveData.getAppleCount());
                     targetInventory.setBananaCount(saveData.getBananaCount());
-                    targetInventory.setBabyBambooCount(saveData.getBabyBambooCount());
+                    targetInventory.setBambooSaplingCount(saveData.getBambooSaplingCount());
                     targetInventory.setBambooStackCount(saveData.getBambooStackCount());
                     targetInventory.setBabyTreeCount(saveData.getBabyTreeCount());
                     targetInventory.setWoodStackCount(saveData.getWoodStackCount());
@@ -3966,8 +3966,8 @@ public class MyGdxGame extends ApplicationAdapter {
                     }
                     break;
                 case BABY_BAMBOO:
-                    if (!babyBamboos.containsKey(itemId)) {
-                        babyBamboos.put(itemId, new BabyBamboo(x, y));
+                    if (!bambooSaplings.containsKey(itemId)) {
+                        bambooSaplings.put(itemId, new BambooSapling(x, y));
                     }
                     break;
                 case BABY_TREE:

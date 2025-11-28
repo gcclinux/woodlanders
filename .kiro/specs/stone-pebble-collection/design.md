@@ -250,7 +250,7 @@ public enum ItemType implements Serializable {
 {
     int appleCount;
     int bananaCount;
-    int babyBambooCount;
+    int bambooSaplingCount;
     int bambooStackCount;
     int woodStackCount;
     int pebbleCount;      // NEW

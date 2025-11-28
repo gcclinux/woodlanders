@@ -17,7 +17,7 @@ public class InventoryRenderer {
     // Textures for item icons
     private Texture appleIcon;
     private Texture bananaIcon;
-    private Texture babyBambooIcon;
+    private Texture bambooSaplingIcon;
     private Texture bambooStackIcon;
     private Texture babyTreeIcon;
     private Texture woodStackIcon;
@@ -72,7 +72,7 @@ public class InventoryRenderer {
         bananaIcon = extractIconFromSpriteSheet(64, 128, 64, 64);
         
         // Load baby bamboo icon (192, 128, 64x64)
-        babyBambooIcon = extractIconFromSpriteSheet(192, 128, 64, 64);
+        bambooSaplingIcon = extractIconFromSpriteSheet(192, 128, 64, 64);
         
         // Load bamboo stack icon (128, 128, 64x64)
         bambooStackIcon = extractIconFromSpriteSheet(128, 128, 64, 64);
@@ -185,10 +185,10 @@ public class InventoryRenderer {
             batch.draw(slotBorder, x, slotY, SLOT_SIZE, SLOT_SIZE);
         }
         
-        // Render slots with icons and counts in order: Apple, Banana, BabyBamboo, BambooStack, BabyTree, WoodStack, Pebble, PalmFiber
+        // Render slots with icons and counts in order: Apple, Banana, BambooSapling, BambooStack, BabyTree, WoodStack, Pebble, PalmFiber
         renderSlot(batch, appleIcon, inventory.getAppleCount(), slotX, slotY, selectedSlot == 0);
         renderSlot(batch, bananaIcon, inventory.getBananaCount(), slotX + (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 1);
-        renderSlot(batch, babyBambooIcon, inventory.getBabyBambooCount(), slotX + 2 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 2);
+        renderSlot(batch, bambooSaplingIcon, inventory.getBambooSaplingCount(), slotX + 2 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 2);
         renderSlot(batch, bambooStackIcon, inventory.getBambooStackCount(), slotX + 3 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 3);
         renderSlot(batch, babyTreeIcon, inventory.getBabyTreeCount(), slotX + 4 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 4);
         renderSlot(batch, woodStackIcon, inventory.getWoodStackCount(), slotX + 5 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 5);
@@ -262,7 +262,7 @@ public class InventoryRenderer {
     public void dispose() {
         if (appleIcon != null) appleIcon.dispose();
         if (bananaIcon != null) bananaIcon.dispose();
-        if (babyBambooIcon != null) babyBambooIcon.dispose();
+        if (bambooSaplingIcon != null) bambooSaplingIcon.dispose();
         if (bambooStackIcon != null) bambooStackIcon.dispose();
         if (babyTreeIcon != null) babyTreeIcon.dispose();
         if (woodStackIcon != null) woodStackIcon.dispose();

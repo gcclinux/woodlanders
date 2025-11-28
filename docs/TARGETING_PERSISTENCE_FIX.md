@@ -1,7 +1,7 @@
 # Targeting Persistence Fix
 
 ## Issue
-After planting a baby bamboo, the targeting indicator (white dot) was disappearing even though the item was still selected (yellow box still around inventory slot).
+After planting a bamboo sapling, the targeting indicator (white dot) was disappearing even though the item was still selected (yellow box still around inventory slot).
 
 ## Root Cause
 The `handlePlantingAction()` method was calling `targetingSystem.confirmTarget()`, which internally calls `deactivate()` after executing the placement callback. This caused the targeting to disappear after each plant.
@@ -43,7 +43,7 @@ private void handlePlantingAction() {
 
 ## New Behavior
 
-1. **Select item (e.g., press '3' for baby bamboo)** → White targeting dot appears
+1. **Select item (e.g., press '3' for bamboo sapling)** → White targeting dot appears
 2. **Move target with A/W/D/S** → Dot moves to different tiles
 3. **Press 'P'** → Plants bamboo at current target location
 4. **Targeting stays active** → White dot remains visible

@@ -553,13 +553,13 @@ public class ClientConnection implements Runnable {
                 System.out.println("Item spawned: PALM_FIBER at (" + quantizedX + ", " + quantizedY + ")");
             } else if (tree.getType() == TreeType.BAMBOO) {
                 // Randomly choose drop pattern: 
-                // 33% chance: 1 BambooStack + 1 BabyBamboo
+                // 33% chance: 1 BambooStack + 1 BambooSapling
                 // 33% chance: 2 BambooStack
-                // 33% chance: 2 BabyBamboo
+                // 33% chance: 2 BambooSapling
                 float dropRoll = (float) Math.random();
                 
                 if (dropRoll < 0.33f) {
-                    // Drop 1 BambooStack + 1 BabyBamboo (original behavior)
+                    // Drop 1 BambooStack + 1 BambooSapling (original behavior)
                     String bambooStackId = UUID.randomUUID().toString();
                     ItemState bambooStack = new ItemState(bambooStackId, ItemType.BAMBOO_STACK, quantizedX, quantizedY, false);
                     server.getWorldState().addOrUpdateItem(bambooStack);
@@ -567,15 +567,15 @@ public class ClientConnection implements Runnable {
                     ItemSpawnMessage bambooStackSpawnMsg = new ItemSpawnMessage("server", bambooStackId, ItemType.BAMBOO_STACK, quantizedX, quantizedY);
                     server.broadcastToAll(bambooStackSpawnMsg);
                     
-                    String babyBambooId = UUID.randomUUID().toString();
-                    float babyBambooX = quantizePosition(tree.getX() + 8);
-                    ItemState babyBamboo = new ItemState(babyBambooId, ItemType.BABY_BAMBOO, babyBambooX, quantizedY, false);
-                    server.getWorldState().addOrUpdateItem(babyBamboo);
+                    String bambooSaplingId = UUID.randomUUID().toString();
+                    float bambooSaplingX = quantizePosition(tree.getX() + 8);
+                    ItemState bambooSapling = new ItemState(bambooSaplingId, ItemType.BABY_BAMBOO, bambooSaplingX, quantizedY, false);
+                    server.getWorldState().addOrUpdateItem(bambooSapling);
                     
-                    ItemSpawnMessage babyBambooSpawnMsg = new ItemSpawnMessage("server", babyBambooId, ItemType.BABY_BAMBOO, babyBambooX, quantizedY);
-                    server.broadcastToAll(babyBambooSpawnMsg);
+                    ItemSpawnMessage bambooSaplingSpawnMsg = new ItemSpawnMessage("server", bambooSaplingId, ItemType.BABY_BAMBOO, bambooSaplingX, quantizedY);
+                    server.broadcastToAll(bambooSaplingSpawnMsg);
                     
-                    System.out.println("Items spawned: BAMBOO_STACK at (" + quantizedX + ", " + quantizedY + "), BABY_BAMBOO at (" + babyBambooX + ", " + quantizedY + ")");
+                    System.out.println("Items spawned: BAMBOO_STACK at (" + quantizedX + ", " + quantizedY + "), BABY_BAMBOO at (" + bambooSaplingX + ", " + quantizedY + ")");
                 } else if (dropRoll < 0.66f) {
                     // Drop 2 BambooStack
                     String bambooStackId1 = UUID.randomUUID().toString();
@@ -595,21 +595,21 @@ public class ClientConnection implements Runnable {
                     
                     System.out.println("Items spawned: 2x BAMBOO_STACK at (" + quantizedX + ", " + quantizedY + ")");
                 } else {
-                    // Drop 2 BabyBamboo
-                    String babyBambooId1 = UUID.randomUUID().toString();
-                    ItemState babyBamboo1 = new ItemState(babyBambooId1, ItemType.BABY_BAMBOO, quantizedX, quantizedY, false);
-                    server.getWorldState().addOrUpdateItem(babyBamboo1);
+                    // Drop 2 BambooSapling
+                    String bambooSaplingId1 = UUID.randomUUID().toString();
+                    ItemState bambooSapling1 = new ItemState(bambooSaplingId1, ItemType.BABY_BAMBOO, quantizedX, quantizedY, false);
+                    server.getWorldState().addOrUpdateItem(bambooSapling1);
                     
-                    ItemSpawnMessage babyBambooSpawnMsg1 = new ItemSpawnMessage("server", babyBambooId1, ItemType.BABY_BAMBOO, quantizedX, quantizedY);
-                    server.broadcastToAll(babyBambooSpawnMsg1);
+                    ItemSpawnMessage bambooSaplingSpawnMsg1 = new ItemSpawnMessage("server", bambooSaplingId1, ItemType.BABY_BAMBOO, quantizedX, quantizedY);
+                    server.broadcastToAll(bambooSaplingSpawnMsg1);
                     
-                    String babyBambooId2 = UUID.randomUUID().toString();
-                    float babyBamboo2X = quantizePosition(tree.getX() + 8);
-                    ItemState babyBamboo2 = new ItemState(babyBambooId2, ItemType.BABY_BAMBOO, babyBamboo2X, quantizedY, false);
-                    server.getWorldState().addOrUpdateItem(babyBamboo2);
+                    String bambooSaplingId2 = UUID.randomUUID().toString();
+                    float bambooSapling2X = quantizePosition(tree.getX() + 8);
+                    ItemState bambooSapling2 = new ItemState(bambooSaplingId2, ItemType.BABY_BAMBOO, bambooSapling2X, quantizedY, false);
+                    server.getWorldState().addOrUpdateItem(bambooSapling2);
                     
-                    ItemSpawnMessage babyBambooSpawnMsg2 = new ItemSpawnMessage("server", babyBambooId2, ItemType.BABY_BAMBOO, babyBamboo2X, quantizedY);
-                    server.broadcastToAll(babyBambooSpawnMsg2);
+                    ItemSpawnMessage bambooSaplingSpawnMsg2 = new ItemSpawnMessage("server", bambooSaplingId2, ItemType.BABY_BAMBOO, bambooSapling2X, quantizedY);
+                    server.broadcastToAll(bambooSaplingSpawnMsg2);
                     
                     System.out.println("Items spawned: 2x BABY_BAMBOO at (" + quantizedX + ", " + quantizedY + ")");
                 }
@@ -796,7 +796,7 @@ public class ClientConnection implements Runnable {
                 playerState.setBananaCount(playerState.getBananaCount() + 1);
                 break;
             case BABY_BAMBOO:
-                playerState.setBabyBambooCount(playerState.getBabyBambooCount() + 1);
+                playerState.setBambooSaplingCount(playerState.getBambooSaplingCount() + 1);
                 break;
             case BAMBOO_STACK:
                 playerState.setBambooStackCount(playerState.getBambooStackCount() + 1);
@@ -826,7 +826,7 @@ public class ClientConnection implements Runnable {
             clientId,
             playerState.getAppleCount(),
             playerState.getBananaCount(),
-            playerState.getBabyBambooCount(),
+            playerState.getBambooSaplingCount(),
             playerState.getBambooStackCount(),
             playerState.getBabyTreeCount(),
             playerState.getWoodStackCount(),
@@ -988,7 +988,7 @@ public class ClientConnection implements Runnable {
             clientId,
             playerState.getAppleCount(),
             playerState.getBananaCount(),
-            playerState.getBabyBambooCount(),
+            playerState.getBambooSaplingCount(),
             playerState.getBambooStackCount(),
             playerState.getBabyTreeCount(),
             playerState.getWoodStackCount(),
@@ -1405,7 +1405,7 @@ public class ClientConnection implements Runnable {
         // Validate inventory counts (must be non-negative and reasonable)
         if (!isValidInventoryCount(message.getAppleCount()) ||
             !isValidInventoryCount(message.getBananaCount()) ||
-            !isValidInventoryCount(message.getBabyBambooCount()) ||
+            !isValidInventoryCount(message.getBambooSaplingCount()) ||
             !isValidInventoryCount(message.getBambooStackCount()) ||
             !isValidInventoryCount(message.getBabyTreeCount()) ||
             !isValidInventoryCount(message.getWoodStackCount()) ||
@@ -1419,7 +1419,7 @@ public class ClientConnection implements Runnable {
         // Update player state with new inventory
         playerState.setAppleCount(message.getAppleCount());
         playerState.setBananaCount(message.getBananaCount());
-        playerState.setBabyBambooCount(message.getBabyBambooCount());
+        playerState.setBambooSaplingCount(message.getBambooSaplingCount());
         playerState.setBambooStackCount(message.getBambooStackCount());
         playerState.setBabyTreeCount(message.getBabyTreeCount());
         playerState.setWoodStackCount(message.getWoodStackCount());
@@ -1432,7 +1432,7 @@ public class ClientConnection implements Runnable {
         System.out.println("Inventory updated for player " + clientId + 
                          ": Apples=" + message.getAppleCount() +
                          ", Bananas=" + message.getBananaCount() +
-                         ", BabyBamboo=" + message.getBabyBambooCount() +
+                         ", BambooSapling=" + message.getBambooSaplingCount() +
                          ", BambooStack=" + message.getBambooStackCount() +
                          ", BabyTree=" + message.getBabyTreeCount() +
                          ", WoodStack=" + message.getWoodStackCount() +
@@ -1459,7 +1459,7 @@ public class ClientConnection implements Runnable {
             clientId,
             playerState.getAppleCount(),
             playerState.getBananaCount(),
-            playerState.getBabyBambooCount(),
+            playerState.getBambooSaplingCount(),
             playerState.getBambooStackCount(),
             playerState.getBabyTreeCount(),
             playerState.getWoodStackCount(),

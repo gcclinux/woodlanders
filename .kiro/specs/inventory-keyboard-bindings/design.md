@@ -149,7 +149,7 @@ private void handleInventorySelection() {
     } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
         inventoryManager.setSelectedSlot(1); // Banana
     } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) {
-        inventoryManager.setSelectedSlot(2); // BabyBamboo
+        inventoryManager.setSelectedSlot(2); // BambooSapling
     } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)) {
         inventoryManager.setSelectedSlot(3); // BambooStack
     } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_5)) {
@@ -215,7 +215,7 @@ public class InventoryRenderer {
                   slotX, slotY, selectedSlot == 1);
         slotX += SLOT_SIZE + SLOT_SPACING;
         
-        renderSlot(batch, babyBambooIcon, inventory.getBabyBambooCount(), 
+        renderSlot(batch, babyBambooIcon, inventory.getBambooSaplingCount(), 
                   slotX, slotY, selectedSlot == 2);
         slotX += SLOT_SIZE + SLOT_SPACING;
         
@@ -327,7 +327,7 @@ private int selectedSlot; // Values:
                          // -1: No selection
                          //  0: Apple (slot 1)
                          //  1: Banana (slot 2)
-                         //  2: BabyBamboo (slot 3)
+                         //  2: BambooSapling (slot 3)
                          //  3: BambooStack (slot 4)
                          //  4: WoodStack (slot 5)
 ```
@@ -338,7 +338,7 @@ private int selectedSlot; // Values:
 |-----|-----------|-----------|
 | 1   | 0         | Apple     |
 | 2   | 1         | Banana    |
-| 3   | 2         | BabyBamboo |
+| 3   | 2         | BambooSapling |
 | 4   | 3         | BambooStack |
 | 5   | 4         | WoodStack |
 
@@ -402,7 +402,7 @@ if (isSelected) {
 
 1. **Selection Flow**:
    - Press key 1 → Apple slot highlights
-   - Press key 3 → BabyBamboo slot highlights (previous highlight clears)
+   - Press key 3 → BambooSapling slot highlights (previous highlight clears)
    - Open menu → Press key 2 → No selection change
    - Close menu → Press key 2 → Banana slot highlights
 

@@ -111,7 +111,7 @@ A 2D top-down multiplayer adventure game built with libGDX featuring infinite wo
 - **Automatic Pickup** - Items are automatically collected when walking near them (within 32 pixels)
 
 ### Targeting System (When Item Selected)
-When you select a placeable item (e.g., baby bamboo with key '3'), a white targeting indicator appears:
+When you select a placeable item (e.g., bamboo sapling with key '3'), a white targeting indicator appears:
 - **A** - Move target left
 - **W** - Move target up
 - **D** - Move target right
@@ -167,12 +167,12 @@ For a comprehensive list of all game features, mechanics, and technical details,
 - ⚔️ **Combat System** - Attack and destroy trees with visual health bars
 - 🔄 **Health Regeneration** - Damaged trees slowly recover health over time
 - 🌵 **Environmental Hazards** - Cacti that damage players on contact
-- 🎋 **Bamboo Planting System** - Plant baby bamboo on sand tiles using the targeting system; grows into harvestable bamboo trees (120s growth time)
+- 🎋 **Bamboo Planting System** - Plant bamboo sapling on sand tiles using the targeting system; grows into harvestable bamboo trees (120s growth time)
 - 🎯 **Tile Targeting System** - Visual targeting indicator for precise item placement with WASD controls
 
 #### Inventory & Items
 - 🎒 **Inventory System** - Separate inventories for singleplayer and multiplayer modes
-- 🍎 **Collectible Items** - Apples, bananas, baby bamboo, bamboo stacks, and wood stacks
+- 🍎 **Collectible Items** - Apples, bananas, bamboo sapling, bamboo stacks, and wood stacks
 - 🥤 **Manual Consumption** - Select consumable items and press space to consume (apples restore health, bananas reduce hunger)
 - 📦 **Item Drops** - Trees drop resources when destroyed
 - 🔄 **Network Sync** - Inventory synchronized across multiplayer sessions
@@ -221,7 +221,7 @@ For a comprehensive list of all game features, mechanics, and technical details,
 - **Server**: Configurable dedicated server with monitoring and logging
 - **Health System**: Player health with damage, restoration, and auto-consumption
 - **Collision System**: Precise hitboxes for all entities with optimized detection
-- **Planting System**: Plant baby bamboo on sand tiles with growth and transformation mechanics
+- **Planting System**: Plant bamboo sapling on sand tiles with growth and transformation mechanics
 - **Targeting System**: Visual tile-based targeting with WASD movement and persistent indicator while item selected
 - **Weather System**: Dynamic rain with water puddles that form during rain and evaporate after rain stops
 - **Flying Birds**: Ambient bird formations in V-shape patterns flying across the screen from random boundaries

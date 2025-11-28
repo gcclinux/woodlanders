@@ -16,7 +16,7 @@ The `executePlanting` method correctly handles both single-player and multiplaye
 
 ```java
 private void executePlanting(float targetX, float targetY) {
-    // Attempt to plant baby bamboo at target coordinates
+    // Attempt to plant bamboo sapling at target coordinates
     PlantedBamboo plantedBamboo = plantingSystem.attemptPlant(
         targetX, targetY, 
         inventoryManager, 
@@ -86,8 +86,8 @@ This happens before any network communication, ensuring single-player mode works
 
 Inventory deduction happens inside `PlantingSystem.attemptPlant()`:
 ```java
-// All validations passed - deduct baby bamboo from inventory
-boolean removed = inventoryManager.getCurrentInventory().removeBabyBamboo(1);
+// All validations passed - deduct bamboo sapling from inventory
+boolean removed = inventoryManager.getCurrentInventory().removeBambooSapling(1);
 if (!removed) {
     return null; // Failed to remove item
 }
@@ -112,7 +112,7 @@ Comprehensive tests have been created to verify:
 ## Code Flow Comparison
 
 ### Single-Player Mode
-1. Player presses 'P' key with baby bamboo selected
+1. Player presses 'P' key with bamboo sapling selected
 2. `handlePlantingAction()` activates targeting system
 3. Player moves target with A/W/D/X keys
 4. Player presses 'P' again to confirm
@@ -123,7 +123,7 @@ Comprehensive tests have been created to verify:
 9. **No network communication** (gameClient is null)
 
 ### Multiplayer Mode
-1. Player presses 'P' key with baby bamboo selected
+1. Player presses 'P' key with bamboo sapling selected
 2. `handlePlantingAction()` activates targeting system
 3. Player moves target with A/W/D/X keys
 4. Player presses 'P' again to confirm

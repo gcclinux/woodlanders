@@ -89,11 +89,11 @@ public class InventoryModeSwitchingTest {
         
         // Add items to multiplayer inventory
         inventoryManager.getCurrentInventory().addBanana(8);
-        inventoryManager.getCurrentInventory().addBabyBamboo(15);
+        inventoryManager.getCurrentInventory().addBambooSapling(15);
         
         // Verify multiplayer inventory has items
         assertEquals(8, inventoryManager.getMultiplayerInventory().getBananaCount(), "MP should have 8 bananas");
-        assertEquals(15, inventoryManager.getMultiplayerInventory().getBabyBambooCount(), "MP should have 15 baby bamboos");
+        assertEquals(15, inventoryManager.getMultiplayerInventory().getBambooSaplingCount(), "MP should have 15 baby bamboos");
         
         // Switch to single-player mode
         inventoryManager.setMultiplayerMode(false);
@@ -101,7 +101,7 @@ public class InventoryModeSwitchingTest {
         
         // Verify single-player inventory is empty
         assertEquals(0, inventoryManager.getSingleplayerInventory().getBananaCount(), "SP should have 0 bananas");
-        assertEquals(0, inventoryManager.getSingleplayerInventory().getBabyBambooCount(), "SP should have 0 baby bamboos");
+        assertEquals(0, inventoryManager.getSingleplayerInventory().getBambooSaplingCount(), "SP should have 0 baby bamboos");
         
         // Add different items to single-player inventory
         inventoryManager.getCurrentInventory().addApple(12);
@@ -117,7 +117,7 @@ public class InventoryModeSwitchingTest {
         
         // Verify multiplayer inventory is unchanged
         assertEquals(8, inventoryManager.getMultiplayerInventory().getBananaCount(), "MP should still have 8 bananas");
-        assertEquals(15, inventoryManager.getMultiplayerInventory().getBabyBambooCount(), "MP should still have 15 baby bamboos");
+        assertEquals(15, inventoryManager.getMultiplayerInventory().getBambooSaplingCount(), "MP should still have 15 baby bamboos");
         assertEquals(0, inventoryManager.getMultiplayerInventory().getAppleCount(), "MP should still have 0 apples");
         assertEquals(0, inventoryManager.getMultiplayerInventory().getWoodStackCount(), "MP should still have 0 wood stacks");
     }

@@ -747,7 +747,7 @@ public class WorldSaveManagerTest {
         wagemaker.uk.inventory.Inventory testInventory = new wagemaker.uk.inventory.Inventory();
         testInventory.setAppleCount(5);
         testInventory.setBananaCount(3);
-        testInventory.setBabyBambooCount(7);
+        testInventory.setBambooSaplingCount(7);
         testInventory.setBambooStackCount(4);
         testInventory.setBabyTreeCount(10); // Set BabyTree count
         testInventory.setWoodStackCount(6);
@@ -773,7 +773,7 @@ public class WorldSaveManagerTest {
         // Verify all inventory counts are restored correctly
         assertEquals(5, loadedData.getAppleCount(), "Apple count should be restored");
         assertEquals(3, loadedData.getBananaCount(), "Banana count should be restored");
-        assertEquals(7, loadedData.getBabyBambooCount(), "BabyBamboo count should be restored");
+        assertEquals(7, loadedData.getBambooSaplingCount(), "BambooSapling count should be restored");
         assertEquals(4, loadedData.getBambooStackCount(), "BambooStack count should be restored");
         assertEquals(10, loadedData.getBabyTreeCount(), "BabyTree count should be restored");
         assertEquals(6, loadedData.getWoodStackCount(), "WoodStack count should be restored");

@@ -62,7 +62,7 @@ Woodlanders/
 ### `wagemaker.uk.items` - Item Entities
 **Purpose**: Collectible items in the game world
 - `Apple.java`, `Banana.java` - Consumable items
-- `BabyBamboo.java`, `BabyTree.java` - Plantable items
+- `BambooSapling.java`, `BabyTree.java` - Plantable items
 - `BambooStack.java`, `WoodStack.java` - Resource items
 - `Pebble.java` - Stone resource
 

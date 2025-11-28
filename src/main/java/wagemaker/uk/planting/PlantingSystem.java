@@ -47,8 +47,8 @@ public class PlantingSystem {
             return null; // No inventory manager
         }
         
-        int babyBambooCount = inventoryManager.getCurrentInventory().getBabyBambooCount();
-        if (babyBambooCount <= 0) {
+        int bambooSaplingCount = inventoryManager.getCurrentInventory().getBambooSaplingCount();
+        if (bambooSaplingCount <= 0) {
             return null; // No baby bamboo in inventory
         }
         
@@ -62,7 +62,7 @@ public class PlantingSystem {
         }
         
         // All validations passed - deduct baby bamboo from inventory
-        boolean removed = inventoryManager.getCurrentInventory().removeBabyBamboo(1);
+        boolean removed = inventoryManager.getCurrentInventory().removeBambooSapling(1);
         if (!removed) {
             return null; // Failed to remove item (shouldn't happen after count check)
         }

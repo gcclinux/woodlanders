@@ -65,11 +65,11 @@
 - **Server Validation**: Server validates placement coordinates before accepting
 
 ## Planting System
-- **Baby Bamboo Planting**: Plant baby bamboo on sand tiles using the targeting system
+- **Bamboo Sapling Planting**: Plant bamboo sapling on sand tiles using the targeting system
 - **Growth Mechanics**: Planted bamboo grows over 120 seconds into a harvestable bamboo tree
 - **Biome Restrictions**: Can only plant on sand biome tiles
 - **Tile Occupation Check**: Cannot plant on tiles already occupied by trees or other objects
-- **Inventory Integration**: Automatically deducts baby bamboo from inventory on successful planting
+- **Inventory Integration**: Automatically deducts bamboo sapling from inventory on successful planting
 - **Visual Feedback**: Planted bamboo sprite appears immediately at target location
 - **Multiplayer Sync**: Planted bamboo synchronized across all connected clients
 - **Network Validation**: Server validates planting location and inventory before accepting

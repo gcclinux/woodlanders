@@ -4,7 +4,7 @@
 
   - Create `src/main/java/wagemaker/uk/planting/PlantedBamboo.java`
   - Implement constructor that accepts x, y coordinates and snaps to 64x64 tile grid
-  - Implement texture loading using existing BabyBamboo sprite coordinates (192, 128, 64x64)
+  - Implement texture loading using existing BambooSapling sprite coordinates (192, 128, 64x64)
   - Implement `update(float deltaTime)` method that increments growth timer and returns true when >= 120 seconds
   - Implement `isReadyToTransform()` method that checks if growth timer >= 120 seconds
   - Implement position getters `getX()` and `getY()`
@@ -16,13 +16,13 @@
 
   - Create `src/main/java/wagemaker/uk/planting/PlantingSystem.java`
   - Implement `attemptPlant()` method that validates and creates PlantedBamboo
-  - Implement validation: check if player has baby bamboo in inventory (slot 2)
+  - Implement validation: check if player has bamboo sapling in inventory (slot 2)
   - Implement validation: check if player is standing on sand tile using BiomeManager
   - Implement validation: check if tile is not occupied by existing PlantedBamboo
   - Implement validation: check if tile is not occupied by existing BambooTree
   - Implement `snapToTileGrid()` helper method to align coordinates to 64x64 grid
   - Implement `generatePlantedBambooKey()` method to create unique tile-based keys
-  - Deduct 1 baby bamboo from inventory on successful planting
+  - Deduct 1 bamboo sapling from inventory on successful planting
   - Return PlantedBamboo instance on success, null on failure
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 2.1, 2.2, 2.3, 5.1, 5.2, 5.3_
 
@@ -33,7 +33,7 @@
   - Add `Map<String, PlantedBamboo> plantedBamboos` field to Player class
   - Implement setter methods: `setPlantingSystem()`, `setBiomeManager()`, `setPlantedBamboos()`
   - Implement `handlePlantingAction()` method that checks for "p" key press
-  - Check if baby bamboo is selected (inventory slot 2) before attempting to plant
+  - Check if bamboo sapling is selected (inventory slot 2) before attempting to plant
   - Call `plantingSystem.attemptPlant()` with player position and required references
   - Add planted bamboo to game world map if planting succeeds
   - Call `handlePlantingAction()` in Player's `update()` method after inventory selection handling

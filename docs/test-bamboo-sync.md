@@ -1,9 +1,9 @@
-# Baby Bamboo Multiplayer Synchronization Test
+# Bamboo Sapling Multiplayer Synchronization Test
 
 ## Issue Description
-Player 1 plants ~20 baby bamboo trees in a square pattern around Player 2.
-Player 2 only sees 2 of those baby bamboo trees on their screen.
-Once the baby bamboo grows into full bamboo trees, both players can see them.
+Player 1 plants ~20 bamboo sapling trees in a square pattern around Player 2.
+Player 2 only sees 2 of those bamboo sapling trees on their screen.
+Once the bamboo sapling grows into full bamboo trees, both players can see them.
 
 ## Debug Logging Added
 I've added comprehensive debug logging to trace the bamboo planting synchronization:
@@ -44,8 +44,8 @@ Launch the game and start/join a multiplayer session.
 Launch another instance and connect to the server.
 
 ### Step 4: Test Bamboo Planting
-1. Have Player 1 collect baby bamboo items
-2. Have Player 1 plant multiple baby bamboo trees around Player 2
+1. Have Player 1 collect bamboo sapling items
+2. Have Player 1 plant multiple bamboo sapling trees around Player 2
 3. Watch BOTH client consoles for debug output
 
 ### Expected Debug Output on Player 1 (Planter):

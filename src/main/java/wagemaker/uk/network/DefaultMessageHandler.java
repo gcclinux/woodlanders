@@ -374,7 +374,7 @@ public class DefaultMessageHandler implements MessageHandler {
         System.out.println("Inventory sync for player " + message.getPlayerId() + 
                          ": Apples=" + message.getAppleCount() +
                          ", Bananas=" + message.getBananaCount() +
-                         ", BabyBamboo=" + message.getBabyBambooCount() +
+                         ", BambooSapling=" + message.getBambooSaplingCount() +
                          ", BambooStack=" + message.getBambooStackCount() +
                          ", WoodStack=" + message.getWoodStackCount());
     }

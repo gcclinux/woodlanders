@@ -92,7 +92,7 @@
   - Test inventory deduction after targeted planting
   - Test planted bamboo appears at correct coordinates
   - Test targeting mode deactivates after planting
-  - Test targeting with no baby bamboo in inventory
+  - Test targeting with no bamboo sapling in inventory
   - Test targeting on invalid biome types
   - Test targeting on occupied tiles
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 7.1, 7.2, 7.3, 7.4, 7.5_

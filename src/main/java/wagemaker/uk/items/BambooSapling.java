@@ -3,11 +3,11 @@ package wagemaker.uk.items;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 
-public class BabyBamboo {
+public class BambooSapling {
     private float x, y;
     private Texture texture;
 
-    public BabyBamboo(float x, float y) {
+    public BambooSapling(float x, float y) {
         this.x = x;
         this.y = y;
         createTexture();
@@ -19,7 +19,7 @@ public class BabyBamboo {
         spriteSheet.getTextureData().prepare();
         Pixmap sheetPixmap = spriteSheet.getTextureData().consumePixmap();
         
-        // BabyBamboo coordinates: 192 from left, 128 from top, 64x64 size
+        // BambooSapling coordinates: 192 from left, 128 from top, 64x64 size
         pixmap.drawPixmap(sheetPixmap, 0, 0, 192, 128, 64, 64);
         
         texture = new Texture(pixmap);

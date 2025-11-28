@@ -7,7 +7,7 @@ User was unable to consume bananas when hungry because the targeting system was 
 When selecting any item (including bananas and apples), the inventory selection logic was automatically activating the targeting system. This caused the space bar to attempt planting instead of consuming.
 
 ## Fix Applied
-Modified `Player.handleInventorySelection()` to only activate targeting for **plantable items** (baby bamboo, bamboo stack, wood stack, pebbles). Consumable items (apples, bananas) now do NOT activate targeting, allowing space bar to consume them directly.
+Modified `Player.handleInventorySelection()` to only activate targeting for **plantable items** (bamboo sapling, bamboo stack, wood stack, pebbles). Consumable items (apples, bananas) now do NOT activate targeting, allowing space bar to consume them directly.
 
 ## Important Note
 **Bananas reduce HUNGER, not restore health!**
@@ -58,7 +58,7 @@ Consumed BANANA - reduced 5% hunger
 ## Common Issues
 
 ### Issue 1: Targeting Mode Active
-If you have a plantable item selected (baby bamboo, bamboo stack, etc.), the targeting system might be active. This causes space bar to plant instead of consume.
+If you have a plantable item selected (bamboo sapling, bamboo stack, etc.), the targeting system might be active. This causes space bar to plant instead of consume.
 
 **Solution**: Press `ESC` to cancel targeting, then try consuming again.
 

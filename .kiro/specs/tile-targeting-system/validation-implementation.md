@@ -13,7 +13,7 @@ This document describes the validation and error handling features added to the 
 - `PlantingTargetValidator` class - Implements validation logic for bamboo planting
 
 **Validation Checks:**
-1. **Inventory Availability** - Checks if baby bamboo is selected (slot 2) and available in inventory
+1. **Inventory Availability** - Checks if bamboo sapling is selected (slot 2) and available in inventory
 2. **Biome Type** - Validates that target tile is on sand biome (bamboo can only be planted on sand)
 3. **Tile Occupancy** - Ensures tile is not occupied by existing planted bamboo or bamboo trees
 
@@ -64,7 +64,7 @@ try {
     plantedBamboo.dispose();
     
     // Rollback: restore inventory
-    inventoryManager.getCurrentInventory().addBabyBamboo(1);
+    inventoryManager.getCurrentInventory().addBambooSapling(1);
 }
 ```
 
@@ -76,7 +76,7 @@ try {
 - Ensures validator always has current game state
 
 **Dependencies Required:**
-- InventoryManager - for checking baby bamboo availability
+- InventoryManager - for checking bamboo sapling availability
 - BiomeManager - for checking tile biome type
 - PlantedBamboos map - for checking tile occupancy
 - BambooTrees map - for checking tile occupancy
@@ -84,14 +84,14 @@ try {
 ## User Experience
 
 ### Valid Target Selection
-1. Player presses 'P' with baby bamboo selected
+1. Player presses 'P' with bamboo sapling selected
 2. White indicator appears at player position
 3. Player moves cursor with A/W/D/X keys
 4. Indicator remains white on valid sand tiles
 5. Player presses 'P' to confirm and plant
 
 ### Invalid Target Selection
-1. Player presses 'P' with baby bamboo selected
+1. Player presses 'P' with bamboo sapling selected
 2. White indicator appears at player position
 3. Player moves cursor to grass tile or occupied tile
 4. **Indicator turns red** to show invalid position
@@ -141,7 +141,7 @@ This implementation satisfies the following requirements:
 ### Manual Testing
 1. Test planting on grass tiles (should show red indicator)
 2. Test planting on occupied tiles (should show red indicator)
-3. Test planting with no baby bamboo (should show red indicator)
+3. Test planting with no bamboo sapling (should show red indicator)
 4. Test planting on valid sand tiles (should show white indicator)
 5. Test network disconnection during planting (should rollback)
 

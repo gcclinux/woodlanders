@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import wagemaker.uk.items.Apple;
-import wagemaker.uk.items.BabyBamboo;
+import wagemaker.uk.items.BambooSapling;
 import wagemaker.uk.items.BabyTree;
 import wagemaker.uk.items.Banana;
 import wagemaker.uk.items.BambooStack;
@@ -88,7 +88,7 @@ public class Player {
     private Map<String, Apple> apples;
     private Map<String, Banana> bananas;
     private Map<String, wagemaker.uk.items.BambooStack> bambooStacks;
-    private Map<String, wagemaker.uk.items.BabyBamboo> babyBamboos;
+    private Map<String, wagemaker.uk.items.BambooSapling> bambooSaplings;
     private Map<String, BabyTree> babyTrees;
     private Map<String, WoodStack> woodStacks;
     private Map<String, Pebble> pebbles;
@@ -172,8 +172,8 @@ public class Player {
         this.bambooStacks = bambooStacks;
     }
     
-    public void setBabyBamboos(Map<String, wagemaker.uk.items.BabyBamboo> babyBamboos) {
-        this.babyBamboos = babyBamboos;
+    public void setBambooSaplings(Map<String, wagemaker.uk.items.BambooSapling> bambooSaplings) {
+        this.bambooSaplings = bambooSaplings;
     }
     
     public void setBabyTrees(Map<String, BabyTree> babyTrees) {
@@ -549,7 +549,7 @@ public class Player {
         checkBambooStackPickups();
         
         // Check for baby bamboo pickups
-        checkBabyBambooPickups();
+        checkBambooSaplingPickups();
         
         // Check for baby tree pickups
         checkBabyTreePickups();
@@ -1049,19 +1049,19 @@ public class Player {
                     
                     if (destroyed) {
                         // Randomly choose drop pattern: 
-                        // 33% chance: 1 BambooStack + 1 BabyBamboo
+                        // 33% chance: 1 BambooStack + 1 BambooSapling
                         // 33% chance: 2 BambooStack
-                        // 33% chance: 2 BabyBamboo
+                        // 33% chance: 2 BambooSapling
                         float dropRoll = (float) Math.random();
                         
                         if (dropRoll < 0.33f) {
-                            // Drop 1 BambooStack + 1 BabyBamboo (original behavior)
+                            // Drop 1 BambooStack + 1 BambooSapling (original behavior)
                             bambooStacks.put(targetKey + "-bamboostack", 
                                 new BambooStack(targetBambooTree.getX(), targetBambooTree.getY()));
-                            babyBamboos.put(targetKey + "-babybamboo", 
-                                new BabyBamboo(targetBambooTree.getX() + 8, targetBambooTree.getY()));
+                            bambooSaplings.put(targetKey + "-babybamboo", 
+                                new BambooSapling(targetBambooTree.getX() + 8, targetBambooTree.getY()));
                             System.out.println("BambooStack dropped at: " + targetBambooTree.getX() + ", " + targetBambooTree.getY());
-                            System.out.println("BabyBamboo dropped at: " + (targetBambooTree.getX() + 8) + ", " + targetBambooTree.getY());
+                            System.out.println("BambooSapling dropped at: " + (targetBambooTree.getX() + 8) + ", " + targetBambooTree.getY());
                         } else if (dropRoll < 0.66f) {
                             // Drop 2 BambooStack
                             bambooStacks.put(targetKey + "-bamboostack1", 
@@ -1070,12 +1070,12 @@ public class Player {
                                 new BambooStack(targetBambooTree.getX() + 8, targetBambooTree.getY()));
                             System.out.println("2x BambooStack dropped at: " + targetBambooTree.getX() + ", " + targetBambooTree.getY());
                         } else {
-                            // Drop 2 BabyBamboo
-                            babyBamboos.put(targetKey + "-babybamboo1", 
-                                new BabyBamboo(targetBambooTree.getX(), targetBambooTree.getY()));
-                            babyBamboos.put(targetKey + "-babybamboo2", 
-                                new BabyBamboo(targetBambooTree.getX() + 8, targetBambooTree.getY()));
-                            System.out.println("2x BabyBamboo dropped at: " + targetBambooTree.getX() + ", " + targetBambooTree.getY());
+                            // Drop 2 BambooSapling
+                            bambooSaplings.put(targetKey + "-babybamboo1", 
+                                new BambooSapling(targetBambooTree.getX(), targetBambooTree.getY()));
+                            bambooSaplings.put(targetKey + "-babybamboo2", 
+                                new BambooSapling(targetBambooTree.getX() + 8, targetBambooTree.getY()));
+                            System.out.println("2x BambooSapling dropped at: " + targetBambooTree.getX() + ", " + targetBambooTree.getY());
                         }
                         
                         // Register for respawn before removing
@@ -1409,7 +1409,7 @@ public class Player {
         
         // Handle baby bamboo planting (slot 2)
         if (selectedSlot == 2) {
-            if (inventoryManager.getCurrentInventory().getBabyBambooCount() > 0) {
+            if (inventoryManager.getCurrentInventory().getBambooSaplingCount() > 0) {
                 executePlanting(targetX, targetY);
             } else {
                 System.out.println("No baby bamboo in inventory");
@@ -1504,7 +1504,7 @@ public class Player {
      */
     private void executePlanting(float targetX, float targetY) {
         // Store initial inventory state for potential rollback
-        int initialBabyBambooCount = inventoryManager.getCurrentInventory().getBabyBambooCount();
+        int initialBambooSaplingCount = inventoryManager.getCurrentInventory().getBambooSaplingCount();
         
         // Attempt to plant baby bamboo at target coordinates
         PlantedBamboo plantedBamboo = plantingSystem.attemptPlant(
@@ -1540,7 +1540,7 @@ public class Player {
                     plantedBamboo.dispose();
                     
                     // Restore inventory (add baby bamboo back)
-                    inventoryManager.getCurrentInventory().addBabyBamboo(1);
+                    inventoryManager.getCurrentInventory().addBambooSapling(1);
                     
                     System.out.println("Planting rolled back due to network error");
                 }
@@ -2034,30 +2034,30 @@ public class Player {
         }
     }
     
-    private void checkBabyBambooPickups() {
-        if (babyBamboos != null) {
+    private void checkBambooSaplingPickups() {
+        if (bambooSaplings != null) {
             // Check all baby bamboos for pickup
-            for (Map.Entry<String, BabyBamboo> entry : babyBamboos.entrySet()) {
-                BabyBamboo babyBamboo = entry.getValue();
-                String babyBambooKey = entry.getKey();
+            for (Map.Entry<String, BambooSapling> entry : bambooSaplings.entrySet()) {
+                BambooSapling bambooSapling = entry.getValue();
+                String bambooSaplingKey = entry.getKey();
                 
                 // Check if player is close enough to pick up baby bamboo (32px range)
-                float dx = Math.abs((x + 32) - (babyBamboo.getX() + 16)); // Player center to baby bamboo center
-                float dy = Math.abs((y + 32) - (babyBamboo.getY() + 16)); // BabyBamboo is 32x32, so center is +16
+                float dx = Math.abs((x + 32) - (bambooSapling.getX() + 16)); // Player center to baby bamboo center
+                float dy = Math.abs((y + 32) - (bambooSapling.getY() + 16)); // BambooSapling is 32x32, so center is +16
                 
                 if (dx <= 32 && dy <= 32) {
                     // Pick up the baby bamboo
-                    pickupBabyBamboo(babyBambooKey);
+                    pickupBambooSapling(bambooSaplingKey);
                     break; // Only pick up one baby bamboo per frame
                 }
             }
         }
     }
     
-    private void pickupBabyBamboo(String babyBambooKey) {
+    private void pickupBambooSapling(String bambooSaplingKey) {
         // Send pickup request to server in multiplayer mode
         if (gameClient != null && gameClient.isConnected() && isLocalPlayer) {
-            gameClient.sendItemPickup(babyBambooKey);
+            gameClient.sendItemPickup(bambooSaplingKey);
             // In multiplayer, server handles item removal
             // The server will broadcast the pickup to all clients
         } else {
@@ -2067,11 +2067,11 @@ public class Player {
             }
             
             // Remove baby bamboo from game
-            if (babyBamboos.containsKey(babyBambooKey)) {
-                BabyBamboo babyBamboo = babyBamboos.get(babyBambooKey);
-                babyBamboo.dispose();
-                babyBamboos.remove(babyBambooKey);
-                System.out.println("BabyBamboo removed from game");
+            if (bambooSaplings.containsKey(bambooSaplingKey)) {
+                BambooSapling bambooSapling = bambooSaplings.get(bambooSaplingKey);
+                bambooSapling.dispose();
+                bambooSaplings.remove(bambooSaplingKey);
+                System.out.println("BambooSapling removed from game");
             }
         }
     }

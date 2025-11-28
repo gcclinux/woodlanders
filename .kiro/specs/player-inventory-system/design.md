@@ -78,7 +78,7 @@ Represents a single inventory (either single-player or multiplayer).
 public class Inventory {
     private int appleCount;
     private int bananaCount;
-    private int babyBambooCount;
+    private int bambooSaplingCount;
     private int bambooStackCount;
     private int woodStackCount;
     
@@ -254,7 +254,7 @@ public void savePlayerPosition() {
         jsonBuilder.append("  \"singleplayerInventory\": {\n");
         jsonBuilder.append(String.format("    \"apple\": %d,\n", spInv.getAppleCount()));
         jsonBuilder.append(String.format("    \"banana\": %d,\n", spInv.getBananaCount()));
-        jsonBuilder.append(String.format("    \"babyBamboo\": %d,\n", spInv.getBabyBambooCount()));
+        jsonBuilder.append(String.format("    \"babyBamboo\": %d,\n", spInv.getBambooSaplingCount()));
         jsonBuilder.append(String.format("    \"bambooStack\": %d,\n", spInv.getBambooStackCount()));
         jsonBuilder.append(String.format("    \"woodStack\": %d\n", spInv.getWoodStackCount()));
         jsonBuilder.append("  },\n");
@@ -295,7 +295,7 @@ public boolean loadPlayerPosition() {
 public class Inventory {
     private int appleCount = 0;
     private int bananaCount = 0;
-    private int babyBambooCount = 0;
+    private int bambooSaplingCount = 0;
     private int bambooStackCount = 0;
     private int woodStackCount = 0;
 }
@@ -490,7 +490,7 @@ try {
 **Existing Assets to Use**:
 - Apple icon: From existing Apple.java texture
 - Banana icon: From existing Banana.java texture
-- BabyBamboo icon: From existing BabyBamboo.java texture
+- BambooSapling icon: From existing BambooSapling.java texture
 - BambooStack icon: From existing BambooStack.java texture
 - WoodStack icon: From existing WoodStack.java texture
 

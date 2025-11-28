@@ -16,7 +16,7 @@ Updated the main README.md to document the new tile targeting system and context
 ```markdown
 ### Actions
 - **Spacebar** - Attack nearby trees
-- **P** - Plant baby bamboo (when standing on sand with baby bamboo in inventory slot 2)
+- **P** - Plant bamboo sapling (when standing on sand with bamboo sapling in inventory slot 2)
 ```
 
 **After:**
@@ -40,7 +40,7 @@ Updated the main README.md to document the new tile targeting system and context
 **Full section:**
 ```markdown
 ### Targeting System (When Item Selected)
-When you select a placeable item (e.g., baby bamboo with key '3'), a white targeting indicator appears:
+When you select a placeable item (e.g., bamboo sapling with key '3'), a white targeting indicator appears:
 - **A** - Move target left
 - **W** - Move target up
 - **D** - Move target right
@@ -72,7 +72,7 @@ The targeting system stays active as long as an item is selected, allowing you t
 - **1-6 Keys** - Select/deselect inventory slots (toggle selection)
   - **1** - Apples (consumable)
   - **2** - Bananas (consumable)
-  - **3** - Baby Bamboo (placeable on sand)
+  - **3** - Bamboo Sapling (placeable on sand)
   - **4** - Bamboo Stack (resource)
   - **5** - Wood Stack (resource)
   - **6** - Pebbles (resource)
@@ -85,7 +85,7 @@ The targeting system stays active as long as an item is selected, allowing you t
 **Added targeting system to feature list:**
 
 ```markdown
-- 🎋 **Bamboo Planting System** - Plant baby bamboo on sand tiles using the targeting system; grows into harvestable bamboo trees (120s growth time)
+- 🎋 **Bamboo Planting System** - Plant bamboo sapling on sand tiles using the targeting system; grows into harvestable bamboo trees (120s growth time)
 - 🎯 **Tile Targeting System** - Visual targeting indicator for precise item placement with WASD controls
 ```
 

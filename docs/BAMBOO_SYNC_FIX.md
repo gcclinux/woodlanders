@@ -1,8 +1,8 @@
-# Baby Bamboo Multiplayer Synchronization - FIXED ✅
+# Bamboo Sapling Multiplayer Synchronization - FIXED ✅
 
 ## Problem Identified
 
-Player 2 was only seeing some of the baby bamboo trees planted by Player 1, but could see ALL the full bamboo trees after 120 seconds of growth.
+Player 2 was only seeing some of the bamboo sapling trees planted by Player 1, but could see ALL the full bamboo trees after 120 seconds of growth.
 
 ## Root Causes (Two Issues Fixed)
 
@@ -74,7 +74,7 @@ public PlantedBamboo(float x, float y) {
 
 private void createTexture() {
     Texture spriteSheet = new Texture("sprites/assets.png"); // Load entire sheet
-    // ... extract baby bamboo sprite ...
+    // ... extract bamboo sapling sprite ...
     texture = new Texture(pixmap); // Create new texture
     spriteSheet.dispose(); // Dispose sheet
 }
@@ -125,7 +125,7 @@ public Texture getTexture() {
 Start Player 1 and Player 2 clients and connect to the server.
 
 ### Step 3: Reproduce Original Test
-1. Have Player 1 collect baby bamboo items
+1. Have Player 1 collect bamboo sapling items
 2. Have Player 1 plant multiple bamboos around Player 2
 3. **Expected Result**: Player 2 should now see ALL planted bamboos
 
@@ -170,11 +170,11 @@ If you still see synchronization issues after this fix:
 
 **None.** This is just a validation threshold change - no performance impact.
 
-## Why Bamboo Trees Were Visible But Baby Bamboos Weren't
+## Why Bamboo Trees Were Visible But Bamboo Saplings Weren't
 
 This is the key clue that revealed the texture issue:
 
-1. **Baby Bamboo (PlantedBamboo)**: Each instance created its own texture → some failed → invisible
+1. **Bamboo Sapling (PlantedBamboo)**: Each instance created its own texture → some failed → invisible
 2. **Bamboo Tree (BambooTree)**: Uses a different rendering system that doesn't have this issue
 3. After 120 seconds, PlantedBamboo transforms to BambooTree → suddenly visible!
 
@@ -204,4 +204,4 @@ By using a shared texture for all PlantedBamboo instances, we:
 
 **Status: FIXED ✅**
 
-Test it out - Player 2 should now see ALL baby bamboos immediately when Player 1 plants them!
+Test it out - Player 2 should now see ALL bamboo saplings immediately when Player 1 plants them!

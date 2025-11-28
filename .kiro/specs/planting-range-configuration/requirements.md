@@ -6,7 +6,7 @@ This document specifies the requirements for a Configurable Planting Range Syste
 
 ## Glossary
 
-- **Planting System**: The game subsystem that handles placement of plantable items (e.g., baby bamboo) in the game world
+- **Planting System**: The game subsystem that handles placement of plantable items (e.g., bamboo sapling) in the game world
 - **Targeting System**: The client-side subsystem that manages the visual cursor indicating where a player intends to plant
 - **Server Config**: The server-side configuration management component that loads and validates settings from server.properties
 - **Client Connection**: The server-side component that handles individual client connections and validates client actions

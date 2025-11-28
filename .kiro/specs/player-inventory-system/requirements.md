@@ -30,7 +30,7 @@ This document specifies the requirements for a comprehensive player inventory sy
 
 1.3 WHEN an item is collected, THE Player Inventory System SHALL remove the item entity from the game world
 
-1.4 THE Player Inventory System SHALL maintain separate item counts for each collectable item type (Apple, Banana, BabyBamboo, BambooStack, WoodStack)
+1.4 THE Player Inventory System SHALL maintain separate item counts for each collectable item type (Apple, Banana, BambooSapling, BambooStack, WoodStack)
 
 ### Requirement 2: Health-Based Consumption Logic
 
@@ -56,7 +56,7 @@ This document specifies the requirements for a comprehensive player inventory sy
 
 3.1 THE Player Inventory System SHALL maintain separate inventory storage for single-player mode and multiplayer mode
 
-3.2 THE Player Inventory System SHALL store item quantities for five item types: Apple, Banana, BabyBamboo, BambooStack, and WoodStack
+3.2 THE Player Inventory System SHALL store item quantities for five item types: Apple, Banana, BambooSapling, BambooStack, and WoodStack
 
 3.3 WHEN an item is added to inventory, THE Player Inventory System SHALL increment the count for that item type
 
@@ -84,7 +84,7 @@ This document specifies the requirements for a comprehensive player inventory sy
 
 4.7 THE Player Inventory System SHALL update the displayed item counts in real-time when inventory changes occur
 
-4.8 THE Player Inventory System SHALL display inventory slots in the following order: Apple, Banana, BabyBamboo, BambooStack, WoodStack
+4.8 THE Player Inventory System SHALL display inventory slots in the following order: Apple, Banana, BambooSapling, BambooStack, WoodStack
 
 ### Requirement 5: Game Mode Separation
 

@@ -24,7 +24,7 @@ This document specifies the requirements for keyboard bindings that allow player
 
 1.2 WHEN the player presses keyboard key "2", THE Inventory Keyboard Binding System SHALL select the Banana item (slot 2)
 
-1.3 WHEN the player presses keyboard key "3", THE Inventory Keyboard Binding System SHALL select the BabyBamboo item (slot 3)
+1.3 WHEN the player presses keyboard key "3", THE Inventory Keyboard Binding System SHALL select the BambooSapling item (slot 3)
 
 1.4 WHEN the player presses keyboard key "4", THE Inventory Keyboard Binding System SHALL select the BambooStack item (slot 4)
 
@@ -86,7 +86,7 @@ This document specifies the requirements for keyboard bindings that allow player
 
 4.3 WHEN an inventory slot is empty (count = 0), THE Inventory Keyboard Binding System SHALL still allow selection of that slot
 
-4.4 THE Inventory Keyboard Binding System SHALL use the existing inventory slot order: Apple, Banana, BabyBamboo, BambooStack, WoodStack
+4.4 THE Inventory Keyboard Binding System SHALL use the existing inventory slot order: Apple, Banana, BambooSapling, BambooStack, WoodStack
 
 4.5 THE Inventory Keyboard Binding System SHALL not interfere with existing inventory collection, consumption, or persistence features
 

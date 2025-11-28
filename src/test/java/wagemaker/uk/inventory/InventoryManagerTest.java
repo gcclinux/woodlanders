@@ -170,11 +170,11 @@ public class InventoryManagerTest {
     }
     
     @Test
-    public void testCollectBabyBambooStoresItem() {
+    public void testCollectBambooSaplingStoresItem() {
         player.setHealth(30);
         inventoryManager.collectItem(ItemType.BABY_BAMBOO);
         
-        assertEquals(1, inventoryManager.getCurrentInventory().getBabyBambooCount(), 
+        assertEquals(1, inventoryManager.getCurrentInventory().getBambooSaplingCount(), 
             "Baby bamboo should be stored in inventory");
         assertEquals(30, player.getHealth(), 0.01f, 
             "Health should not change for non-consumable items");

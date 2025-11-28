@@ -1,8 +1,8 @@
-# Baby Bamboo Multiplayer Synchronization - FINAL FIX ✅
+# Bamboo Sapling Multiplayer Synchronization - FINAL FIX ✅
 
 ## Problem Confirmed
 
-Player 2 was seeing only 9 out of 12 baby bamboo trees planted by Player 1.
+Player 2 was seeing only 9 out of 12 bamboo sapling trees planted by Player 1.
 
 ## Root Cause (CONFIRMED)
 

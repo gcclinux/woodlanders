@@ -44,7 +44,7 @@
   - Update pickupApple() to call inventoryManager.collectItem(APPLE)
   - Update pickupBanana() to call inventoryManager.collectItem(BANANA)
   - Update pickupBambooStack() to call inventoryManager.collectItem(BAMBOO_STACK)
-  - Update pickupBabyBamboo() to call inventoryManager.collectItem(BABY_BAMBOO)
+  - Update pickupBambooSapling() to call inventoryManager.collectItem(BABY_BAMBOO)
   - Update pickupWoodStack() to call inventoryManager.collectItem(WOOD_STACK)
   - Remove direct health restoration from pickup methods
   - _Requirements: 1.2, 1.3, 2.1, 2.2, 2.3_
@@ -77,7 +77,7 @@
   - Create renderSlot() method for individual slot rendering
   - Render item icons at 32×32 size centered in slots
   - Render item counts above icons with shadow for readability
-  - Display slots in order: Apple, Banana, BabyBamboo, BambooStack, WoodStack
+  - Display slots in order: Apple, Banana, BambooSapling, BambooStack, WoodStack
   - _Requirements: 4.2, 4.3, 4.4, 4.7, 4.8, 7.3_
 
 - [x] 4.4 Integrate InventoryRenderer into game render loop

@@ -96,12 +96,12 @@ private void handleItemPlacement(float targetX, float targetY) {
     
     int selectedSlot = inventoryManager.getSelectedSlot();
     
-    // Handle baby bamboo planting (slot 2)
+    // Handle bamboo sapling planting (slot 2)
     if (selectedSlot == 2) {
-        if (inventoryManager.getCurrentInventory().getBabyBambooCount() > 0) {
+        if (inventoryManager.getCurrentInventory().getBambooSaplingCount() > 0) {
             executePlanting(targetX, targetY);
         } else {
-            System.out.println("No baby bamboo in inventory");
+            System.out.println("No bamboo sapling in inventory");
         }
     }
     // Add handling for other items here in the future
@@ -114,14 +114,14 @@ private void handleItemPlacement(float targetX, float targetY) {
 ## User Experience Flow
 
 ### Before:
-1. Press '3' to select baby bamboo
+1. Press '3' to select bamboo sapling
 2. Press 'P' to activate targeting (white dot appears)
 3. Use A/W/D/X to move the target
 4. Press 'P' again to confirm and plant
 5. Targeting deactivates automatically
 
 ### After:
-1. Press '3' to select baby bamboo (white dot appears immediately)
+1. Press '3' to select bamboo sapling (white dot appears immediately)
 2. Use A/W/D/S to move the target
 3. Press 'P' to plant at current target location
 4. Targeting remains active (dot still visible)
@@ -149,7 +149,7 @@ private void handleItemPlacement(float targetX, float targetY) {
 The `handleItemPlacement()` method is designed to support other placeable items in the future:
 - Slot 0: Apples (consumable, not placeable)
 - Slot 1: Bananas (consumable, not placeable)
-- Slot 2: Baby Bamboo (placeable) ✓
+- Slot 2: Bamboo Sapling (placeable) ✓
 - Slot 3: Bamboo Stack (potentially placeable)
 - Slot 4: Wood Stack (potentially placeable)
 - Slot 5: Pebbles (potentially placeable)

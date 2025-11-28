@@ -61,7 +61,7 @@ public class TargetedPlantingSinglePlayerTest {
         bambooTrees = new HashMap<>();
         
         // Add baby bamboo to inventory for testing
-        inventoryManager.getCurrentInventory().addBabyBamboo(5);
+        inventoryManager.getCurrentInventory().addBambooSapling(5);
     }
     
     @Test
@@ -70,7 +70,7 @@ public class TargetedPlantingSinglePlayerTest {
         float targetX = 64.0f;
         float targetY = 64.0f;
         
-        int initialBabyBambooCount = inventoryManager.getCurrentInventory().getBabyBambooCount();
+        int initialBambooSaplingCount = inventoryManager.getCurrentInventory().getBambooSaplingCount();
         
         // Act: Attempt to plant at target coordinates
         PlantedBamboo result = plantingSystem.attemptPlant(
@@ -87,8 +87,8 @@ public class TargetedPlantingSinglePlayerTest {
         assertEquals(64.0f, result.getY(), 0.01f, "Planted bamboo Y should match target");
         
         // Verify inventory was deducted
-        int finalBabyBambooCount = inventoryManager.getCurrentInventory().getBabyBambooCount();
-        assertEquals(initialBabyBambooCount - 1, finalBabyBambooCount, 
+        int finalBambooSaplingCount = inventoryManager.getCurrentInventory().getBambooSaplingCount();
+        assertEquals(initialBambooSaplingCount - 1, finalBambooSaplingCount, 
             "Baby bamboo count should decrease by 1");
     }
     
@@ -134,7 +134,7 @@ public class TargetedPlantingSinglePlayerTest {
         float targetX = 256.0f;
         float targetY = 320.0f;
         
-        int initialCount = inventoryManager.getCurrentInventory().getBabyBambooCount();
+        int initialCount = inventoryManager.getCurrentInventory().getBambooSaplingCount();
         assertEquals(5, initialCount, "Should start with 5 baby bamboos");
         
         // Act: Plant bamboo
@@ -148,15 +148,15 @@ public class TargetedPlantingSinglePlayerTest {
         
         // Assert: Inventory should be deducted
         assertNotNull(result, "Planting should succeed");
-        int finalCount = inventoryManager.getCurrentInventory().getBabyBambooCount();
+        int finalCount = inventoryManager.getCurrentInventory().getBambooSaplingCount();
         assertEquals(4, finalCount, "Should have 4 baby bamboos after planting");
     }
     
     @Test
     public void testPlantingFailsWithNoInventory() {
         // Arrange: Remove all baby bamboo from inventory
-        inventoryManager.getCurrentInventory().removeBabyBamboo(5);
-        assertEquals(0, inventoryManager.getCurrentInventory().getBabyBambooCount(), 
+        inventoryManager.getCurrentInventory().removeBambooSapling(5);
+        assertEquals(0, inventoryManager.getCurrentInventory().getBambooSaplingCount(), 
             "Should have 0 baby bamboos");
         
         float targetX = 64.0f;
@@ -208,7 +208,7 @@ public class TargetedPlantingSinglePlayerTest {
         assertNull(secondPlant, "Planting should fail on occupied tile");
         
         // Verify inventory was only deducted once
-        assertEquals(4, inventoryManager.getCurrentInventory().getBabyBambooCount(), 
+        assertEquals(4, inventoryManager.getCurrentInventory().getBambooSaplingCount(), 
             "Should have 4 baby bamboos (only first planting deducted)");
     }
     
@@ -221,7 +221,7 @@ public class TargetedPlantingSinglePlayerTest {
             {64.0f, 128.0f}
         };
         
-        int initialCount = inventoryManager.getCurrentInventory().getBabyBambooCount();
+        int initialCount = inventoryManager.getCurrentInventory().getBambooSaplingCount();
         
         // Act: Plant at each location
         for (float[] target : targets) {
@@ -246,7 +246,7 @@ public class TargetedPlantingSinglePlayerTest {
         assertEquals(3, plantedBamboos.size(), "Should have 3 planted bamboos");
         
         // Verify inventory was deducted correctly
-        int finalCount = inventoryManager.getCurrentInventory().getBabyBambooCount();
+        int finalCount = inventoryManager.getCurrentInventory().getBambooSaplingCount();
         assertEquals(initialCount - 3, finalCount, "Should have deducted 3 baby bamboos");
     }
     
@@ -263,7 +263,7 @@ public class TargetedPlantingSinglePlayerTest {
         float targetX = 64.0f;
         float targetY = 64.0f;
         
-        int initialCount = inventoryManager.getCurrentInventory().getBabyBambooCount();
+        int initialCount = inventoryManager.getCurrentInventory().getBambooSaplingCount();
         
         // Act: Attempt to plant on grass tile
         PlantedBamboo result = plantingSystem.attemptPlant(
@@ -278,7 +278,7 @@ public class TargetedPlantingSinglePlayerTest {
         assertNull(result, "Planting should fail on GRASS biome (only SAND is valid)");
         
         // Verify inventory was not deducted
-        int finalCount = inventoryManager.getCurrentInventory().getBabyBambooCount();
+        int finalCount = inventoryManager.getCurrentInventory().getBambooSaplingCount();
         assertEquals(initialCount, finalCount, "Inventory should not be deducted on failed planting");
     }
     
@@ -381,7 +381,7 @@ public class TargetedPlantingSinglePlayerTest {
         String key = "planted-bamboo-64-64";
         bambooTrees.put(key, bambooTree);
         
-        int initialCount = inventoryManager.getCurrentInventory().getBabyBambooCount();
+        int initialCount = inventoryManager.getCurrentInventory().getBambooSaplingCount();
         
         // Act: Attempt to plant at same location
         PlantedBamboo result = plantingSystem.attemptPlant(
@@ -396,7 +396,7 @@ public class TargetedPlantingSinglePlayerTest {
         assertNull(result, "Planting should fail on tile occupied by bamboo tree");
         
         // Verify inventory was not deducted
-        int finalCount = inventoryManager.getCurrentInventory().getBabyBambooCount();
+        int finalCount = inventoryManager.getCurrentInventory().getBambooSaplingCount();
         assertEquals(initialCount, finalCount, "Inventory should not be deducted on failed planting");
     }
 }
