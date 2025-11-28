@@ -1103,6 +1103,11 @@ public class GameMenu implements LanguageChangeListener, FontChangeListener {
                 
                 float textY = menuY + MENU_HEIGHT - 70 - (i * 30) - extraSpacing;
                 
+                // Move Exit option down by extra 10px
+                if (i == 6) {
+                    textY -= 15;
+                }
+                
                 // Display the menu item (disabled items are shown in gray color)
                 playerNameFont.draw(batch, menuItem, textX, textY);
             }
