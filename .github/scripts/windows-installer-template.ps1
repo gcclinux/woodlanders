@@ -9,7 +9,7 @@ $ErrorActionPreference = "Stop"
 
 # Configuration
 $APP_NAME = "Woodlanders Launcher"
-$APP_VERSION = "0.1.0"
+$APP_VERSION = "0.1.1"
 $JRE_VERSION = "21"
 $INSTALL_DIR = "$env:LOCALAPPDATA\Woodlanders\Launcher"
 $JRE_DIR = "$INSTALL_DIR\jre"

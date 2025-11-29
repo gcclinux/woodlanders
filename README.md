@@ -19,6 +19,24 @@ This game was developed using a combination of cutting-edge AI tools, each contr
 
 The goal was simple yet audacious: **build a complete, enjoyable multiplayer game in Java using only AI prompts and requests**. No direct code writing. No manual debugging. Just describing what we wanted, and letting Kiro AI bring it to life.
 
+---
+
+## 🚀 Quick Start
+
+### Woodlanders Launcher (Recommended)
+
+The easiest way to play Woodlanders is with our auto-updating launcher:
+
+**📥 [Download Woodlanders Launcher](https://github.com/gcclinux/woodlanders-launcher/releases)**
+
+Features:
+- ✅ **One-Click Install** - Download and install automatically
+- 🔄 **Auto-Updates** - Always get the latest version from source
+- 🎮 **Easy Launch** - Start playing with a single click
+- 📦 **No Dependencies** - Everything you need is included
+
+For manual installation or building from source, see the **[Installation Guide](docs/INSTALLATION.md)**.
+
 <div align="center">
 
 | Help & Issues | Join Discussions and share ideas |
