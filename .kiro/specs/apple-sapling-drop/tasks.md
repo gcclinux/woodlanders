@@ -135,3 +135,10 @@
   - Verify inventory synchronization across clients
   - Test with multiple players attacking different AppleTrees simultaneously
   - _Requirements: 1.4, 5.2, 5.3, 5.4, 5.5_
+
+- [x] 18. Add AppleSapling to Free World mode item grants
+  - Open src/main/java/wagemaker/uk/freeworld/FreeWorldManager.java
+  - Add `inventory.setAppleSaplingCount(250)` to grantFreeWorldItems() method
+  - Verify AppleSapling is granted alongside other items when Free World mode is activated
+  - Test in both single-player and multiplayer Free World mode
+  - _Requirements: 4.1_
