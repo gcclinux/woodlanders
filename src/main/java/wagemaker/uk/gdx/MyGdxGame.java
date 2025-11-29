@@ -19,6 +19,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import wagemaker.uk.items.Apple;
+import wagemaker.uk.items.AppleSapling;
 import wagemaker.uk.items.BambooSapling;
 import wagemaker.uk.items.TreeSapling;
 import wagemaker.uk.items.BambooStack;
@@ -184,6 +185,7 @@ public class MyGdxGame extends ApplicationAdapter {
     Map<String, BambooTree> bambooTrees;
     Map<String, BananaTree> bananaTrees;
     Map<String, Apple> apples;
+    Map<String, AppleSapling> appleSaplings;
     Map<String, Banana> bananas;
     Map<String, BambooStack> bambooStacks;
     Map<String, BambooSapling> bambooSaplings;
@@ -277,6 +279,7 @@ public class MyGdxGame extends ApplicationAdapter {
         bambooTrees = new HashMap<>();
         bananaTrees = new HashMap<>();
         apples = new HashMap<>();
+        appleSaplings = new HashMap<>();
         bananas = new HashMap<>();
         bambooStacks = new HashMap<>();
         bambooSaplings = new HashMap<>();
@@ -324,6 +327,7 @@ public class MyGdxGame extends ApplicationAdapter {
         player.setBambooTrees(bambooTrees);
         player.setBananaTrees(bananaTrees);
         player.setApples(apples);
+        player.setAppleSaplings(appleSaplings);
         player.setBananas(bananas);
         player.setBambooStacks(bambooStacks);
         player.setBambooSaplings(bambooSaplings);
@@ -706,6 +710,7 @@ public class MyGdxGame extends ApplicationAdapter {
         drawBambooTrees();
         drawStones();
         drawApples();
+        drawAppleSaplings();
         drawBananas();
         drawBambooStacks();
         drawBambooSaplings();
@@ -1198,6 +1203,21 @@ public class MyGdxGame extends ApplicationAdapter {
             if (Math.abs(apple.getX() - camX) < viewWidth && 
                 Math.abs(apple.getY() - camY) < viewHeight) {
                 batch.draw(apple.getTexture(), apple.getX(), apple.getY(), 24, 24);
+            }
+        }
+    }
+    
+    private void drawAppleSaplings() {
+        float camX = camera.position.x;
+        float camY = camera.position.y;
+        float viewWidth = viewport.getWorldWidth() / 2;
+        float viewHeight = viewport.getWorldHeight() / 2;
+        
+        for (AppleSapling appleSapling : appleSaplings.values()) {
+            // only draw apple saplings near camera
+            if (Math.abs(appleSapling.getX() - camX) < viewWidth && 
+                Math.abs(appleSapling.getY() - camY) < viewHeight) {
+                batch.draw(appleSapling.getTexture(), appleSapling.getX(), appleSapling.getY(), 32, 32);
             }
         }
     }
@@ -2409,6 +2429,9 @@ public class MyGdxGame extends ApplicationAdapter {
         if (apples.containsKey(itemId)) {
             return wagemaker.uk.inventory.ItemType.APPLE;
         }
+        if (appleSaplings.containsKey(itemId)) {
+            return wagemaker.uk.inventory.ItemType.APPLE_SAPLING;
+        }
         if (bananas.containsKey(itemId)) {
             return wagemaker.uk.inventory.ItemType.BANANA;
         }
@@ -2439,6 +2462,13 @@ public class MyGdxGame extends ApplicationAdapter {
         if (apple != null) {
             // Defer texture disposal to render thread
             deferOperation(() -> apple.dispose());
+            return;
+        }
+        
+        AppleSapling appleSapling = appleSaplings.remove(itemId);
+        if (appleSapling != null) {
+            // Defer texture disposal to render thread
+            deferOperation(() -> appleSapling.dispose());
             return;
         }
         
@@ -3198,6 +3228,7 @@ public class MyGdxGame extends ApplicationAdapter {
                 if (targetInventory != null) {
                     targetInventory.setAppleCount(saveData.getAppleCount());
                     targetInventory.setBananaCount(saveData.getBananaCount());
+                    targetInventory.setAppleSaplingCount(saveData.getAppleSaplingCount());
                     targetInventory.setBambooSaplingCount(saveData.getBambooSaplingCount());
                     targetInventory.setBambooStackCount(saveData.getBambooStackCount());
                     targetInventory.setTreeSaplingCount(saveData.getTreeSaplingCount());
@@ -3953,6 +3984,11 @@ public class MyGdxGame extends ApplicationAdapter {
                 case APPLE:
                     if (!apples.containsKey(itemId)) {
                         apples.put(itemId, new Apple(x, y));
+                    }
+                    break;
+                case APPLE_SAPLING:
+                    if (!appleSaplings.containsKey(itemId)) {
+                        appleSaplings.put(itemId, new AppleSapling(x, y));
                     }
                     break;
                 case BANANA:

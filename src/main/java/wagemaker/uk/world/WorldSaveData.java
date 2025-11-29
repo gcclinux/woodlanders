@@ -45,6 +45,7 @@ public class WorldSaveData implements Serializable {
     // Player inventory at save time
     private int appleCount;
     private int bananaCount;
+    private int appleSaplingCount;
     private int bambooSaplingCount;
     private int bambooStackCount;
     private int treeSaplingCount;
@@ -99,6 +100,7 @@ public class WorldSaveData implements Serializable {
         // Initialize inventory counts to 0 (will be set separately)
         this.appleCount = 0;
         this.bananaCount = 0;
+        this.appleSaplingCount = 0;
         this.bambooSaplingCount = 0;
         this.bambooStackCount = 0;
         this.treeSaplingCount = 0;
@@ -331,6 +333,14 @@ public class WorldSaveData implements Serializable {
     
     public void setBananaCount(int bananaCount) {
         this.bananaCount = Math.max(0, bananaCount);
+    }
+    
+    public int getAppleSaplingCount() {
+        return appleSaplingCount;
+    }
+    
+    public void setAppleSaplingCount(int appleSaplingCount) {
+        this.appleSaplingCount = Math.max(0, appleSaplingCount);
     }
     
     public int getBambooSaplingCount() {

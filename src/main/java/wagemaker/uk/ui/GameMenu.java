@@ -1058,25 +1058,25 @@ public class GameMenu implements LanguageChangeListener, FontChangeListener {
             batch.draw(woodenPlank, menuX, menuY, MENU_WIDTH, MENU_HEIGHT);
             
             // End batch to render borders with ShapeRenderer
-            batch.end();
+            // batch.end();
             
             // Render menu borders
-            renderMenuBorders(shapeRenderer);
+            // renderMenuBorders(shapeRenderer);
             
             // Restart batch for title and menu items
-            batch.begin();
+            // batch.begin();
             
             // Render menu title
             renderMenuTitle(batch);
             
             // End batch to render dividers with ShapeRenderer
-            batch.end();
+            // batch.end();
             
             // Render menu dividers
-            renderMenuDividers(shapeRenderer);
+            // renderMenuDividers(shapeRenderer);
             
             // Restart batch for menu items
-            batch.begin();
+            // batch.begin();
             
             String[] currentMenuItems = getCurrentMenuItems();
             for (int i = 0; i < currentMenuItems.length; i++) {

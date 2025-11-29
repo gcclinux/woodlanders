@@ -531,16 +531,36 @@ public class ClientConnection implements Runnable {
             }
             
             // THEN: Spawn item(s) based on tree type
-            if (tree.getType() == TreeType.APPLE || tree.getType() == TreeType.BANANA) {
-                ItemType itemType = tree.getType() == TreeType.APPLE ? ItemType.APPLE : ItemType.BANANA;
+            if (tree.getType() == TreeType.APPLE) {
+                // Spawn Apple at tree position
+                String appleId = UUID.randomUUID().toString();
+                ItemState apple = new ItemState(appleId, ItemType.APPLE, quantizedX, quantizedY, false);
+                server.getWorldState().addOrUpdateItem(apple);
+                
+                ItemSpawnMessage appleSpawnMsg = new ItemSpawnMessage("server", appleId, ItemType.APPLE, quantizedX, quantizedY);
+                server.broadcastToAll(appleSpawnMsg);
+                
+                System.out.println("Item spawned: APPLE at (" + quantizedX + ", " + quantizedY + ")");
+                
+                // Spawn AppleSapling offset by 8 pixels horizontally
+                String appleSaplingId = UUID.randomUUID().toString();
+                float appleSaplingX = quantizePosition(tree.getX() + 8);
+                ItemState appleSapling = new ItemState(appleSaplingId, ItemType.APPLE_SAPLING, appleSaplingX, quantizedY, false);
+                server.getWorldState().addOrUpdateItem(appleSapling);
+                
+                ItemSpawnMessage appleSaplingSpawnMsg = new ItemSpawnMessage("server", appleSaplingId, ItemType.APPLE_SAPLING, appleSaplingX, quantizedY);
+                server.broadcastToAll(appleSaplingSpawnMsg);
+                
+                System.out.println("Item spawned: APPLE_SAPLING at (" + appleSaplingX + ", " + quantizedY + ")");
+            } else if (tree.getType() == TreeType.BANANA) {
                 String itemId = UUID.randomUUID().toString();
-                ItemState item = new ItemState(itemId, itemType, quantizedX, quantizedY, false);
+                ItemState item = new ItemState(itemId, ItemType.BANANA, quantizedX, quantizedY, false);
                 server.getWorldState().addOrUpdateItem(item);
                 
-                ItemSpawnMessage spawnMsg = new ItemSpawnMessage("server", itemId, itemType, quantizedX, quantizedY);
+                ItemSpawnMessage spawnMsg = new ItemSpawnMessage("server", itemId, ItemType.BANANA, quantizedX, quantizedY);
                 server.broadcastToAll(spawnMsg);
                 
-                System.out.println("Item spawned: " + itemType + " at (" + quantizedX + ", " + quantizedY + ")");
+                System.out.println("Item spawned: BANANA at (" + quantizedX + ", " + quantizedY + ")");
             } else if (tree.getType() == TreeType.COCONUT) {
                 // Drop PalmFiber when CoconutTree is destroyed
                 String itemId = UUID.randomUUID().toString();
@@ -792,6 +812,9 @@ public class ClientConnection implements Runnable {
             case APPLE:
                 playerState.setAppleCount(playerState.getAppleCount() + 1);
                 break;
+            case APPLE_SAPLING:
+                playerState.setAppleSaplingCount(playerState.getAppleSaplingCount() + 1);
+                break;
             case BANANA:
                 playerState.setBananaCount(playerState.getBananaCount() + 1);
                 break;
@@ -826,6 +849,7 @@ public class ClientConnection implements Runnable {
             clientId,
             playerState.getAppleCount(),
             playerState.getBananaCount(),
+            playerState.getAppleSaplingCount(),
             playerState.getBambooSaplingCount(),
             playerState.getBambooStackCount(),
             playerState.getTreeSaplingCount(),
@@ -988,6 +1012,7 @@ public class ClientConnection implements Runnable {
             clientId,
             playerState.getAppleCount(),
             playerState.getBananaCount(),
+            playerState.getAppleSaplingCount(),
             playerState.getBambooSaplingCount(),
             playerState.getBambooStackCount(),
             playerState.getTreeSaplingCount(),
@@ -1405,6 +1430,7 @@ public class ClientConnection implements Runnable {
         // Validate inventory counts (must be non-negative and reasonable)
         if (!isValidInventoryCount(message.getAppleCount()) ||
             !isValidInventoryCount(message.getBananaCount()) ||
+            !isValidInventoryCount(message.getAppleSaplingCount()) ||
             !isValidInventoryCount(message.getBambooSaplingCount()) ||
             !isValidInventoryCount(message.getBambooStackCount()) ||
             !isValidInventoryCount(message.getTreeSaplingCount()) ||
@@ -1419,6 +1445,7 @@ public class ClientConnection implements Runnable {
         // Update player state with new inventory
         playerState.setAppleCount(message.getAppleCount());
         playerState.setBananaCount(message.getBananaCount());
+        playerState.setAppleSaplingCount(message.getAppleSaplingCount());
         playerState.setBambooSaplingCount(message.getBambooSaplingCount());
         playerState.setBambooStackCount(message.getBambooStackCount());
         playerState.setTreeSaplingCount(message.getTreeSaplingCount());
@@ -1432,6 +1459,7 @@ public class ClientConnection implements Runnable {
         System.out.println("Inventory updated for player " + clientId + 
                          ": Apples=" + message.getAppleCount() +
                          ", Bananas=" + message.getBananaCount() +
+                         ", AppleSapling=" + message.getAppleSaplingCount() +
                          ", BambooSapling=" + message.getBambooSaplingCount() +
                          ", BambooStack=" + message.getBambooStackCount() +
                          ", TreeSapling=" + message.getTreeSaplingCount() +
@@ -1459,6 +1487,7 @@ public class ClientConnection implements Runnable {
             clientId,
             playerState.getAppleCount(),
             playerState.getBananaCount(),
+            playerState.getAppleSaplingCount(),
             playerState.getBambooSaplingCount(),
             playerState.getBambooStackCount(),
             playerState.getTreeSaplingCount(),

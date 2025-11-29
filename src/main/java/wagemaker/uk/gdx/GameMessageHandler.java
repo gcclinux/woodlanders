@@ -405,6 +405,7 @@ public class GameMessageHandler extends DefaultMessageHandler {
             game.getInventoryManager().syncFromServer(
                 message.getAppleCount(),
                 message.getBananaCount(),
+                message.getAppleSaplingCount(),
                 message.getBambooSaplingCount(),
                 message.getBambooStackCount(),
                 message.getTreeSaplingCount(),

@@ -105,6 +105,9 @@ public class InventoryManager {
             case BANANA:
                 inventory.addBanana(amount);
                 break;
+            case APPLE_SAPLING:
+                inventory.addAppleSapling(amount);
+                break;
             case BABY_BAMBOO:
                 inventory.addBambooSapling(amount);
                 break;
@@ -142,6 +145,7 @@ public class InventoryManager {
                 gameClient.getClientId(),
                 inventory.getAppleCount(),
                 inventory.getBananaCount(),
+                inventory.getAppleSaplingCount(),
                 inventory.getBambooSaplingCount(),
                 inventory.getBambooStackCount(),
                 inventory.getTreeSaplingCount(),
@@ -170,13 +174,15 @@ public class InventoryManager {
      * Used to synchronize inventory state with authoritative server.
      * @param appleCount The apple count from server
      * @param bananaCount The banana count from server
+     * @param appleSaplingCount The apple sapling count from server
      * @param bambooSaplingCount The baby bamboo count from server
      * @param bambooStackCount The bamboo stack count from server
      * @param treeSaplingCount The baby tree count from server
      * @param woodStackCount The wood stack count from server
      * @param pebbleCount The pebble count from server
+     * @param palmFiberCount The palm fiber count from server
      */
-    public void syncFromServer(int appleCount, int bananaCount, int bambooSaplingCount, 
+    public void syncFromServer(int appleCount, int bananaCount, int appleSaplingCount, int bambooSaplingCount, 
                                 int bambooStackCount, int treeSaplingCount, int woodStackCount, int pebbleCount, int palmFiberCount) {
         if (!isMultiplayerMode) {
             return; // Only sync in multiplayer mode
@@ -185,6 +191,7 @@ public class InventoryManager {
         Inventory inventory = getCurrentInventory();
         inventory.setAppleCount(appleCount);
         inventory.setBananaCount(bananaCount);
+        inventory.setAppleSaplingCount(appleSaplingCount);
         inventory.setBambooSaplingCount(bambooSaplingCount);
         inventory.setBambooStackCount(bambooStackCount);
         inventory.setTreeSaplingCount(treeSaplingCount);
@@ -194,6 +201,7 @@ public class InventoryManager {
         
         System.out.println("Inventory synced from server: Apples=" + appleCount +
                          ", Bananas=" + bananaCount +
+                         ", AppleSapling=" + appleSaplingCount +
                          ", BambooSapling=" + bambooSaplingCount +
                          ", BambooStack=" + bambooStackCount +
                          ", TreeSapling=" + treeSaplingCount +
@@ -204,10 +212,10 @@ public class InventoryManager {
     
     /**
      * Set the selected inventory slot.
-     * @param slot The slot index (0-6 for valid slots, any other value clears selection)
+     * @param slot The slot index (0-8 for valid slots, any other value clears selection)
      */
     public void setSelectedSlot(int slot) {
-        if (slot >= 0 && slot <= 7) {
+        if (slot >= 0 && slot <= 8) {
             this.selectedSlot = slot;
         } else {
             this.selectedSlot = -1; // Clear selection
@@ -249,6 +257,7 @@ public class InventoryManager {
             case 5: return ItemType.WOOD_STACK;
             case 6: return ItemType.PEBBLE;
             case 7: return ItemType.PALM_FIBER;
+            case 8: return ItemType.APPLE_SAPLING;
             default: return null;
         }
     }
@@ -331,6 +340,7 @@ public class InventoryManager {
             case 5: itemCount = inventory.getWoodStackCount(); break;
             case 6: itemCount = inventory.getPebbleCount(); break;
             case 7: itemCount = inventory.getPalmFiberCount(); break;
+            case 8: itemCount = inventory.getAppleSaplingCount(); break;
         }
         
         if (itemCount == 0) {

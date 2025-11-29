@@ -8,6 +8,7 @@ package wagemaker.uk.inventory;
 public class Inventory {
     private int appleCount;
     private int bananaCount;
+    private int appleSaplingCount;
     private int bambooSaplingCount;
     private int bambooStackCount;
     private int treeSaplingCount;
@@ -18,6 +19,7 @@ public class Inventory {
     public Inventory() {
         this.appleCount = 0;
         this.bananaCount = 0;
+        this.appleSaplingCount = 0;
         this.bambooSaplingCount = 0;
         this.bambooStackCount = 0;
         this.treeSaplingCount = 0;
@@ -63,6 +65,27 @@ public class Inventory {
     public boolean removeBanana(int amount) {
         if (bananaCount >= amount) {
             bananaCount -= amount;
+            return true;
+        }
+        return false;
+    }
+    
+    // AppleSapling methods
+    public int getAppleSaplingCount() {
+        return appleSaplingCount;
+    }
+    
+    public void setAppleSaplingCount(int count) {
+        this.appleSaplingCount = Math.max(0, count);
+    }
+    
+    public void addAppleSapling(int amount) {
+        this.appleSaplingCount += amount;
+    }
+    
+    public boolean removeAppleSapling(int amount) {
+        if (appleSaplingCount >= amount) {
+            appleSaplingCount -= amount;
             return true;
         }
         return false;
@@ -200,6 +223,7 @@ public class Inventory {
     public void clear() {
         this.appleCount = 0;
         this.bananaCount = 0;
+        this.appleSaplingCount = 0;
         this.bambooSaplingCount = 0;
         this.bambooStackCount = 0;
         this.treeSaplingCount = 0;

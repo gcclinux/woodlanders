@@ -6,6 +6,7 @@ package wagemaker.uk.inventory;
  */
 public enum ItemType {
     APPLE(true, 10, false),      // Restores 10% health
+    APPLE_SAPLING(false, 0, false),
     BANANA(false, 0, true),      // Reduces 5% hunger
     BABY_BAMBOO(false, 0, false),
     BAMBOO_STACK(false, 0, false),

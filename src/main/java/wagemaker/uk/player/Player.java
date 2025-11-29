@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import wagemaker.uk.items.Apple;
+import wagemaker.uk.items.AppleSapling;
 import wagemaker.uk.items.BambooSapling;
 import wagemaker.uk.items.TreeSapling;
 import wagemaker.uk.items.Banana;
@@ -86,6 +87,7 @@ public class Player {
     private Map<String, BambooTree> bambooTrees;
     private Map<String, BananaTree> bananaTrees;
     private Map<String, Apple> apples;
+    private Map<String, AppleSapling> appleSaplings;
     private Map<String, Banana> bananas;
     private Map<String, wagemaker.uk.items.BambooStack> bambooStacks;
     private Map<String, wagemaker.uk.items.BambooSapling> bambooSaplings;
@@ -162,6 +164,10 @@ public class Player {
     
     public void setApples(Map<String, Apple> apples) {
         this.apples = apples;
+    }
+    
+    public void setAppleSaplings(Map<String, AppleSapling> appleSaplings) {
+        this.appleSaplings = appleSaplings;
     }
     
     public void setBananas(Map<String, Banana> bananas) {
@@ -541,6 +547,9 @@ public class Player {
         
         // Check for apple pickups
         checkApplePickups();
+        
+        // Check for apple sapling pickups
+        checkAppleSaplingPickups();
         
         // Check for banana pickups
         checkBananaPickups();
@@ -929,9 +938,17 @@ public class Player {
                     attackedSomething = true;
                     
                     if (destroyed) {
-                        // Spawn apple at tree position (no automatic healing)
+                        // Spawn Apple at tree position
                         apples.put(targetKey, new Apple(targetAppleTree.getX(), targetAppleTree.getY()));
-                        System.out.println("Apple tree destroyed! Apple dropped at: " + targetAppleTree.getX() + ", " + targetAppleTree.getY());
+                        
+                        // Spawn AppleSapling offset by 8 pixels horizontally
+                        appleSaplings.put(targetKey + "-applesapling", 
+                            new AppleSapling(targetAppleTree.getX() + 8, targetAppleTree.getY()));
+                        
+                        System.out.println("Apple tree destroyed! Apple dropped at: " + 
+                            targetAppleTree.getX() + ", " + targetAppleTree.getY());
+                        System.out.println("AppleSapling dropped at: " + 
+                            (targetAppleTree.getX() + 8) + ", " + targetAppleTree.getY());
                         
                         // Register for respawn before removing
                         if (gameInstance != null && gameInstance instanceof wagemaker.uk.gdx.MyGdxGame) {
@@ -1946,6 +1963,48 @@ public class Player {
                 apple.dispose();
                 apples.remove(appleKey);
                 System.out.println("Apple removed from game");
+            }
+        }
+    }
+    
+    private void checkAppleSaplingPickups() {
+        if (appleSaplings != null) {
+            // Check all apple saplings for pickup
+            for (Map.Entry<String, AppleSapling> entry : appleSaplings.entrySet()) {
+                AppleSapling appleSapling = entry.getValue();
+                String appleSaplingKey = entry.getKey();
+                
+                // Check if player is close enough to pick up apple sapling (32px range)
+                float dx = Math.abs((x + 32) - (appleSapling.getX() + 16)); // Player center to apple sapling center
+                float dy = Math.abs((y + 32) - (appleSapling.getY() + 16)); // AppleSapling is 32x32, so center is +16
+                
+                if (dx <= 32 && dy <= 32) {
+                    // Pick up the apple sapling
+                    pickupAppleSapling(appleSaplingKey);
+                    break; // Only pick up one apple sapling per frame
+                }
+            }
+        }
+    }
+    
+    private void pickupAppleSapling(String appleSaplingKey) {
+        // Send pickup request to server in multiplayer mode
+        if (gameClient != null && gameClient.isConnected() && isLocalPlayer) {
+            gameClient.sendItemPickup(appleSaplingKey);
+            // In multiplayer, server handles item removal
+            // The server will broadcast the pickup to all clients
+        } else {
+            // Single-player mode: handle locally via inventory manager
+            if (inventoryManager != null) {
+                inventoryManager.collectItem(wagemaker.uk.inventory.ItemType.APPLE_SAPLING);
+            }
+            
+            // Remove apple sapling from game
+            if (appleSaplings.containsKey(appleSaplingKey)) {
+                AppleSapling appleSapling = appleSaplings.get(appleSaplingKey);
+                appleSapling.dispose();
+                appleSaplings.remove(appleSaplingKey);
+                System.out.println("AppleSapling removed from game");
             }
         }
     }

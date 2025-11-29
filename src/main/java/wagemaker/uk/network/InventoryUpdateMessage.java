@@ -10,6 +10,7 @@ public class InventoryUpdateMessage extends NetworkMessage {
     private String playerId;
     private int appleCount;
     private int bananaCount;
+    private int appleSaplingCount;
     private int bambooSaplingCount;
     private int bambooStackCount;
     private int treeSaplingCount;
@@ -22,13 +23,14 @@ public class InventoryUpdateMessage extends NetworkMessage {
     }
     
     public InventoryUpdateMessage(String senderId, String playerId, 
-                                   int appleCount, int bananaCount, 
+                                   int appleCount, int bananaCount, int appleSaplingCount,
                                    int bambooSaplingCount, int bambooStackCount, 
                                    int treeSaplingCount, int woodStackCount, int pebbleCount, int palmFiberCount) {
         super(senderId);
         this.playerId = playerId;
         this.appleCount = appleCount;
         this.bananaCount = bananaCount;
+        this.appleSaplingCount = appleSaplingCount;
         this.bambooSaplingCount = bambooSaplingCount;
         this.bambooStackCount = bambooStackCount;
         this.treeSaplingCount = treeSaplingCount;
@@ -52,6 +54,10 @@ public class InventoryUpdateMessage extends NetworkMessage {
     
     public int getBananaCount() {
         return bananaCount;
+    }
+    
+    public int getAppleSaplingCount() {
+        return appleSaplingCount;
     }
     
     public int getBambooSaplingCount() {

@@ -7,6 +7,7 @@ import java.io.Serializable;
  */
 public enum ItemType implements Serializable {
     APPLE,
+    APPLE_SAPLING,
     BANANA,
     BABY_BAMBOO,
     BAMBOO_STACK,
