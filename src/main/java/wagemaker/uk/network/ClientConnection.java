@@ -281,6 +281,14 @@ public class ClientConnection implements Runnable {
                 handleTreeTransform((TreeTransformMessage) message);
                 break;
                 
+            case BANANA_TREE_PLANT:
+                handleBananaTreePlant((BananaTreePlantMessage) message);
+                break;
+                
+            case BANANA_TREE_TRANSFORM:
+                handleBananaTreeTransform((BananaTreeTransformMessage) message);
+                break;
+                
             case PLAYER_RESPAWN:
                 handlePlayerRespawn((PlayerRespawnMessage) message);
                 break;
@@ -1714,6 +1722,94 @@ public class ClientConnection implements Runnable {
         System.out.println("[SERVER] Added tree to server world state to prevent ghost tree issues");
         
         // Broadcast to all clients
+        server.broadcastToAll(message);
+    }
+    
+    /**
+     * Handles a banana tree plant message.
+     * This is sent by clients when they plant a banana sapling.
+     * @param message The banana tree plant message
+     */
+    private void handleBananaTreePlant(BananaTreePlantMessage message) {
+        if (message == null) {
+            logSecurityViolation("Null banana tree plant message");
+            return;
+        }
+        
+        String plantedBananaTreeId = message.getPlantedBananaTreeId();
+        float x = message.getX();
+        float y = message.getY();
+        
+        if (plantedBananaTreeId == null || plantedBananaTreeId.isEmpty()) {
+            System.err.println("Invalid planted banana tree ID from " + clientId);
+            logSecurityViolation("Invalid planted banana tree ID");
+            return;
+        }
+        
+        if (!isValidPosition(x, y)) {
+            System.err.println("Invalid banana tree plant position from " + clientId);
+            logSecurityViolation("Invalid banana tree plant position");
+            return;
+        }
+        
+        float dx = x - playerState.getX();
+        float dy = y - playerState.getY();
+        float distance = (float) Math.sqrt(dx * dx + dy * dy);
+        
+        int maxRange = server.getConfig().getPlantingMaxRange();
+        
+        if (distance > maxRange) {
+            System.out.println("Banana tree plant out of range from " + clientId + 
+                ": attempted distance=" + String.format("%.1f", distance) + 
+                " pixels, max allowed=" + maxRange + " pixels");
+            logSecurityViolation("Banana tree plant range check failed");
+            return;
+        }
+        
+        System.out.println("[ClientConnection] Player " + clientId + " planted banana tree at (" + x + ", " + y + ")");
+        
+        PlantedBananaTreeState state = new PlantedBananaTreeState(plantedBananaTreeId, x, y, 0.0f);
+        server.getWorldState().getPlantedBananaTrees().put(plantedBananaTreeId, state);
+        
+        server.broadcastToAll(message);
+    }
+    
+    /**
+     * Handles a banana tree transform message.
+     * This is sent by clients when a planted banana tree matures into a banana tree.
+     * @param message The banana tree transform message
+     */
+    private void handleBananaTreeTransform(BananaTreeTransformMessage message) {
+        if (message == null) {
+            logSecurityViolation("Null banana tree transform message");
+            return;
+        }
+        
+        String plantedBananaTreeId = message.getPlantedBananaTreeId();
+        String bananaTreeId = message.getBananaTreeId();
+        float x = message.getX();
+        float y = message.getY();
+        
+        if (plantedBananaTreeId == null || plantedBananaTreeId.isEmpty() ||
+            bananaTreeId == null || bananaTreeId.isEmpty()) {
+            System.err.println("Invalid banana tree transform IDs from " + clientId);
+            logSecurityViolation("Invalid banana tree transform IDs");
+            return;
+        }
+        
+        if (!isValidPosition(x, y)) {
+            System.err.println("Invalid banana tree transform position from " + clientId);
+            logSecurityViolation("Invalid banana tree transform position");
+            return;
+        }
+        
+        server.getWorldState().getPlantedBananaTrees().remove(plantedBananaTreeId);
+        
+        TreeState bananaTree = new TreeState(bananaTreeId, TreeType.BANANA, x, y, 100.0f, true);
+        server.getWorldState().addOrUpdateTree(bananaTree);
+        
+        System.out.println("[SERVER] Banana tree transformed: " + plantedBananaTreeId + " -> " + bananaTreeId + " at (" + x + ", " + y + ")");
+        
         server.broadcastToAll(message);
     }
     

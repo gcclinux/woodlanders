@@ -198,6 +198,68 @@ public class PlantingSystem {
     }
     
     /**
+     * Check if a tile is valid for planting banana trees (grass biomes).
+     * 
+     * @param x The x-coordinate (tile-aligned)
+     * @param y The y-coordinate (tile-aligned)
+     * @param biomeManager The biome manager for tile type checking
+     * @return true if tile is grass biome, false otherwise
+     */
+    public boolean canPlantBananaTree(float x, float y, BiomeManager biomeManager) {
+        if (biomeManager == null) {
+            return false;
+        }
+        
+        BiomeType biomeType = biomeManager.getBiomeAtPosition(x, y);
+        return biomeType == BiomeType.GRASS;
+    }
+    
+    /**
+     * Attempt to plant a banana tree at the specified coordinates.
+     * Creates a PlantedBananaTree instance and adds it to the provided map.
+     * 
+     * @param x The x-coordinate for planting (will be tile-aligned)
+     * @param y The y-coordinate for planting (will be tile-aligned)
+     * @param plantedBananaTrees Map to add the planted banana tree to
+     * @return Unique ID of the planted banana tree, or null if planting failed
+     */
+    public String plantBananaTree(float x, float y, Map<String, PlantedBananaTree> plantedBananaTrees) {
+        if (plantedBananaTrees == null) {
+            return null;
+        }
+        
+        float tileX = snapToTileGrid(x);
+        float tileY = snapToTileGrid(y);
+        
+        String plantedBananaTreeId = generatePlantedBananaTreeKey(tileX, tileY);
+        
+        if (plantedBananaTrees.containsKey(plantedBananaTreeId)) {
+            return null;
+        }
+        
+        PlantedBananaTree plantedBananaTree = new PlantedBananaTree(tileX, tileY);
+        plantedBananaTrees.put(plantedBananaTreeId, plantedBananaTree);
+        
+        System.out.println("Banana tree planted at tile: (" + tileX + ", " + tileY + ") with ID: " + plantedBananaTreeId);
+        
+        return plantedBananaTreeId;
+    }
+    
+    /**
+     * Generate unique key for planted banana tree based on tile coordinates.
+     * Format: "planted-banana-tree-{tileX}-{tileY}"
+     * 
+     * @param x The x-coordinate (tile-aligned)
+     * @param y The y-coordinate (tile-aligned)
+     * @return Unique tile-based key string
+     */
+    private String generatePlantedBananaTreeKey(float x, float y) {
+        int tileX = (int) x;
+        int tileY = (int) y;
+        return "planted-banana-tree-" + tileX + "-" + tileY;
+    }
+    
+    /**
      * Snap coordinates to 64x64 tile grid.
      * Ensures planted bamboos and trees align with tile boundaries.
      * 

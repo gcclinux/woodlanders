@@ -476,6 +476,22 @@ public class GameClient {
     }
     
     /**
+     * Sends a banana tree planting action to the server.
+     * @param plantedBananaTreeId The unique ID for the planted banana tree
+     * @param x The tile-aligned x position
+     * @param y The tile-aligned y position
+     */
+    public void sendBananaTreePlant(String plantedBananaTreeId, float x, float y) {
+        if (clientId == null) {
+            System.err.println("Cannot send banana tree plant: client ID not set");
+            return;
+        }
+        
+        BananaTreePlantMessage message = new BananaTreePlantMessage(clientId, plantedBananaTreeId, x, y);
+        sendMessage(message);
+    }
+    
+    /**
      * Sends a heartbeat message to the server to maintain connection.
      */
     public void sendHeartbeat() {

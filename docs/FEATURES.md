@@ -66,14 +66,24 @@
 
 ## Planting System
 - **Bamboo Sapling Planting**: Plant bamboo sapling on sand tiles using the targeting system
-- **Growth Mechanics**: Planted bamboo grows over 120 seconds into a harvestable bamboo tree
-- **Biome Restrictions**: Can only plant on sand biome tiles
+- **Banana Sapling Planting**: Plant banana sapling on grass tiles using the targeting system (inventory slot 5)
+- **Tree Sapling Planting**: Plant tree saplings on grass tiles for regular trees
+- **Growth Mechanics**: 
+  - Planted bamboo grows over 120 seconds into a harvestable bamboo tree
+  - Planted banana trees grow over 120 seconds into harvestable banana trees
+  - Planted regular trees grow over 120 seconds into harvestable small trees
+- **Biome Restrictions**: 
+  - Bamboo saplings: Sand biome only
+  - Banana saplings: Grass biome only
+  - Tree saplings: Grass biome only
 - **Tile Occupation Check**: Cannot plant on tiles already occupied by trees or other objects
-- **Inventory Integration**: Automatically deducts bamboo sapling from inventory on successful planting
-- **Visual Feedback**: Planted bamboo sprite appears immediately at target location
-- **Multiplayer Sync**: Planted bamboo synchronized across all connected clients
-- **Network Validation**: Server validates planting location and inventory before accepting
+- **Inventory Integration**: Automatically deducts sapling from inventory on successful planting
+- **Visual Feedback**: Planted sapling sprite appears immediately at target location
+- **Growth Timer Preservation**: Growth progress is saved and restored when loading worlds
+- **Multiplayer Sync**: All planted items synchronized across all connected clients
+- **Network Validation**: Server validates planting location, biome, range, and inventory before accepting
 - **State Rollback**: Failed network operations rollback local state to maintain consistency
+- **Grid Snapping**: All planted items snap to 64x64 tile grid for consistent placement
 
 ## Controls
 - **Arrow Keys**: Move character (Up/Down/Left/Right)

@@ -66,6 +66,7 @@ Complete reference of all Java classes in the Woodlanders project, organized by 
 | **PlantingSystem** | Core planting logic and validation |
 | **PlantedBamboo** | Planted bamboo entity with growth timer |
 | **PlantedTree** | Planted tree entity with growth timer |
+| **PlantedBananaTree** | Planted banana tree entity with 120s growth timer |
 
 ## Targeting System (wagemaker.uk.targeting)
 
@@ -256,11 +257,11 @@ Complete reference of all Java classes in the Woodlanders project, organized by 
 
 ## Class Count Summary
 
-- **Total Classes**: 145+
-- **Network Messages**: 33+
+- **Total Classes**: 148+
+- **Network Messages**: 35+
 - **UI Components**: 20
 - **Tree Types**: 6
-- **Item Types**: 8
+- **Item Types**: 10
 - **Game Systems**: 11 major systems
 
 ## Key Architectural Patterns

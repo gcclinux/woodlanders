@@ -110,6 +110,7 @@ public class Player {
     private BiomeManager biomeManager;
     private Map<String, PlantedBamboo> plantedBamboos;
     private Map<String, PlantedTree> plantedTrees;
+    private Map<String, wagemaker.uk.planting.PlantedBananaTree> plantedBananaTrees;
     
     // Targeting system fields
     private TargetingSystem targetingSystem;
@@ -246,6 +247,10 @@ public class Player {
     public void setPlantedTrees(Map<String, PlantedTree> plantedTrees) {
         this.plantedTrees = plantedTrees;
         updateTargetingValidator();
+    }
+    
+    public void setPlantedBananaTrees(Map<String, wagemaker.uk.planting.PlantedBananaTree> plantedBananaTrees) {
+        this.plantedBananaTrees = plantedBananaTrees;
     }
     
     public void setPuddleManager(PuddleManager puddleManager) {
@@ -1390,6 +1395,8 @@ public class Player {
      * Activates targeting for plantable items, deactivates for consumables.
      */
     private void updateTargetingForSelection(int slot) {
+        System.out.println("[DEBUG] updateTargetingForSelection called with slot: " + slot);
+        
         if (slot == -1) {
             // Item deselected - deactivate targeting
             if (targetingSystem.isActive()) {
@@ -1398,15 +1405,18 @@ public class Player {
         } else {
             // Item selected - check if it's a plantable item
             wagemaker.uk.inventory.ItemType selectedItemType = inventoryManager.getSelectedItemType();
+            System.out.println("[DEBUG] Selected item type: " + selectedItemType);
             
             // Only activate targeting for plantable items (not consumables)
             boolean isPlantable = selectedItemType != null && 
                                  !selectedItemType.restoresHealth() && 
                                  !selectedItemType.reducesHunger();
+            System.out.println("[DEBUG] Is plantable: " + isPlantable);
             
             if (isPlantable) {
                 // Plantable item - activate targeting at player position
                 if (!targetingSystem.isActive()) {
+                    System.out.println("[DEBUG] Activating targeting system for slot " + slot);
                     targetingSystem.activate(x, y, TargetingMode.ADJACENT, new TargetingCallback() {
                         @Override
                         public void onTargetConfirmed(float targetX, float targetY) {
@@ -1435,11 +1445,15 @@ public class Player {
      * Handles different item types based on the currently selected inventory slot.
      */
     private void handleItemPlacement(float targetX, float targetY) {
+        System.out.println("[DEBUG] handleItemPlacement called at (" + targetX + ", " + targetY + ")");
+        
         if (inventoryManager == null) {
+            System.out.println("[DEBUG] inventoryManager is null");
             return;
         }
         
         int selectedSlot = inventoryManager.getSelectedSlot();
+        System.out.println("[DEBUG] Selected slot: " + selectedSlot);
         
         // Handle baby bamboo planting (slot 2)
         if (selectedSlot == 2) {
@@ -1455,6 +1469,14 @@ public class Player {
                 executeTreePlanting(targetX, targetY);
             } else {
                 System.out.println("No baby tree in inventory");
+            }
+        }
+        // Handle banana tree planting (slot 9)
+        else if (selectedSlot == 9) {
+            if (inventoryManager.getCurrentInventory().getBananaSaplingCount() > 0) {
+                executeBananaTreePlanting(targetX, targetY);
+            } else {
+                System.out.println("No banana sapling in inventory");
             }
         }
         // Add handling for other items here in the future
@@ -1649,6 +1671,77 @@ public class Player {
             }
         } else {
             System.out.println("Tree planting failed: invalid location or tile already occupied");
+        }
+    }
+    
+    /**
+     * Execute banana tree planting at the specified target coordinates.
+     * Called by the targeting system callback when target is confirmed for banana saplings.
+     * Includes error handling and state rollback on failure.
+     */
+    private void executeBananaTreePlanting(float targetX, float targetY) {
+        System.out.println("[DEBUG] executeBananaTreePlanting called at (" + targetX + ", " + targetY + ")");
+        
+        // Store initial inventory state for potential rollback
+        int initialBananaSaplingCount = inventoryManager.getCurrentInventory().getBananaSaplingCount();
+        System.out.println("[DEBUG] BananaSapling count: " + initialBananaSaplingCount);
+        
+        // Validate grass biome for banana tree planting
+        if (!plantingSystem.canPlantBananaTree(targetX, targetY, biomeManager)) {
+            System.out.println("[DEBUG] Banana tree planting failed: can only plant banana trees on grass biomes");
+            wagemaker.uk.biome.BiomeType biome = biomeManager.getBiomeAtPosition(targetX, targetY);
+            System.out.println("[DEBUG] Current biome at position: " + biome);
+            return;
+        }
+        System.out.println("[DEBUG] Biome check passed - grass biome confirmed");
+        
+        // Attempt to plant banana tree at target coordinates
+        String plantedBananaTreeId = plantingSystem.plantBananaTree(targetX, targetY, plantedBananaTrees);
+        
+        if (plantedBananaTreeId != null) {
+            // Deduct banana sapling from inventory
+            boolean removed = inventoryManager.getCurrentInventory().removeBananaSapling(1);
+            if (!removed) {
+                // Failed to remove item - rollback planting
+                plantedBananaTrees.remove(plantedBananaTreeId);
+                System.out.println("Banana tree planting failed: could not deduct banana sapling from inventory");
+                return;
+            }
+            
+            System.out.println("Banana tree planted successfully at: " + plantedBananaTreeId);
+            
+            // Send planting message to server in multiplayer
+            if (gameClient != null && gameClient.isConnected()) {
+                try {
+                    // Extract coordinates from planted banana tree
+                    wagemaker.uk.planting.PlantedBananaTree plantedBananaTree = plantedBananaTrees.get(plantedBananaTreeId);
+                    if (plantedBananaTree != null) {
+                        gameClient.sendBananaTreePlant(plantedBananaTreeId, plantedBananaTree.getX(), plantedBananaTree.getY());
+                        
+                        // Send inventory update after planting (banana sapling was deducted)
+                        inventoryManager.sendInventoryUpdateToServer();
+                    }
+                } catch (Exception e) {
+                    // Network error - rollback state
+                    System.err.println("Failed to send banana tree planting message to server: " + e.getMessage());
+                    
+                    // Remove planted banana tree from local state
+                    wagemaker.uk.planting.PlantedBananaTree plantedBananaTree = plantedBananaTrees.remove(plantedBananaTreeId);
+                    if (plantedBananaTree != null) {
+                        plantedBananaTree.dispose();
+                    }
+                    
+                    // Restore inventory (add banana sapling back)
+                    inventoryManager.getCurrentInventory().addBananaSapling(1);
+                    
+                    System.out.println("Banana tree planting rolled back due to network error");
+                }
+            } else {
+                // Single-player mode: check for auto-deselection
+                inventoryManager.checkAndAutoDeselect();
+            }
+        } else {
+            System.out.println("Banana tree planting failed: invalid location or tile already occupied");
         }
     }
 

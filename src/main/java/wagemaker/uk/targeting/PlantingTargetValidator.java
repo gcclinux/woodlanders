@@ -114,6 +114,12 @@ public class PlantingTargetValidator implements TargetValidator {
             return treeSaplingCount > 0;
         }
         
+        // Check banana sapling (slot 9)
+        if (selectedSlot == 9) {
+            int bananaSaplingCount = inventoryManager.getCurrentInventory().getBananaSaplingCount();
+            return bananaSaplingCount > 0;
+        }
+        
         return false;
     }
     
@@ -139,6 +145,11 @@ public class PlantingTargetValidator implements TargetValidator {
         
         // Baby tree requires grass biome (slot 4)
         if (selectedSlot == 4) {
+            return biomeType == BiomeType.GRASS;
+        }
+        
+        // Banana sapling requires grass biome (slot 9)
+        if (selectedSlot == 9) {
             return biomeType == BiomeType.GRASS;
         }
         
