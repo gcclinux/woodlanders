@@ -543,6 +543,8 @@ public class GameServer {
     /**
      * Generates chunks around a specific position.
      * Creates trees and stones in a grid pattern around the position.
+     * This method only populates the server's WorldState - clients receive
+     * the full WorldState when they connect via WorldStateMessage.
      * 
      * @param centerX The center X coordinate
      * @param centerY The center Y coordinate
@@ -560,33 +562,11 @@ public class GameServer {
         for (int x = startX; x <= endX; x += chunkSize) {
             for (int y = startY; y <= endY; y += chunkSize) {
                 // Generate tree at this position (if it should exist)
-                TreeState tree = worldState.generateTreeAt(x, y);
-                if (tree != null && tree.isExists()) {
-                    // Broadcast new tree to all clients (only if it exists)
-                    TreeCreatedMessage message = new TreeCreatedMessage(
-                        "server",
-                        tree.getTreeId(),
-                        tree.getType(),
-                        tree.getX(),
-                        tree.getY(),
-                        tree.getHealth()
-                    );
-                    broadcastToAll(message);
-                }
+                // This populates the server's WorldState only
+                worldState.generateTreeAt(x, y);
                 
                 // Generate stone at this position (if it should exist)
-                StoneState stone = worldState.generateStoneAt(x, y, centerX, centerY);
-                if (stone != null && stone.getHealth() > 0) {
-                    // Broadcast new stone to all clients (only if not destroyed)
-                    StoneCreatedMessage message = new StoneCreatedMessage(
-                        "server",
-                        stone.getStoneId(),
-                        stone.getX(),
-                        stone.getY(),
-                        stone.getHealth()
-                    );
-                    broadcastToAll(message);
-                }
+                worldState.generateStoneAt(x, y, centerX, centerY);
             }
         }
     }

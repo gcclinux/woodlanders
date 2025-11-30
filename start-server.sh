@@ -11,7 +11,7 @@ JVM_GC_PAUSE=${JVM_GC_PAUSE:-50}
 JVM_PARALLEL_REF=${JVM_PARALLEL_REF:-true}
 
 # Server settings
-SERVER_JAR="woodlanders-server.jar"
+SERVER_JAR="build/libs/woodlanders-server.jar"
 SERVER_ARGS="$@"
 
 # Build JVM arguments

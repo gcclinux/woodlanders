@@ -301,9 +301,22 @@ public class WorldState implements Serializable {
     public TreeState generateTreeAt(int x, int y) {
         String key = x + "," + y;
         
-        // Check if tree already exists or was cleared
-        if (trees.containsKey(key) || clearedPositions.contains(key)) {
+        // Check if tree already exists
+        if (trees.containsKey(key)) {
             return trees.get(key);
+        }
+        
+        // Check if position has a planted sapling
+        if (plantedTrees.containsKey(key) || plantedBamboos.containsKey(key) || 
+            plantedBananaTrees.containsKey(key) || plantedAppleTrees.containsKey(key)) {
+            System.out.println("[DEBUG] Skipping generation at " + key + " - sapling exists");
+            return null;
+        }
+        
+        // Check if position was cleared (prevents immediate regeneration)
+        if (clearedPositions.contains(key)) {
+            System.out.println("[DEBUG] Skipping generation at " + key + " - position cleared");
+            return null;
         }
         
         // Use deterministic random seed (same as client-side generation)
@@ -836,12 +849,9 @@ public class WorldState implements Serializable {
      * Removes a tree from the world state (marks it as destroyed).
      */
     public void removeTree(String treeId) {
-        TreeState tree = this.trees.get(treeId);
-        if (tree != null) {
-            tree.setExists(false);
-            this.clearedPositions.add(treeId);
-            this.lastUpdateTimestamp = System.currentTimeMillis();
-        }
+        this.trees.remove(treeId);
+        this.clearedPositions.add(treeId);
+        this.lastUpdateTimestamp = System.currentTimeMillis();
     }
     
     /**

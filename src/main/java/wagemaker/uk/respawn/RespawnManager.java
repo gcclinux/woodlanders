@@ -283,13 +283,35 @@ public class RespawnManager {
             // Broadcast respawn event in multiplayer mode
             if (isServer && gameServer != null) {
                 try {
-                    gameServer.broadcastResourceRespawn(
-                        entry.getResourceId(),
-                        entry.getResourceType(),
-                        entry.getTreeType(),
-                        entry.getX(),
-                        entry.getY()
-                    );
+                    TreeType treeType = entry.getTreeType();
+                    // For SmallTree, AppleTree, BananaTree, BambooTree: broadcast planting message
+                    if (entry.getResourceType() == ResourceType.TREE && 
+                        (treeType == TreeType.SMALL || treeType == TreeType.APPLE || 
+                         treeType == TreeType.BANANA || treeType == TreeType.BAMBOO)) {
+                        
+                        if (treeType == TreeType.SMALL) {
+                            gameServer.broadcastToAll(new wagemaker.uk.network.TreePlantMessage(
+                                "server", entry.getResourceId(), entry.getX(), entry.getY()));
+                        } else if (treeType == TreeType.APPLE) {
+                            gameServer.broadcastToAll(new wagemaker.uk.network.AppleTreePlantMessage(
+                                "server", entry.getResourceId(), entry.getX(), entry.getY()));
+                        } else if (treeType == TreeType.BANANA) {
+                            gameServer.broadcastToAll(new wagemaker.uk.network.BananaTreePlantMessage(
+                                "server", entry.getResourceId(), entry.getX(), entry.getY()));
+                        } else if (treeType == TreeType.BAMBOO) {
+                            gameServer.broadcastToAll(new wagemaker.uk.network.BambooPlantMessage(
+                                "server", entry.getResourceId(), entry.getX(), entry.getY()));
+                        }
+                    } else {
+                        // For other trees (Coconut, Cactus): broadcast normal respawn
+                        gameServer.broadcastResourceRespawn(
+                            entry.getResourceId(),
+                            entry.getResourceType(),
+                            entry.getTreeType(),
+                            entry.getX(),
+                            entry.getY()
+                        );
+                    }
                 } catch (Exception e) {
                     System.err.println("[RespawnManager] ERROR: Failed to broadcast respawn event: " + e.getMessage());
                     e.printStackTrace();

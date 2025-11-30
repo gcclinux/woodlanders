@@ -443,6 +443,19 @@ public class ClientConnection implements Runnable {
                     
                     // Try to generate the stone using deterministic logic with player position
                     stone = server.getWorldState().generateStoneAt(stoneX, stoneY, playerState.getX(), playerState.getY());
+                    
+                    // CRITICAL FIX: If stone was generated, broadcast it to ALL clients
+                    // This ensures all players see the same stones
+                    if (stone != null) {
+                        System.out.println("[STONE_SYNC] Generated stone " + targetId + " at (" + stone.getX() + ", " + stone.getY() + ")");
+                        System.out.println("[STONE_SYNC] Broadcasting newly generated stone to all clients");
+                        
+                        // Broadcast the newly created stone to ALL clients via StoneCreatedMessage
+                        StoneCreatedMessage stoneMsg = new StoneCreatedMessage("server", targetId, stone.getX(), stone.getY(), stone.getHealth());
+                        server.broadcastToAll(stoneMsg);
+                        
+                        System.out.println("[STONE_SYNC] Broadcast complete - all clients should now see stone " + targetId);
+                    }
                 }
             } catch (Exception e) {
                 System.err.println("Failed to parse stone coordinates from targetId: " + targetId);
@@ -468,6 +481,24 @@ public class ClientConnection implements Runnable {
                     
                     // Try to generate the tree using deterministic logic
                     tree = server.getWorldState().generateTreeAt(treeX, treeY);
+                    
+                    // CRITICAL FIX: If tree was generated, broadcast it to ALL clients
+                    // This ensures all players see the same trees, even if they weren't in the initial spawn area
+                    if (tree != null) {
+                        System.out.println("[TREE_SYNC] Generated tree " + targetId + " (type: " + tree.getType() + ") at (" + tree.getX() + ", " + tree.getY() + ")");
+                        System.out.println("[TREE_SYNC] Broadcasting newly generated tree to all clients");
+                        
+                        // Broadcast the newly created tree to ALL clients via WorldStateUpdateMessage
+                        Map<String, TreeState> newTreeMap = new HashMap<>();
+                        newTreeMap.put(targetId, tree);
+                        WorldStateUpdateMessage updateMsg = new WorldStateUpdateMessage("server", 
+                            new HashMap<>(), // no player updates
+                            newTreeMap,      // tree update
+                            new HashMap<>()); // no item updates
+                        server.broadcastToAll(updateMsg);
+                        
+                        System.out.println("[TREE_SYNC] Broadcast complete - all clients should now see tree " + targetId);
+                    }
                 }
             } catch (Exception e) {
                 System.err.println("Failed to parse tree coordinates from targetId: " + targetId);
@@ -722,6 +753,42 @@ public class ClientConnection implements Runnable {
                     server.broadcastToAll(woodStackSpawnMsg);
                     
                     System.out.println("Items spawned: BABY_TREE at (" + quantizedX + ", " + quantizedY + "), WOOD_STACK at (" + woodStackX + ", " + quantizedY + ")");
+                }
+            }
+            
+            // Plant sapling immediately for SmallTree, AppleTree, BananaTree, BambooTree
+            if (tree.getType() == TreeType.SMALL) {
+                server.getWorldState().getTrees().remove(targetId);
+                System.out.println("[DEBUG] Planting SmallTree sapling at key: " + targetId + " pos:(" + quantizedX + "," + quantizedY + ")");
+                TreePlantMessage plantMsg = new TreePlantMessage("server", targetId, quantizedX, quantizedY);
+                server.broadcastToAll(plantMsg);
+                server.getWorldState().getPlantedTrees().put(targetId, new PlantedTreeState(targetId, quantizedX, quantizedY, 0.0f));
+                System.out.println("[DEBUG] PlantedTrees now contains: " + server.getWorldState().getPlantedTrees().containsKey(targetId));
+            } else if (tree.getType() == TreeType.APPLE) {
+                server.getWorldState().getTrees().remove(targetId);
+                AppleTreePlantMessage plantMsg = new AppleTreePlantMessage("server", targetId, quantizedX, quantizedY);
+                server.broadcastToAll(plantMsg);
+                server.getWorldState().getPlantedAppleTrees().put(targetId, new PlantedAppleTreeState(targetId, quantizedX, quantizedY, 0.0f));
+            } else if (tree.getType() == TreeType.BANANA) {
+                server.getWorldState().getTrees().remove(targetId);
+                BananaTreePlantMessage plantMsg = new BananaTreePlantMessage("server", targetId, quantizedX, quantizedY);
+                server.broadcastToAll(plantMsg);
+                server.getWorldState().getPlantedBananaTrees().put(targetId, new PlantedBananaTreeState(targetId, quantizedX, quantizedY, 0.0f));
+            } else if (tree.getType() == TreeType.BAMBOO) {
+                server.getWorldState().getTrees().remove(targetId);
+                BambooPlantMessage plantMsg = new BambooPlantMessage("server", targetId, quantizedX, quantizedY);
+                server.broadcastToAll(plantMsg);
+                server.getWorldState().getPlantedBamboos().put(targetId, new PlantedBambooState(targetId, quantizedX, quantizedY, 0.0f));
+            } else if (tree.getType() == TreeType.COCONUT || tree.getType() == TreeType.CACTUS) {
+                // For CoconutTree and Cactus: use respawn system (15 minutes)
+                if (server.getRespawnManager() != null) {
+                    server.getRespawnManager().registerDestruction(
+                        targetId,
+                        wagemaker.uk.respawn.ResourceType.TREE,
+                        quantizedX,
+                        quantizedY,
+                        tree.getType()
+                    );
                 }
             }
         } else {
@@ -1626,6 +1693,8 @@ public class ClientConnection implements Runnable {
         // This ensures the server knows about the tree when clients try to attack it
         TreeState bambooTree = new TreeState(bambooTreeId, TreeType.BAMBOO, x, y, 100.0f, true);
         server.getWorldState().addOrUpdateTree(bambooTree);
+        server.getWorldState().getClearedPositions().remove(bambooTreeId);
+        server.getWorldState().getPlantedBamboos().remove(plantedBambooId);
         
         System.out.println("[SERVER] Bamboo transformed: " + plantedBambooId + " -> " + bambooTreeId + " at (" + x + ", " + y + ")");
         System.out.println("[SERVER] Added bamboo tree to server world state to prevent ghost tree issues");
@@ -1725,6 +1794,8 @@ public class ClientConnection implements Runnable {
         // This ensures the server knows about the tree when clients try to attack it
         TreeState smallTree = new TreeState(smallTreeId, TreeType.SMALL, x, y, 100.0f, true);
         server.getWorldState().addOrUpdateTree(smallTree);
+        server.getWorldState().getClearedPositions().remove(smallTreeId);
+        server.getWorldState().getPlantedTrees().remove(plantedTreeId);
         
         System.out.println("[SERVER] Tree transformed: " + plantedTreeId + " -> " + smallTreeId + " at (" + x + ", " + y + ")");
         System.out.println("[SERVER] Added tree to server world state to prevent ghost tree issues");
@@ -1815,6 +1886,8 @@ public class ClientConnection implements Runnable {
         
         TreeState bananaTree = new TreeState(bananaTreeId, TreeType.BANANA, x, y, 100.0f, true);
         server.getWorldState().addOrUpdateTree(bananaTree);
+        server.getWorldState().getClearedPositions().remove(bananaTreeId);
+        server.getWorldState().getPlantedBananaTrees().remove(plantedBananaTreeId);
         
         System.out.println("[SERVER] Banana tree transformed: " + plantedBananaTreeId + " -> " + bananaTreeId + " at (" + x + ", " + y + ")");
         
@@ -1903,6 +1976,8 @@ public class ClientConnection implements Runnable {
         
         TreeState appleTree = new TreeState(appleTreeId, TreeType.APPLE, x, y, 100.0f, true);
         server.getWorldState().addOrUpdateTree(appleTree);
+        server.getWorldState().getClearedPositions().remove(appleTreeId);
+        server.getWorldState().getPlantedAppleTrees().remove(plantedAppleTreeId);
         
         System.out.println("[SERVER] Apple tree transformed: " + plantedAppleTreeId + " -> " + appleTreeId + " at (" + x + ", " + y + ")");
         

@@ -945,9 +945,11 @@ public class MyGdxGame extends ApplicationAdapter {
      * @param y The y-coordinate in world space (must be aligned to 64px grid)
      */
     private void generateTreeAt(int x, int y) {
-        // In multiplayer mode, use deterministic generation based on world seed
-        // This ensures all clients generate the same trees at the same positions
-        // without needing server synchronization for every tree
+        // CRITICAL: In multiplayer mode, clients should NEVER generate trees locally
+        // Only the server generates trees, clients receive them via WorldState
+        if (gameMode != GameMode.SINGLEPLAYER) {
+            return;
+        }
         
         String key = x + "," + y;
         if (!trees.containsKey(key) && !appleTrees.containsKey(key) && !coconutTrees.containsKey(key) && !bambooTrees.containsKey(key) && !bananaTrees.containsKey(key) && !clearedPositions.containsKey(key)) {
@@ -1122,6 +1124,12 @@ public class MyGdxGame extends ApplicationAdapter {
      * @param y The y-coordinate in world space (aligned to 64px grid)
      */
     private void generateStoneAt(int x, int y) {
+        // CRITICAL: In multiplayer mode, clients should NEVER generate stones locally
+        // Only the server generates stones, clients receive them via WorldState
+        if (gameMode != GameMode.SINGLEPLAYER) {
+            return;
+        }
+        
         String key = x + "," + y;
         
         // Don't spawn stones where they already exist or where positions are cleared
@@ -2333,9 +2341,17 @@ public class MyGdxGame extends ApplicationAdapter {
                 break;
         }
         
-        // If tree doesn't exist, queue creation for main thread
+        // If tree doesn't exist, check if there's a sapling first
         if (!treeExists) {
-            pendingTreeCreations.offer(treeState);
+            // Don't create tree if there's a sapling at this position
+            boolean hasSapling = plantedTrees.containsKey(treeId) || 
+                                plantedBamboos.containsKey(treeId) ||
+                                plantedAppleTrees.containsKey(treeId) ||
+                                plantedBananaTrees.containsKey(treeId);
+            
+            if (!hasSapling) {
+                pendingTreeCreations.offer(treeState);
+            }
         }
     }
     
@@ -2357,8 +2373,6 @@ public class MyGdxGame extends ApplicationAdapter {
      * @return true if the tree was found and removed, false otherwise
      */
     private boolean removeTreeImmediate(String treeId) {
-        System.out.println("[DEBUG] Attempting to remove tree: " + treeId);
-        
         // Try to remove from all tree maps
         SmallTree smallTree = trees.remove(treeId);
         if (smallTree != null) {
@@ -4283,6 +4297,16 @@ public class MyGdxGame extends ApplicationAdapter {
             float y = treeState.getY();
             float health = treeState.getHealth();
             
+            // Don't create tree if there's a sapling at this position
+            boolean hasSapling = plantedTrees.containsKey(treeId) || 
+                                plantedBamboos.containsKey(treeId) ||
+                                plantedAppleTrees.containsKey(treeId) ||
+                                plantedBananaTrees.containsKey(treeId);
+            
+            if (hasSapling) {
+                continue;
+            }
+            
             // Create tree on main thread (safe for OpenGL context)
             switch (type) {
                 case SMALL:
@@ -4605,6 +4629,8 @@ public class MyGdxGame extends ApplicationAdapter {
     /**
      * Creates a tree for respawn system.
      * This method is called by RespawnManager when a tree needs to be respawned.
+     * For SmallTree, AppleTree, BananaTree, and BambooTree: plants a sapling instead of full tree.
+     * For CoconutTree and Cactus: respawns as full tree.
      * Must be called on the render thread (via deferOperation).
      * 
      * @param treeId Unique identifier for the tree
@@ -4613,40 +4639,67 @@ public class MyGdxGame extends ApplicationAdapter {
      * @param y World Y coordinate
      */
     public void createTreeForRespawn(String treeId, TreeType treeType, float x, float y) {
-        // Check if tree already exists (avoid duplicates)
+        // Remove old tree from WorldState first
+        if (gameServer != null) {
+            gameServer.getWorldState().getTrees().remove(treeId);
+        }
+        
         switch (treeType) {
             case SMALL:
-                if (!trees.containsKey(treeId)) {
-                    SmallTree smallTree = new SmallTree(x, y);
-                    trees.put(treeId, smallTree);
+                if (!plantedTrees.containsKey(treeId)) {
+                    PlantedTree plantedTree = new PlantedTree(x, y);
+                    plantedTrees.put(treeId, plantedTree);
+                    if (gameServer != null) {
+                        gameServer.getWorldState().getPlantedTrees().put(treeId, 
+                            new wagemaker.uk.network.PlantedTreeState(treeId, x, y, 0.0f));
+                    }
+                    System.out.println("[Respawn] Planted TreeSapling at: " + x + ", " + y);
                 }
                 break;
             case APPLE:
-                if (!appleTrees.containsKey(treeId)) {
-                    AppleTree appleTree = new AppleTree(x, y);
-                    appleTrees.put(treeId, appleTree);
+                if (!plantedAppleTrees.containsKey(treeId)) {
+                    wagemaker.uk.planting.PlantedAppleTree plantedAppleTree = new wagemaker.uk.planting.PlantedAppleTree(x, y);
+                    plantedAppleTrees.put(treeId, plantedAppleTree);
+                    if (gameServer != null) {
+                        gameServer.getWorldState().getPlantedAppleTrees().put(treeId,
+                            new wagemaker.uk.network.PlantedAppleTreeState(treeId, x, y, 0.0f));
+                    }
+                    System.out.println("[Respawn] Planted AppleSapling at: " + x + ", " + y);
                 }
                 break;
             case COCONUT:
                 if (!coconutTrees.containsKey(treeId)) {
                     CoconutTree coconutTree = new CoconutTree(x, y);
                     coconutTrees.put(treeId, coconutTree);
+                    if (gameServer != null) {
+                        gameServer.getWorldState().getTrees().put(treeId,
+                            new TreeState(treeId, TreeType.COCONUT, x, y, 100.0f, true));
+                    }
                 }
                 break;
             case BAMBOO:
-                if (!bambooTrees.containsKey(treeId)) {
-                    BambooTree bambooTree = new BambooTree(x, y);
-                    bambooTrees.put(treeId, bambooTree);
+                if (!plantedBamboos.containsKey(treeId)) {
+                    PlantedBamboo plantedBamboo = new PlantedBamboo(x, y);
+                    plantedBamboos.put(treeId, plantedBamboo);
+                    if (gameServer != null) {
+                        gameServer.getWorldState().getPlantedBamboos().put(treeId,
+                            new wagemaker.uk.network.PlantedBambooState(treeId, x, y, 0.0f));
+                    }
+                    System.out.println("[Respawn] Planted BambooSapling at: " + x + ", " + y);
                 }
                 break;
             case BANANA:
-                if (!bananaTrees.containsKey(treeId)) {
-                    BananaTree bananaTree = new BananaTree(x, y);
-                    bananaTrees.put(treeId, bananaTree);
+                if (!plantedBananaTrees.containsKey(treeId)) {
+                    wagemaker.uk.planting.PlantedBananaTree plantedBananaTree = new wagemaker.uk.planting.PlantedBananaTree(x, y);
+                    plantedBananaTrees.put(treeId, plantedBananaTree);
+                    if (gameServer != null) {
+                        gameServer.getWorldState().getPlantedBananaTrees().put(treeId,
+                            new wagemaker.uk.network.PlantedBananaTreeState(treeId, x, y, 0.0f));
+                    }
+                    System.out.println("[Respawn] Planted BananaSapling at: " + x + ", " + y);
                 }
                 break;
             case CACTUS:
-                // Cactus is handled separately as a single instance
                 if (cactus == null) {
                     cactus = new Cactus(x, y);
                     player.setCactus(cactus);
