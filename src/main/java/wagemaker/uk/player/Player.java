@@ -133,6 +133,7 @@ public class Player {
         
         // Initialize targeting system
         this.targetingSystem = new TargetingSystem();
+        this.targetingSystem.setCamera(camera); // Set camera for mouse input support
         this.targetIndicatorRenderer = new TargetIndicatorRenderer();
         this.targetIndicatorRenderer.initialize();
         
@@ -252,10 +253,12 @@ public class Player {
     
     public void setPlantedBananaTrees(Map<String, wagemaker.uk.planting.PlantedBananaTree> plantedBananaTrees) {
         this.plantedBananaTrees = plantedBananaTrees;
+        updateTargetingValidator();
     }
     
     public void setPlantedAppleTrees(Map<String, wagemaker.uk.planting.PlantedAppleTree> plantedAppleTrees) {
         this.plantedAppleTrees = plantedAppleTrees;
+        updateTargetingValidator();
     }
     
     public void setPuddleManager(PuddleManager puddleManager) {
@@ -1506,6 +1509,7 @@ public class Player {
     /**
      * Handle targeting input when targeting mode is active.
      * Processes A/W/D/S keys for directional movement and ESC for cancellation.
+     * Also supports mouse movement and left-click for targeting.
      * Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 4.1, 4.2, 4.3, 4.4
      */
     private void handleTargetingInput() {
@@ -1513,7 +1517,7 @@ public class Player {
             return;
         }
         
-        // Handle directional input (A/W/D/S)
+        // Handle keyboard directional input (A/W/D/S)
         if (Gdx.input.isKeyJustPressed(Input.Keys.A)) {
             targetingSystem.moveTarget(wagemaker.uk.targeting.Direction.LEFT);
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
@@ -1522,6 +1526,26 @@ public class Player {
             targetingSystem.moveTarget(wagemaker.uk.targeting.Direction.RIGHT);
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.S)) {
             targetingSystem.moveTarget(wagemaker.uk.targeting.Direction.DOWN);
+        }
+        
+        // Handle mouse movement for targeting
+        if (Gdx.input.isTouched()) {
+            int mouseX = Gdx.input.getX();
+            int mouseY = Gdx.input.getY();
+            targetingSystem.setTargetFromMouse(mouseX, mouseY);
+        }
+        
+        // Handle left mouse click for planting (same as spacebar/P key)
+        if (Gdx.input.justTouched()) {
+            if (targetingSystem.isTargetValid()) {
+                // Get current target coordinates
+                float[] coords = targetingSystem.getTargetCoordinates();
+                
+                // Place the item at target location
+                handleItemPlacement(coords[0], coords[1]);
+                
+                // Targeting remains active - don't deactivate
+            }
         }
         
         // Handle cancellation (ESC key)

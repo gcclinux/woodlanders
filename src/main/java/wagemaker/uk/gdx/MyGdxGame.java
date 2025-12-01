@@ -1438,7 +1438,9 @@ public class MyGdxGame extends ApplicationAdapter {
             if (Math.abs(planted.getX() - camX) < viewWidth && Math.abs(planted.getY() - camY) < viewHeight) {
                 Texture texture = planted.getTexture();
                 if (texture != null) {
-                    batch.draw(texture, planted.getX(), planted.getY(), 32, 32);
+                    // Center the 32x32 sapling in the 64x64 tile: (64 - 32) / 2 = 16 pixel offset
+                    float centerOffset = (64 - 32) / 2.0f;
+                    batch.draw(texture, planted.getX() + centerOffset, planted.getY() + centerOffset, 32, 32);
                 } else {
                     System.err.println("[RENDER] PlantedBananaTree at (" + planted.getX() + ", " + planted.getY() + ") has null texture!");
                 }
@@ -1456,7 +1458,9 @@ public class MyGdxGame extends ApplicationAdapter {
             if (Math.abs(planted.getX() - camX) < viewWidth && Math.abs(planted.getY() - camY) < viewHeight) {
                 Texture texture = planted.getTexture();
                 if (texture != null) {
-                    batch.draw(texture, planted.getX(), planted.getY(), 32, 32);
+                    // Center the 32x32 sapling in the 64x64 tile: (64 - 32) / 2 = 16 pixel offset
+                    float centerOffset = (64 - 32) / 2.0f;
+                    batch.draw(texture, planted.getX() + centerOffset, planted.getY() + centerOffset, 32, 32);
                 } else {
                     System.err.println("[RENDER] PlantedAppleTree at (" + planted.getX() + ", " + planted.getY() + ") has null texture!");
                 }

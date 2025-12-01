@@ -201,32 +201,50 @@ public class PlantingTargetValidator implements TargetValidator {
         
         // Check for planted bamboo
         if (plantedBamboos != null && plantedBamboos.containsKey(bambooKey)) {
+            System.out.println("[VALIDATOR] Tile occupied by planted bamboo at: " + bambooKey);
             return true;
         }
         
         // Check for planted tree
         if (plantedTrees != null && plantedTrees.containsKey(treeKey)) {
+            System.out.println("[VALIDATOR] Tile occupied by planted tree at: " + treeKey);
             return true;
         }
         
         // Check for planted banana tree
         String bananaTreeKey = "planted-banana-tree-" + (int)tileX + "-" + (int)tileY;
         if (plantedBananaTrees != null && plantedBananaTrees.containsKey(bananaTreeKey)) {
+            System.out.println("[VALIDATOR] Tile occupied by planted banana tree at: " + bananaTreeKey);
             return true;
         }
         
         // Check for planted apple tree
         String appleTreeKey = "planted-apple-tree-" + (int)tileX + "-" + (int)tileY;
         if (plantedAppleTrees != null && plantedAppleTrees.containsKey(appleTreeKey)) {
+            System.out.println("[VALIDATOR] Tile occupied by planted apple tree at: " + appleTreeKey);
             return true;
+        }
+        
+        System.out.println("[VALIDATOR] Checking tile at (" + (int)tileX + ", " + (int)tileY + ")");
+        System.out.println("[VALIDATOR] - plantedBananaTrees map size: " + (plantedBananaTrees != null ? plantedBananaTrees.size() : "null"));
+        System.out.println("[VALIDATOR] - plantedAppleTrees map size: " + (plantedAppleTrees != null ? plantedAppleTrees.size() : "null"));
+        System.out.println("[VALIDATOR] - Looking for banana key: " + bananaTreeKey);
+        System.out.println("[VALIDATOR] - Looking for apple key: " + appleTreeKey);
+        if (plantedBananaTrees != null && !plantedBananaTrees.isEmpty()) {
+            System.out.println("[VALIDATOR] - Banana tree keys in map: " + plantedBananaTrees.keySet());
+        }
+        if (plantedAppleTrees != null && !plantedAppleTrees.isEmpty()) {
+            System.out.println("[VALIDATOR] - Apple tree keys in map: " + plantedAppleTrees.keySet());
         }
         
         // Check for existing trees at this location using proximity check
         // This handles trees that might not have exact coordinate keys
         if (isTreeNearLocation(tileX, tileY)) {
+            System.out.println("[VALIDATOR] Tile occupied by nearby tree (proximity check)");
             return true;
         }
         
+        System.out.println("[VALIDATOR] Tile is NOT occupied - valid for planting");
         return false;
     }
     

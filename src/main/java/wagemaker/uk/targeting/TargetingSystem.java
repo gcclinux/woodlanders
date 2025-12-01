@@ -1,8 +1,11 @@
 package wagemaker.uk.targeting;
 
+import com.badlogic.gdx.graphics.OrthographicCamera;
+
 /**
  * Core targeting system that manages tile selection and visual feedback.
  * Handles state management, input processing, and coordinate validation.
+ * Supports both keyboard (A/W/D/S) and mouse input for targeting.
  */
 public class TargetingSystem {
     private static final int TILE_SIZE = 64;
@@ -23,6 +26,9 @@ public class TargetingSystem {
     // Validation dependencies (injected)
     private TargetValidator validator;
     
+    // Camera reference for mouse input (optional)
+    private OrthographicCamera camera;
+    
     /**
      * Creates a new TargetingSystem instance.
      */
@@ -31,6 +37,16 @@ public class TargetingSystem {
         this.maxRange = -1; // Unlimited by default
         this.isTargetValid = true; // Default to valid
         this.validator = null; // No validator by default
+        this.camera = null; // No camera by default
+    }
+    
+    /**
+     * Set the camera reference for mouse input support.
+     * 
+     * @param camera The orthographic camera used for rendering
+     */
+    public void setCamera(OrthographicCamera camera) {
+        this.camera = camera;
     }
     
     /**
@@ -138,6 +154,59 @@ public class TargetingSystem {
         
         // Validate new target position
         validateCurrentTarget();
+    }
+    
+    /**
+     * Set the target position based on mouse coordinates in screen space.
+     * Converts screen coordinates to world coordinates using the camera.
+     * Snaps to tile grid and enforces maximum range if configured.
+     * 
+     * @param screenX Mouse X position in screen coordinates
+     * @param screenY Mouse Y position in screen coordinates
+     * @return true if target was updated, false if targeting is not active or camera is not set
+     */
+    public boolean setTargetFromMouse(int screenX, int screenY) {
+        if (!isActive || camera == null) {
+            return false;
+        }
+        
+        // Convert screen coordinates to world coordinates
+        com.badlogic.gdx.math.Vector3 worldCoords = new com.badlogic.gdx.math.Vector3(screenX, screenY, 0);
+        camera.unproject(worldCoords);
+        
+        float newX = worldCoords.x;
+        float newY = worldCoords.y;
+        
+        // Snap to tile grid
+        newX = snapToTileGrid(newX);
+        newY = snapToTileGrid(newY);
+        
+        // Enforce maximum range if configured
+        if (maxRange > 0) {
+            float dx = newX - playerX;
+            float dy = newY - playerY;
+            double distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance > maxRange) {
+                // Clamp to max range boundary
+                double angle = Math.atan2(dy, dx);
+                float clampedX = playerX + (float)(Math.cos(angle) * maxRange);
+                float clampedY = playerY + (float)(Math.sin(angle) * maxRange);
+                
+                // Snap clamped position to tile grid
+                newX = snapToTileGrid(clampedX);
+                newY = snapToTileGrid(clampedY);
+            }
+        }
+        
+        // Update target position
+        targetX = newX;
+        targetY = newY;
+        
+        // Validate new target position
+        validateCurrentTarget();
+        
+        return true;
     }
     
     /**
