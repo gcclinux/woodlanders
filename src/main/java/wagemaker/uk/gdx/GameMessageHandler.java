@@ -412,7 +412,8 @@ public class GameMessageHandler extends DefaultMessageHandler {
                 message.getTreeSaplingCount(),
                 message.getWoodStackCount(),
                 message.getPebbleCount(),
-                message.getPalmFiberCount()
+                message.getPalmFiberCount(),
+                message.getLeftFenceCount()
             );
         }
     }

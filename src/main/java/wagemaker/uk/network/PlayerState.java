@@ -30,6 +30,7 @@ public class PlayerState implements Serializable {
     private int woodStackCount;
     private int pebbleCount;
     private int palmFiberCount;
+    private int leftFenceCount;
     
     public PlayerState() {
     }
@@ -205,5 +206,13 @@ public class PlayerState implements Serializable {
     
     public void setPalmFiberCount(int palmFiberCount) {
         this.palmFiberCount = palmFiberCount;
+    }
+    
+    public int getLeftFenceCount() {
+        return leftFenceCount;
+    }
+    
+    public void setLeftFenceCount(int leftFenceCount) {
+        this.leftFenceCount = leftFenceCount;
     }
 }

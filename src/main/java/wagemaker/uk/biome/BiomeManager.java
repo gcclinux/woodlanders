@@ -27,6 +27,7 @@ public class BiomeManager {
     private final Map<BiomeType, Texture> textureCache;
     private final BiomeTextureGenerator textureGenerator;
     private boolean initialized;
+    @SuppressWarnings("unused")
     private final Random noiseRandom;
     private boolean headlessMode;
     
@@ -208,6 +209,7 @@ public class BiomeManager {
      * 
      * Requirements: 1.4 (natural variation), 4.2 (deterministic)
      */
+    @SuppressWarnings("unused")
     private float calculateNoiseOffset(float x, float y) {
         // Use multiple octaves of noise for more natural variation
         // Scale down coordinates for larger noise features

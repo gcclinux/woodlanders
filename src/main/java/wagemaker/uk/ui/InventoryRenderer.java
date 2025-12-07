@@ -25,6 +25,7 @@ public class InventoryRenderer {
     private Texture palmFiberIcon;
     private Texture appleSaplingIcon;
     private Texture bananaSaplingIcon;
+    private Texture leftFenceIcon;
     
     // Background and UI elements
     private Texture woodenBackground;
@@ -40,7 +41,7 @@ public class InventoryRenderer {
     private static final int SLOT_SIZE = 40;
     private static final int SLOT_SPACING = 8;
     private static final int PANEL_PADDING = 8;
-    private static final int PANEL_WIDTH = (SLOT_SIZE * 10) + (SLOT_SPACING * 9) + (PANEL_PADDING * 2);
+    private static final int PANEL_WIDTH = (SLOT_SIZE * 11) + (SLOT_SPACING * 10) + (PANEL_PADDING * 2);
     private static final int PANEL_HEIGHT = SLOT_SIZE + (PANEL_PADDING * 2);
     private static final int ICON_SIZE = 32;
     
@@ -96,6 +97,41 @@ public class InventoryRenderer {
         
         // Load banana sapling icon (192, 192, 64x64)
         bananaSaplingIcon = extractIconFromSpriteSheet(192, 192, 64, 64);
+        
+        // Load left fence icon (256, 192, 32x128) - scale to 32x32
+        leftFenceIcon = extractAndScaleLeftFenceIcon();
+    }
+    
+    /**
+     * Extract and scale the LeftFence icon from the sprite sheet.
+     * The LeftFence texture is 32x128 at coordinates (256, 192).
+     * We need to scale it to 32x32 for inventory display.
+     */
+    private Texture extractAndScaleLeftFenceIcon() {
+        // Extract the full 32x128 texture
+        Texture spriteSheet = new Texture("sprites/assets.png");
+        Pixmap fullPixmap = new Pixmap(32, 128, Pixmap.Format.RGBA8888);
+        spriteSheet.getTextureData().prepare();
+        Pixmap sheetPixmap = spriteSheet.getTextureData().consumePixmap();
+        
+        fullPixmap.drawPixmap(sheetPixmap, 0, 0, 256, 192, 32, 128);
+        
+        // Create a 32x32 pixmap and scale down the full texture
+        Pixmap scaledPixmap = new Pixmap(32, 32, Pixmap.Format.RGBA8888);
+        scaledPixmap.drawPixmap(fullPixmap, 
+            0, 0, 32, 32,  // destination: full 32x32 area
+            0, 0, 32, 128  // source: full 32x128 texture
+        );
+        
+        Texture icon = new Texture(scaledPixmap);
+        
+        // Clean up
+        fullPixmap.dispose();
+        scaledPixmap.dispose();
+        sheetPixmap.dispose();
+        spriteSheet.dispose();
+        
+        return icon;
     }
     
     /**
@@ -188,12 +224,12 @@ public class InventoryRenderer {
         float slotX = panelX + PANEL_PADDING;
         float slotY = panelY + PANEL_PADDING;
         
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 11; i++) {
             float x = slotX + i * (SLOT_SIZE + SLOT_SPACING);
             batch.draw(slotBorder, x, slotY, SLOT_SIZE, SLOT_SIZE);
         }
         
-        // Render slots with icons and counts in order: Apple, Banana, BambooSapling, BambooStack, TreeSapling, WoodStack, Pebble, PalmFiber, AppleSapling, BananaSapling
+        // Render slots with icons and counts in order: Apple, Banana, BambooSapling, BambooStack, TreeSapling, WoodStack, Pebble, PalmFiber, AppleSapling, BananaSapling, LeftFence
         renderSlot(batch, appleIcon, inventory.getAppleCount(), slotX, slotY, selectedSlot == 0);
         renderSlot(batch, bananaIcon, inventory.getBananaCount(), slotX + (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 1);
         renderSlot(batch, bambooSaplingIcon, inventory.getBambooSaplingCount(), slotX + 2 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 2);
@@ -204,6 +240,7 @@ public class InventoryRenderer {
         renderSlot(batch, palmFiberIcon, inventory.getPalmFiberCount(), slotX + 7 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 7);
         renderSlot(batch, appleSaplingIcon, inventory.getAppleSaplingCount(), slotX + 8 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 8);
         renderSlot(batch, bananaSaplingIcon, inventory.getBananaSaplingCount(), slotX + 9 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 9);
+        renderSlot(batch, leftFenceIcon, inventory.getLeftFenceCount(), slotX + 10 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 10);
         
         batch.end();
     }
@@ -280,6 +317,7 @@ public class InventoryRenderer {
         if (palmFiberIcon != null) palmFiberIcon.dispose();
         if (appleSaplingIcon != null) appleSaplingIcon.dispose();
         if (bananaSaplingIcon != null) bananaSaplingIcon.dispose();
+        if (leftFenceIcon != null) leftFenceIcon.dispose();
         if (woodenBackground != null) woodenBackground.dispose();
         if (slotBorder != null) slotBorder.dispose();
         if (countFont != null) countFont.dispose();
