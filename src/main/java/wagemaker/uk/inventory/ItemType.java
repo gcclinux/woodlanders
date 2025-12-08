@@ -10,6 +10,7 @@ public enum ItemType {
     BANANA(false, 0, true),      // Reduces 5% hunger
     BANANA_SAPLING(false, 0, false),
     LEFT_FENCE(false, 0, false),
+    FRONT_FENCE(false, 0, false),
     BABY_BAMBOO(false, 0, false),
     BAMBOO_STACK(false, 0, false),
     WOOD_STACK(false, 0, false),

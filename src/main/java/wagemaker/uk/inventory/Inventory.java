@@ -17,6 +17,7 @@ public class Inventory {
     private int pebbleCount;
     private int palmFiberCount;
     private int leftFenceCount;
+    private int frontFenceCount;
     
     public Inventory() {
         this.appleCount = 0;
@@ -30,6 +31,7 @@ public class Inventory {
         this.pebbleCount = 0;
         this.palmFiberCount = 0;
         this.leftFenceCount = 0;
+        this.frontFenceCount = 0;
     }
     
     // Apple methods
@@ -263,6 +265,27 @@ public class Inventory {
         return false;
     }
     
+    // FrontFence methods
+    public int getFrontFenceCount() {
+        return frontFenceCount;
+    }
+    
+    public void setFrontFenceCount(int count) {
+        this.frontFenceCount = Math.max(0, count);
+    }
+    
+    public void addFrontFence(int amount) {
+        this.frontFenceCount += amount;
+    }
+    
+    public boolean removeFrontFence(int amount) {
+        if (frontFenceCount >= amount) {
+            frontFenceCount -= amount;
+            return true;
+        }
+        return false;
+    }
+    
     /**
      * Clear all items from inventory, resetting all counts to 0.
      */
@@ -278,5 +301,6 @@ public class Inventory {
         this.pebbleCount = 0;
         this.palmFiberCount = 0;
         this.leftFenceCount = 0;
+        this.frontFenceCount = 0;
     }
 }

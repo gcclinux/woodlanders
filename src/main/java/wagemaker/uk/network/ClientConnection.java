@@ -934,6 +934,9 @@ public class ClientConnection implements Runnable {
             case LEFT_FENCE:
                 playerState.setLeftFenceCount(playerState.getLeftFenceCount() + 1);
                 break;
+            case FRONT_FENCE:
+                playerState.setFrontFenceCount(playerState.getFrontFenceCount() + 1);
+                break;
         }
         
         // Update player state in world
@@ -955,7 +958,8 @@ public class ClientConnection implements Runnable {
             playerState.getWoodStackCount(),
             playerState.getPebbleCount(),
             playerState.getPalmFiberCount(),
-            playerState.getLeftFenceCount()
+            playerState.getLeftFenceCount(),
+            playerState.getFrontFenceCount()
         );
         server.broadcastToAll(inventoryMsg);
         
@@ -1120,7 +1124,8 @@ public class ClientConnection implements Runnable {
             playerState.getWoodStackCount(),
             playerState.getPebbleCount(),
             playerState.getPalmFiberCount(),
-            playerState.getLeftFenceCount()
+            playerState.getLeftFenceCount(),
+            playerState.getFrontFenceCount()
         );
         server.broadcastToAll(inventoryMsg);
     }
@@ -1539,7 +1544,8 @@ public class ClientConnection implements Runnable {
             !isValidInventoryCount(message.getWoodStackCount()) ||
             !isValidInventoryCount(message.getPebbleCount()) ||
             !isValidInventoryCount(message.getPalmFiberCount()) ||
-            !isValidInventoryCount(message.getLeftFenceCount())) {
+            !isValidInventoryCount(message.getLeftFenceCount()) ||
+            !isValidInventoryCount(message.getFrontFenceCount())) {
             System.err.println("Invalid inventory counts from " + clientId);
             logSecurityViolation("Invalid inventory counts");
             return;
@@ -1557,6 +1563,7 @@ public class ClientConnection implements Runnable {
         playerState.setPebbleCount(message.getPebbleCount());
         playerState.setPalmFiberCount(message.getPalmFiberCount());
         playerState.setLeftFenceCount(message.getLeftFenceCount());
+        playerState.setFrontFenceCount(message.getFrontFenceCount());
         
         // Update in world state
         server.getWorldState().addOrUpdatePlayer(playerState);
@@ -1572,7 +1579,8 @@ public class ClientConnection implements Runnable {
                          ", WoodStack=" + message.getWoodStackCount() +
                          ", Pebbles=" + message.getPebbleCount() +
                          ", PalmFiber=" + message.getPalmFiberCount() +
-                         ", LeftFence=" + message.getLeftFenceCount());
+                         ", LeftFence=" + message.getLeftFenceCount() +
+                         ", FrontFence=" + message.getFrontFenceCount());
     }
     
     /**
@@ -1602,7 +1610,8 @@ public class ClientConnection implements Runnable {
             playerState.getWoodStackCount(),
             playerState.getPebbleCount(),
             playerState.getPalmFiberCount(),
-            playerState.getLeftFenceCount()
+            playerState.getLeftFenceCount(),
+            playerState.getFrontFenceCount()
         );
         sendMessage(syncMsg);
     }

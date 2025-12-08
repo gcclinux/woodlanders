@@ -19,6 +19,7 @@ public class InventorySyncMessage extends NetworkMessage {
     private int pebbleCount;
     private int palmFiberCount;
     private int leftFenceCount;
+    private int frontFenceCount;
     
     public InventorySyncMessage() {
         super();
@@ -28,7 +29,7 @@ public class InventorySyncMessage extends NetworkMessage {
                                  int appleCount, int bananaCount, int appleSaplingCount, int bananaSaplingCount,
                                  int bambooSaplingCount, int bambooStackCount, 
                                  int treeSaplingCount, int woodStackCount, int pebbleCount, int palmFiberCount,
-                                 int leftFenceCount) {
+                                 int leftFenceCount, int frontFenceCount) {
         super(senderId);
         this.playerId = playerId;
         this.appleCount = appleCount;
@@ -42,6 +43,7 @@ public class InventorySyncMessage extends NetworkMessage {
         this.pebbleCount = pebbleCount;
         this.palmFiberCount = palmFiberCount;
         this.leftFenceCount = leftFenceCount;
+        this.frontFenceCount = frontFenceCount;
     }
     
     @Override
@@ -95,5 +97,9 @@ public class InventorySyncMessage extends NetworkMessage {
     
     public int getLeftFenceCount() {
         return leftFenceCount;
+    }
+    
+    public int getFrontFenceCount() {
+        return frontFenceCount;
     }
 }
