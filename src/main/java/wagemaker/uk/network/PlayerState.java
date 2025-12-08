@@ -32,6 +32,7 @@ public class PlayerState implements Serializable {
     private int palmFiberCount;
     private int leftFenceCount;
     private int frontFenceCount;
+    private int backFenceCount;
     
     public PlayerState() {
     }
@@ -223,5 +224,13 @@ public class PlayerState implements Serializable {
     
     public void setFrontFenceCount(int frontFenceCount) {
         this.frontFenceCount = frontFenceCount;
+    }
+    
+    public int getBackFenceCount() {
+        return backFenceCount;
+    }
+    
+    public void setBackFenceCount(int backFenceCount) {
+        this.backFenceCount = backFenceCount;
     }
 }

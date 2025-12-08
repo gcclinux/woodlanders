@@ -5,15 +5,15 @@ This implementation adds BackFence item support to the inventory system, followi
 
 ---
 
-- [-] 1. Add BACK_FENCE to ItemType enum
-
-
+- [x] 1. Add BACK_FENCE to ItemType enum
 
   - Add BACK_FENCE entry to the ItemType enum with properties: restoresHealth=false, healthRestore=0, reducesHunger=false
   - Position it after FRONT_FENCE in the enum definition
   - _Requirements: 4.1_
 
-- [ ] 2. Extend Inventory class with BackFence support
+- [x] 2. Extend Inventory class with BackFence support
+
+
   - Add private int backFenceCount field
   - Initialize backFenceCount to 0 in constructor
   - Implement getBackFenceCount() method
@@ -23,11 +23,13 @@ This implementation adds BackFence item support to the inventory system, followi
   - Update clear() method to reset backFenceCount to 0
   - _Requirements: 1.1, 4.2_
 
-- [ ] 2.1 Write property test for BackFence collection increases count
+- [x] 2.1 Write property test for BackFence collection increases count
+
   - **Property 1: BackFence collection increases count**
   - **Validates: Requirements 1.1**
 
-- [ ] 3. Update network messages to include BackFence count
+- [x] 3. Update network messages to include BackFence count
+
   - Add backFenceCount field to InventoryUpdateMessage class
   - Update InventoryUpdateMessage constructor to accept backFenceCount parameter
   - Add backFenceCount field to InventorySyncMessage class
@@ -35,14 +37,16 @@ This implementation adds BackFence item support to the inventory system, followi
   - Update message serialization/deserialization to handle backFenceCount field
   - _Requirements: 2.1, 2.2, 2.3_
 
-- [ ] 4. Update message handlers to process BackFence data
+- [x] 4. Update message handlers to process BackFence data
+
   - Update GameMessageHandler.handleInventorySyncMessage() to extract backFenceCount from InventorySyncMessage
   - Update ClientConnection to pass backFenceCount parameter to inventoryManager.syncFromServer()
   - Update all call sites creating InventoryUpdateMessage to include backFenceCount
   - Verify message routing includes the new field throughout the network stack
   - _Requirements: 2.2_
 
-- [ ] 5. Update InventoryManager to handle BackFence
+- [x] 5. Update InventoryManager to handle BackFence
+
   - Add BACK_FENCE case to collectItem() switch statement
   - Add BACK_FENCE case to addItemToInventory() switch statement calling inventory.addBackFence(amount)
   - Update sendInventoryUpdate() to include backFenceCount in InventoryUpdateMessage
@@ -52,17 +56,21 @@ This implementation adds BackFence item support to the inventory system, followi
   - Add case 12 to checkAndAutoDeselect() checking inventory.getBackFenceCount()
   - _Requirements: 1.1, 2.1, 2.2, 2.3, 3.2, 3.4_
 
-- [ ] 5.1 Write property test for multiplayer collection triggers sync
+- [x] 5.1 Write property test for multiplayer collection triggers sync
+
   - **Property 3: Multiplayer collection triggers sync**
   - **Validates: Requirements 2.1**
 
 - [ ] 5.2 Write property test for server sync updates local count
   - **Property 4: Server sync updates local count**
+
   - **Validates: Requirements 2.2**
 
-- [ ] 5.3 Write property test for multiplayer removal triggers sync
+- [x] 5.3 Write property test for multiplayer removal triggers sync
+
   - **Property 5: Multiplayer removal triggers sync**
   - **Validates: Requirements 2.3**
+
 
 - [ ] 5.4 Write property test for slot 12 selection returns BACK_FENCE
   - **Property 6: Slot 12 selection returns BACK_FENCE**
@@ -72,7 +80,10 @@ This implementation adds BackFence item support to the inventory system, followi
   - **Property 7: Zero count triggers auto-deselect**
   - **Validates: Requirements 3.4**
 
-- [ ] 6. Extend InventoryRenderer to display BackFence
+- [x] 6. Extend InventoryRenderer to display BackFence
+
+
+
   - Add private Texture backFenceIcon field
   - Update PANEL_WIDTH calculation to accommodate 13 slots instead of 12
   - Update loadItemIcons() to extract BackFence icon from sprite sheet at coordinates (64, 320) with size 64x64
@@ -82,11 +93,15 @@ This implementation adds BackFence item support to the inventory system, followi
   - Update dispose() method to dispose backFenceIcon texture
   - _Requirements: 1.2, 1.3, 1.4, 4.3_
 
-- [ ] 6.1 Write property test for displayed count matches inventory count
+- [x] 6.1 Write property test for displayed count matches inventory count
+
+
   - **Property 2: Displayed count matches inventory count**
   - **Validates: Requirements 1.2**
 
-- [ ] 6.2 Write unit tests for BackFence rendering
+- [x] 6.2 Write unit tests for BackFence rendering
+
+
   - Test that BackFence icon is extracted from correct coordinates (64, 320)
   - Test that BackFence icon is rendered at 32x32 pixels
   - Test that BackFence is positioned at slot index 12
@@ -95,8 +110,16 @@ This implementation adds BackFence item support to the inventory system, followi
   - Test that deselection removes the highlight
   - _Requirements: 1.3, 1.4, 1.5, 3.1, 3.3, 4.3_
 
-- [ ] 7. Checkpoint - Ensure all tests pass
+- [x] 7. Checkpoint - Ensure all tests pass
+
   - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 8. Add BackFence to Free World mode
+
+  - Update FreeWorldManager.grantFreeWorldItems() to include inventory.setBackFenceCount(250)
+  - Position BackFence after FrontFence in the item grant list
+  - Verify that Free World mode grants 250 BackFence items to players
+  - _Requirements: 1.1_
 
 ---
 

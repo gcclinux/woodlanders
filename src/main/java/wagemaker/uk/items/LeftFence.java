@@ -20,7 +20,7 @@ public class LeftFence {
         Pixmap sheetPixmap = spriteSheet.getTextureData().consumePixmap();
         
         // LeftFence coordinates: 256 from left, 192 from top, 128x32 size
-        pixmap.drawPixmap(sheetPixmap, 0, 0, 256,192, 32,128);
+        pixmap.drawPixmap(sheetPixmap, 0, 0, 256,256, 32,64);
         
         texture = new Texture(pixmap);
         pixmap.dispose();

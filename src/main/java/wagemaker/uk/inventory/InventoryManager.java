@@ -135,6 +135,9 @@ public class InventoryManager {
             case FRONT_FENCE:
                 inventory.addFrontFence(amount);
                 break;
+            case BACK_FENCE:
+                inventory.addBackFence(amount);
+                break;
         }
         
         // Send inventory update to server in multiplayer mode
@@ -163,7 +166,8 @@ public class InventoryManager {
                 inventory.getPebbleCount(),
                 inventory.getPalmFiberCount(),
                 inventory.getLeftFenceCount(),
-                inventory.getFrontFenceCount()
+                inventory.getFrontFenceCount(),
+                inventory.getBackFenceCount()
             );
             
             gameClient.sendMessage(message);
@@ -195,10 +199,11 @@ public class InventoryManager {
      * @param palmFiberCount The palm fiber count from server
      * @param leftFenceCount The left fence count from server
      * @param frontFenceCount The front fence count from server
+     * @param backFenceCount The back fence count from server
      */
     public void syncFromServer(int appleCount, int bananaCount, int appleSaplingCount, int bananaSaplingCount,
                                 int bambooSaplingCount, int bambooStackCount, int treeSaplingCount, int woodStackCount, 
-                                int pebbleCount, int palmFiberCount, int leftFenceCount, int frontFenceCount) {
+                                int pebbleCount, int palmFiberCount, int leftFenceCount, int frontFenceCount, int backFenceCount) {
         if (!isMultiplayerMode) {
             return; // Only sync in multiplayer mode
         }
@@ -216,6 +221,7 @@ public class InventoryManager {
         inventory.setPalmFiberCount(palmFiberCount);
         inventory.setLeftFenceCount(leftFenceCount);
         inventory.setFrontFenceCount(frontFenceCount);
+        inventory.setBackFenceCount(backFenceCount);
         
         System.out.println("Inventory synced from server: Apples=" + appleCount +
                          ", Bananas=" + bananaCount +
@@ -233,10 +239,10 @@ public class InventoryManager {
     
     /**
      * Set the selected inventory slot.
-     * @param slot The slot index (0-11 for valid slots, any other value clears selection)
+     * @param slot The slot index (0-12 for valid slots, any other value clears selection)
      */
     public void setSelectedSlot(int slot) {
-        if (slot >= 0 && slot <= 11) {
+        if (slot >= 0 && slot <= 12) {
             this.selectedSlot = slot;
         } else {
             this.selectedSlot = -1; // Clear selection
@@ -245,7 +251,7 @@ public class InventoryManager {
     
     /**
      * Get the currently selected inventory slot.
-     * @return The selected slot index (0-11), or -1 if no slot is selected
+     * @return The selected slot index (0-12), or -1 if no slot is selected
      */
     public int getSelectedSlot() {
         return selectedSlot;
@@ -282,6 +288,7 @@ public class InventoryManager {
             case 9: return ItemType.BANANA_SAPLING;
             case 10: return ItemType.LEFT_FENCE;
             case 11: return ItemType.FRONT_FENCE;
+            case 12: return ItemType.BACK_FENCE;
             default: return null;
         }
     }
@@ -368,6 +375,7 @@ public class InventoryManager {
             case 9: itemCount = inventory.getBananaSaplingCount(); break;
             case 10: itemCount = inventory.getLeftFenceCount(); break;
             case 11: itemCount = inventory.getFrontFenceCount(); break;
+            case 12: itemCount = inventory.getBackFenceCount(); break;
         }
         
         if (itemCount == 0) {
