@@ -138,6 +138,9 @@ public class InventoryManager {
             case BACK_FENCE:
                 inventory.addBackFence(amount);
                 break;
+            case RIGHT_FENCE:
+                inventory.addRightFence(amount);
+                break;
         }
         
         // Send inventory update to server in multiplayer mode
@@ -167,7 +170,8 @@ public class InventoryManager {
                 inventory.getPalmFiberCount(),
                 inventory.getLeftFenceCount(),
                 inventory.getFrontFenceCount(),
-                inventory.getBackFenceCount()
+                inventory.getBackFenceCount(),
+                inventory.getRightFenceCount()
             );
             
             gameClient.sendMessage(message);
@@ -200,10 +204,11 @@ public class InventoryManager {
      * @param leftFenceCount The left fence count from server
      * @param frontFenceCount The front fence count from server
      * @param backFenceCount The back fence count from server
+     * @param rightFenceCount The right fence count from server
      */
     public void syncFromServer(int appleCount, int bananaCount, int appleSaplingCount, int bananaSaplingCount,
                                 int bambooSaplingCount, int bambooStackCount, int treeSaplingCount, int woodStackCount, 
-                                int pebbleCount, int palmFiberCount, int leftFenceCount, int frontFenceCount, int backFenceCount) {
+                                int pebbleCount, int palmFiberCount, int leftFenceCount, int frontFenceCount, int backFenceCount, int rightFenceCount) {
         if (!isMultiplayerMode) {
             return; // Only sync in multiplayer mode
         }
@@ -222,6 +227,7 @@ public class InventoryManager {
         inventory.setLeftFenceCount(leftFenceCount);
         inventory.setFrontFenceCount(frontFenceCount);
         inventory.setBackFenceCount(backFenceCount);
+        inventory.setRightFenceCount(rightFenceCount);
         
         System.out.println("Inventory synced from server: Apples=" + appleCount +
                          ", Bananas=" + bananaCount +
@@ -234,15 +240,17 @@ public class InventoryManager {
                          ", Pebbles=" + pebbleCount +
                          ", PalmFibers=" + palmFiberCount +
                          ", LeftFence=" + leftFenceCount +
-                         ", FrontFence=" + frontFenceCount);
+                         ", FrontFence=" + frontFenceCount +
+                         ", BackFence=" + backFenceCount +
+                         ", RightFence=" + rightFenceCount);
     }
     
     /**
      * Set the selected inventory slot.
-     * @param slot The slot index (0-12 for valid slots, any other value clears selection)
+     * @param slot The slot index (0-13 for valid slots, any other value clears selection)
      */
     public void setSelectedSlot(int slot) {
-        if (slot >= 0 && slot <= 12) {
+        if (slot >= 0 && slot <= 13) {
             this.selectedSlot = slot;
         } else {
             this.selectedSlot = -1; // Clear selection
@@ -251,7 +259,7 @@ public class InventoryManager {
     
     /**
      * Get the currently selected inventory slot.
-     * @return The selected slot index (0-12), or -1 if no slot is selected
+     * @return The selected slot index (0-13), or -1 if no slot is selected
      */
     public int getSelectedSlot() {
         return selectedSlot;
@@ -289,6 +297,7 @@ public class InventoryManager {
             case 10: return ItemType.LEFT_FENCE;
             case 11: return ItemType.FRONT_FENCE;
             case 12: return ItemType.BACK_FENCE;
+            case 13: return ItemType.RIGHT_FENCE;
             default: return null;
         }
     }
@@ -376,6 +385,7 @@ public class InventoryManager {
             case 10: itemCount = inventory.getLeftFenceCount(); break;
             case 11: itemCount = inventory.getFrontFenceCount(); break;
             case 12: itemCount = inventory.getBackFenceCount(); break;
+            case 13: itemCount = inventory.getRightFenceCount(); break;
         }
         
         if (itemCount == 0) {

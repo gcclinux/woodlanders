@@ -13,6 +13,7 @@ public enum ItemType implements Serializable {
     LEFT_FENCE,
     FRONT_FENCE,
     BACK_FENCE,
+    RIGHT_FENCE,
     BABY_BAMBOO,
     BAMBOO_STACK,
     WOOD_STACK,

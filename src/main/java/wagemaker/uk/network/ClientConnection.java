@@ -960,7 +960,8 @@ public class ClientConnection implements Runnable {
             playerState.getPalmFiberCount(),
             playerState.getLeftFenceCount(),
             playerState.getFrontFenceCount(),
-            playerState.getBackFenceCount()
+            playerState.getBackFenceCount(),
+            playerState.getRightFenceCount()
         );
         server.broadcastToAll(inventoryMsg);
         
@@ -1127,7 +1128,8 @@ public class ClientConnection implements Runnable {
             playerState.getPalmFiberCount(),
             playerState.getLeftFenceCount(),
             playerState.getFrontFenceCount(),
-            playerState.getBackFenceCount()
+            playerState.getBackFenceCount(),
+            playerState.getRightFenceCount()
         );
         server.broadcastToAll(inventoryMsg);
     }
@@ -1614,7 +1616,8 @@ public class ClientConnection implements Runnable {
             playerState.getPalmFiberCount(),
             playerState.getLeftFenceCount(),
             playerState.getFrontFenceCount(),
-            playerState.getBackFenceCount()
+            playerState.getBackFenceCount(),
+            playerState.getRightFenceCount()
         );
         sendMessage(syncMsg);
     }

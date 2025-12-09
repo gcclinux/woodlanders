@@ -415,7 +415,8 @@ public class GameMessageHandler extends DefaultMessageHandler {
                 message.getPalmFiberCount(),
                 message.getLeftFenceCount(),
                 message.getFrontFenceCount(),
-                message.getBackFenceCount()
+                message.getBackFenceCount(),
+                message.getRightFenceCount()
             );
         }
     }

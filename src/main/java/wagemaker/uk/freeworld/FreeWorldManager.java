@@ -55,6 +55,7 @@ public class FreeWorldManager {
         inventory.setLeftFenceCount(250);
         inventory.setFrontFenceCount(250);
         inventory.setBackFenceCount(250);
+        inventory.setRightFenceCount(250);
         
         System.out.println("Granted 250 of each item type");
     }

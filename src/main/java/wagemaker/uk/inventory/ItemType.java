@@ -12,6 +12,7 @@ public enum ItemType {
     LEFT_FENCE(false, 0, false),
     FRONT_FENCE(false, 0, false),
     BACK_FENCE(false, 0, false),
+    RIGHT_FENCE(false, 0, false),
     BABY_BAMBOO(false, 0, false),
     BAMBOO_STACK(false, 0, false),
     WOOD_STACK(false, 0, false),
