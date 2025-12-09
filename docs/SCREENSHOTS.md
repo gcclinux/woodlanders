@@ -2,6 +2,10 @@ SOme screenshots are older the idea is to start adding them based on their versi
 
 <div align="center">
 
+### First initial view of currently enabled features
+![Latest 0.0.29](../screenshots/fully-loaded.png)
+*First view of all 3 biome's Grass, Water & Sand also Rain, Bird, Trees*
+
 ### Multi Character selection
 ![Latest 0.0.25](../screenshots/multi-character-selection.png)
 *New multi character selection with multiplayer synchronisation*
