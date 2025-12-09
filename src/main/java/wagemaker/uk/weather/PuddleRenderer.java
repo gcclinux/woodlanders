@@ -312,11 +312,27 @@ public class PuddleRenderer {
      * @return true if the position has adequate spacing, false otherwise
      */
     private boolean hasMinimumSpacing(float x, float y, WaterPuddle excludePuddle) {
-        // Check if location is in water biome
+        // Check if location is in or near water biome (minimum 128px distance)
         if (biomeManager != null && biomeManager.isInitialized()) {
-            BiomeType biomeType = biomeManager.getBiomeAtPosition(x, y);
-            if (biomeType == BiomeType.WATER) {
+            float waterCheckRadius = 128f;
+            int checkPoints = 8; // Check 8 points around the puddle location
+            
+            // Check center point
+            BiomeType centerBiome = biomeManager.getBiomeAtPosition(x, y);
+            if (centerBiome == BiomeType.WATER) {
                 return false; // Don't create puddles in water
+            }
+            
+            // Check points in a circle around the puddle location
+            for (int i = 0; i < checkPoints; i++) {
+                float angle = (float) (2 * Math.PI * i / checkPoints);
+                float checkX = x + (float) Math.cos(angle) * waterCheckRadius;
+                float checkY = y + (float) Math.sin(angle) * waterCheckRadius;
+                
+                BiomeType biomeType = biomeManager.getBiomeAtPosition(checkX, checkY);
+                if (biomeType == BiomeType.WATER) {
+                    return false; // Too close to water
+                }
             }
         }
         

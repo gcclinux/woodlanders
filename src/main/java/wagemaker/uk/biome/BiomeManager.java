@@ -188,7 +188,7 @@ public class BiomeManager {
     /**
      * Checks if a position is within a water patch.
      * Uses multi-octave noise to create organic lake shapes.
-     * Target distribution: ~15% water coverage
+     * Target distribution: ~15% water coverage with smaller, more varied shapes
      * 
      * @param worldX The x-coordinate in world space
      * @param worldY The y-coordinate in world space
@@ -205,23 +205,23 @@ public class BiomeManager {
         }
         
         // Use multi-octave noise for organic lake shapes
-        // Using smaller scale values (lower frequency) to create larger, more contiguous lakes
-        float noiseScale1 = 0.00005f;  // Large features (lake locations) - very low frequency for large lakes
-        float noiseScale2 = 0.0002f;   // Medium features (lake shapes) - reduced for more contiguity
-        float noiseScale3 = 0.0008f;   // Small features (shoreline detail) - reduced for smoother edges
+        // Higher frequency values create smaller, more varied water bodies
+        float noiseScale1 = 0.0003f;   // Large features (lake locations) - increased for smaller lakes
+        float noiseScale2 = 0.0012f;   // Medium features (lake shapes) - increased for more variation
+        float noiseScale3 = 0.0025f;   // Small features (shoreline detail) - increased for irregular edges
         
         // Sample noise at different scales
         float noise1 = simplexNoise(worldX * noiseScale1, worldY * noiseScale1);
         float noise2 = simplexNoise(worldX * noiseScale2, worldY * noiseScale2);
         float noise3 = simplexNoise(worldX * noiseScale3, worldY * noiseScale3);
         
-        // Combine noise octaves with heavy weight on large features for maximum contiguity
-        float combinedNoise = noise1 * 0.7f + noise2 * 0.2f + noise3 * 0.1f;
+        // Combine noise octaves with more balanced weights for varied shapes
+        float combinedNoise = noise1 * 0.4f + noise2 * 0.35f + noise3 * 0.25f;
         
         // Normalize to 0-1 range
         float waterProbability = combinedNoise * 0.5f + 0.5f;
         
-        // Threshold for water (0.75 = ~15% coverage)
+        // Threshold for water - adjusted to maintain ~15% coverage with new noise scales
         return waterProbability > BiomeConfig.WATER_NOISE_THRESHOLD;
     }
     

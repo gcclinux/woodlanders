@@ -24,15 +24,12 @@ public class BirdFormationManager {
     private Texture birdTexture1;
     private Texture birdTexture2;
     private Sound birdSound;
-    private long birdSoundId = -1;
-    private boolean isFadingOut = false;
-    private float currentVolume = 1.0f;
-    private float fadeOutTimer = 0f;
+    
+    private static final float BIRD_VOLUME = 0.7f; // 70% volume (reduced by 30%)
     
     private static final float MIN_SPAWN_INTERVAL = 60f; // 1 minute
     private static final float MAX_SPAWN_INTERVAL = 180f; // 3 minutes
     private static final float BIRD_SPEED = 100f; // pixels per second
-    private static final float FADE_OUT_DURATION = 1.0f; // 1 second fade out
 
     public BirdFormationManager(OrthographicCamera camera, Viewport viewport) {
         this.camera = camera;
@@ -93,35 +90,6 @@ public class BirdFormationManager {
             return; // Bird system disabled if textures failed to load
         }
         
-        // Update fade-out if in progress
-        if (isFadingOut && birdSound != null && birdSoundId != -1) {
-            fadeOutTimer += deltaTime;
-            float fadeProgress = fadeOutTimer / FADE_OUT_DURATION;
-            
-            if (fadeProgress >= 1.0f) {
-                // Fade complete, stop sound
-                try {
-                    birdSound.stop(birdSoundId);
-                    System.out.println("[BIRDS] Bird sound stopped (fade complete)");
-                } catch (Exception e) {
-                    System.err.println("[BIRDS] Error stopping bird sound: " + e.getMessage());
-                } finally {
-                    birdSoundId = -1;
-                    isFadingOut = false;
-                    currentVolume = 1.0f;
-                    fadeOutTimer = 0f;
-                }
-            } else {
-                // Update volume during fade
-                currentVolume = 1.0f - fadeProgress;
-                try {
-                    birdSound.setVolume(birdSoundId, currentVolume);
-                } catch (Exception e) {
-                    System.err.println("[BIRDS] Error setting bird sound volume: " + e.getMessage());
-                }
-            }
-        }
-        
         // Update active formation
         if (activeFormation != null) {
             activeFormation.update(deltaTime);
@@ -137,7 +105,7 @@ public class BirdFormationManager {
         }
         
         // Update spawn timer
-        if (activeFormation == null && !isFadingOut) {
+        if (activeFormation == null) {
             spawnTimer -= deltaTime;
             
             if (spawnTimer <= 0) {
@@ -153,17 +121,6 @@ public class BirdFormationManager {
     }
 
     public void dispose() {
-        // Stop sound if playing
-        if (birdSound != null && birdSoundId != -1) {
-            try {
-                birdSound.stop(birdSoundId);
-            } catch (Exception e) {
-                System.err.println("[BIRDS] Error stopping bird sound during dispose: " + e.getMessage());
-            } finally {
-                birdSoundId = -1;
-            }
-        }
-        
         // Dispose sound resource
         if (birdSound != null) {
             try {
@@ -193,18 +150,13 @@ public class BirdFormationManager {
         activeFormation = new BirdFormation(spawnPoint, velocity, birdTexture1, birdTexture2);
         lastSpawnBoundary = spawnPoint.boundary;
         
-        // Start bird sound
-        if (birdSound != null && birdSoundId == -1) {
+        // Play bird sound once
+        if (birdSound != null) {
             try {
-                birdSoundId = birdSound.loop();
-                birdSound.setVolume(birdSoundId, 1.0f);
-                currentVolume = 1.0f;
-                isFadingOut = false;
-                fadeOutTimer = 0f;
-                System.out.println("[BIRDS] Bird sound started");
+                birdSound.play(BIRD_VOLUME);
+                System.out.println("[BIRDS] Bird sound played once");
             } catch (Exception e) {
-                System.err.println("[BIRDS] Error starting bird sound: " + e.getMessage());
-                birdSoundId = -1; // Ensure sound ID remains in stopped state
+                System.err.println("[BIRDS] Error playing bird sound: " + e.getMessage());
             }
         }
         
@@ -226,13 +178,6 @@ public class BirdFormationManager {
     }
 
     private void despawnFormation() {
-        // Start fade-out for bird sound
-        if (birdSound != null && birdSoundId != -1 && !isFadingOut) {
-            isFadingOut = true;
-            fadeOutTimer = 0f;
-            System.out.println("[BIRDS] Bird sound fading out");
-        }
-        
         if (activeFormation != null) {
             activeFormation.dispose();
             activeFormation = null;
