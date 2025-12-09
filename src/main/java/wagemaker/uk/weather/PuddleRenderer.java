@@ -3,6 +3,8 @@ package wagemaker.uk.weather;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import wagemaker.uk.biome.BiomeManager;
+import wagemaker.uk.biome.BiomeType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -20,6 +22,7 @@ public class PuddleRenderer {
     private ShapeRenderer shapeRenderer;
     private Random random;
     private List<TreePosition> treePositions;
+    private BiomeManager biomeManager;
     
     /**
      * Creates a new PuddleRenderer with the specified ShapeRenderer.
@@ -290,8 +293,18 @@ public class PuddleRenderer {
     }
     
     /**
+     * Sets the biome manager for water biome validation.
+     * Puddles will not spawn in water biomes.
+     * 
+     * @param biomeManager The biome manager to use for validation
+     */
+    public void setBiomeManager(BiomeManager biomeManager) {
+        this.biomeManager = biomeManager;
+    }
+    
+    /**
      * Checks if a potential puddle position has minimum spacing from existing puddles
-     * and is not too close to any trees.
+     * and is not too close to any trees, and is not in a water biome.
      * 
      * @param x X position of the potential puddle
      * @param y Y position of the potential puddle
@@ -299,6 +312,14 @@ public class PuddleRenderer {
      * @return true if the position has adequate spacing, false otherwise
      */
     private boolean hasMinimumSpacing(float x, float y, WaterPuddle excludePuddle) {
+        // Check if location is in water biome
+        if (biomeManager != null && biomeManager.isInitialized()) {
+            BiomeType biomeType = biomeManager.getBiomeAtPosition(x, y);
+            if (biomeType == BiomeType.WATER) {
+                return false; // Don't create puddles in water
+            }
+        }
+        
         float minSpacingSquared = PuddleConfig.MIN_PUDDLE_SPACING * PuddleConfig.MIN_PUDDLE_SPACING;
         
         // Check spacing from other puddles

@@ -30,6 +30,7 @@ import wagemaker.uk.planting.PlantingSystem;
 import wagemaker.uk.planting.PlantedBamboo;
 import wagemaker.uk.planting.PlantedTree;
 import wagemaker.uk.biome.BiomeManager;
+import wagemaker.uk.biome.BiomeType;
 import wagemaker.uk.targeting.TargetingSystem;
 import wagemaker.uk.targeting.TargetIndicatorRenderer;
 import wagemaker.uk.targeting.TargetingMode;
@@ -757,8 +758,87 @@ public class Player {
         
         camera.position.set(cameraX, cameraY, 0);
     }
+    
+    /**
+     * Checks if a location is valid for item spawning.
+     * Items should not spawn in water biomes.
+     * 
+     * @param x The x-coordinate to check
+     * @param y The y-coordinate to check
+     * @return true if location is valid for item spawning (not water), false otherwise
+     * 
+     * Requirements: 3.3 (item spawn validation)
+     */
+    private boolean isValidItemSpawnLocation(float x, float y) {
+        if (biomeManager != null && biomeManager.isInitialized()) {
+            BiomeType biomeType = biomeManager.getBiomeAtPosition(x, y);
+            // Items should not spawn in water
+            return biomeType != BiomeType.WATER;
+        }
+        // If biome manager not available, allow spawn (backward compatibility)
+        return true;
+    }
+    
+    /**
+     * Finds a valid spawn location for an item, with retry logic if the original location is in water.
+     * Attempts to find an alternative location within a 100px radius if the original location is invalid.
+     * 
+     * @param originalX The original x-coordinate
+     * @param originalY The original y-coordinate
+     * @param itemId Unique identifier for the item (used for deterministic retry)
+     * @return A float array [x, y] with valid spawn coordinates, or null if no valid location found
+     * 
+     * Requirements: 3.3 (item spawn validation), 3.5 (alternative location selection)
+     */
+    private float[] findValidItemSpawnLocation(float originalX, float originalY, String itemId) {
+        // Check if original location is valid
+        if (isValidItemSpawnLocation(originalX, originalY)) {
+            return new float[]{originalX, originalY};
+        }
+        
+        // Original location is in water, try to find alternative location
+        Random retryRandom = new Random(itemId.hashCode()); // Deterministic based on item ID
+        int maxRetries = 100;
+        
+        for (int attempt = 0; attempt < maxRetries; attempt++) {
+            // Try random offset within 100px radius (smaller than trees since items are smaller)
+            float angle = retryRandom.nextFloat() * 2 * (float) Math.PI;
+            float distance = retryRandom.nextFloat() * 100f;
+            float offsetX = (float) Math.cos(angle) * distance;
+            float offsetY = (float) Math.sin(angle) * distance;
+            
+            float candidateX = originalX + offsetX;
+            float candidateY = originalY + offsetY;
+            
+            if (isValidItemSpawnLocation(candidateX, candidateY)) {
+                System.out.println("[ItemSpawn] Found alternative location for item " + itemId + 
+                                 " at (" + candidateX + ", " + candidateY + ") after " + (attempt + 1) + " attempts");
+                return new float[]{candidateX, candidateY};
+            }
+        }
+        
+        System.out.println("[ItemSpawn] WARNING: Could not find valid location for item " + itemId + 
+                         " - original location in water and no alternative found after " + maxRetries + " attempts");
+        return null; // No valid location found
+    }
 
     private boolean wouldCollide(float newX, float newY) {
+        // Check collision with water biomes
+        if (biomeManager != null && biomeManager.isInitialized()) {
+            // Check player center position (player is 64x64, center is +32)
+            float playerCenterX = newX + 32;
+            float playerCenterY = newY + 32;
+            
+            BiomeType biomeAtPosition = biomeManager.getBiomeAtPosition(
+                playerCenterX, 
+                playerCenterY
+            );
+            
+            if (biomeAtPosition == BiomeType.WATER) {
+                return true; // Block movement into water
+            }
+        }
+        
         // Check collision with regular trees
         if (trees != null) {
             for (SmallTree tree : trees.values()) {
@@ -891,21 +971,40 @@ public class Player {
                         float treeX = targetTree.getX();
                         float treeY = targetTree.getY();
                         
+                        // Validate spawn locations and find alternatives if needed
+                        float[] location1 = findValidItemSpawnLocation(treeX, treeY, targetKey + "-item1");
+                        float[] location2 = findValidItemSpawnLocation(treeX + 8, treeY, targetKey + "-item2");
+                        
                         switch (dropType) {
                             case 0: // 2x TreeSapling
-                                treeSaplings.put(targetKey + "-item1", new TreeSapling(treeX, treeY));
-                                treeSaplings.put(targetKey + "-item2", new TreeSapling(treeX + 8, treeY));
-                                System.out.println("Dropped 2x TreeSapling at: " + treeX + ", " + treeY);
+                                if (location1 != null) {
+                                    treeSaplings.put(targetKey + "-item1", new TreeSapling(location1[0], location1[1]));
+                                    System.out.println("Dropped TreeSapling at: " + location1[0] + ", " + location1[1]);
+                                }
+                                if (location2 != null) {
+                                    treeSaplings.put(targetKey + "-item2", new TreeSapling(location2[0], location2[1]));
+                                    System.out.println("Dropped TreeSapling at: " + location2[0] + ", " + location2[1]);
+                                }
                                 break;
                             case 1: // 2x WoodStack
-                                woodStacks.put(targetKey + "-item1", new WoodStack(treeX, treeY));
-                                woodStacks.put(targetKey + "-item2", new WoodStack(treeX + 8, treeY));
-                                System.out.println("Dropped 2x WoodStack at: " + treeX + ", " + treeY);
+                                if (location1 != null) {
+                                    woodStacks.put(targetKey + "-item1", new WoodStack(location1[0], location1[1]));
+                                    System.out.println("Dropped WoodStack at: " + location1[0] + ", " + location1[1]);
+                                }
+                                if (location2 != null) {
+                                    woodStacks.put(targetKey + "-item2", new WoodStack(location2[0], location2[1]));
+                                    System.out.println("Dropped WoodStack at: " + location2[0] + ", " + location2[1]);
+                                }
                                 break;
                             case 2: // 1x TreeSapling + 1x WoodStack
-                                treeSaplings.put(targetKey + "-item1", new TreeSapling(treeX, treeY));
-                                woodStacks.put(targetKey + "-item2", new WoodStack(treeX + 8, treeY));
-                                System.out.println("Dropped 1x TreeSapling + 1x WoodStack at: " + treeX + ", " + treeY);
+                                if (location1 != null) {
+                                    treeSaplings.put(targetKey + "-item1", new TreeSapling(location1[0], location1[1]));
+                                    System.out.println("Dropped TreeSapling at: " + location1[0] + ", " + location1[1]);
+                                }
+                                if (location2 != null) {
+                                    woodStacks.put(targetKey + "-item2", new WoodStack(location2[0], location2[1]));
+                                    System.out.println("Dropped WoodStack at: " + location2[0] + ", " + location2[1]);
+                                }
                                 break;
                         }
                         
@@ -965,17 +1064,22 @@ public class Player {
                     attackedSomething = true;
                     
                     if (destroyed) {
-                        // Spawn Apple at tree position
-                        apples.put(targetKey, new Apple(targetAppleTree.getX(), targetAppleTree.getY()));
+                        // Validate spawn locations and find alternatives if needed
+                        float[] appleLocation = findValidItemSpawnLocation(targetAppleTree.getX(), targetAppleTree.getY(), targetKey);
+                        float[] saplingLocation = findValidItemSpawnLocation(targetAppleTree.getX() + 8, targetAppleTree.getY(), targetKey + "-applesapling");
                         
-                        // Spawn AppleSapling offset by 8 pixels horizontally
-                        appleSaplings.put(targetKey + "-applesapling", 
-                            new AppleSapling(targetAppleTree.getX() + 8, targetAppleTree.getY()));
+                        // Spawn Apple at validated position
+                        if (appleLocation != null) {
+                            apples.put(targetKey, new Apple(appleLocation[0], appleLocation[1]));
+                            System.out.println("Apple tree destroyed! Apple dropped at: " + appleLocation[0] + ", " + appleLocation[1]);
+                        }
                         
-                        System.out.println("Apple tree destroyed! Apple dropped at: " + 
-                            targetAppleTree.getX() + ", " + targetAppleTree.getY());
-                        System.out.println("AppleSapling dropped at: " + 
-                            (targetAppleTree.getX() + 8) + ", " + targetAppleTree.getY());
+                        // Spawn AppleSapling at validated position
+                        if (saplingLocation != null) {
+                            appleSaplings.put(targetKey + "-applesapling", 
+                                new AppleSapling(saplingLocation[0], saplingLocation[1]));
+                            System.out.println("AppleSapling dropped at: " + saplingLocation[0] + ", " + saplingLocation[1]);
+                        }
                         
                         // Register for respawn before removing
                         if (gameInstance != null && gameInstance instanceof wagemaker.uk.gdx.MyGdxGame) {
@@ -1047,9 +1151,14 @@ public class Player {
                             }
                         }
                         
-                        // Spawn palm fiber at tree position
-                        palmFibers.put(targetKey, new PalmFiber(targetCoconutTree.getX(), targetCoconutTree.getY()));
-                        System.out.println("PalmFiber dropped at: " + targetCoconutTree.getX() + ", " + targetCoconutTree.getY());
+                        // Validate spawn location and find alternative if needed
+                        float[] palmFiberLocation = findValidItemSpawnLocation(targetCoconutTree.getX(), targetCoconutTree.getY(), targetKey);
+                        
+                        // Spawn palm fiber at validated position
+                        if (palmFiberLocation != null) {
+                            palmFibers.put(targetKey, new PalmFiber(palmFiberLocation[0], palmFiberLocation[1]));
+                            System.out.println("PalmFiber dropped at: " + palmFiberLocation[0] + ", " + palmFiberLocation[1]);
+                        }
                         
                         targetCoconutTree.dispose();
                         coconutTrees.remove(targetKey);
@@ -1098,28 +1207,46 @@ public class Player {
                         // 33% chance: 2 BambooSapling
                         float dropRoll = (float) Math.random();
                         
+                        // Validate spawn locations and find alternatives if needed
+                        float[] location1 = findValidItemSpawnLocation(targetBambooTree.getX(), targetBambooTree.getY(), targetKey + "-item1");
+                        float[] location2 = findValidItemSpawnLocation(targetBambooTree.getX() + 8, targetBambooTree.getY(), targetKey + "-item2");
+                        
                         if (dropRoll < 0.33f) {
                             // Drop 1 BambooStack + 1 BambooSapling (original behavior)
-                            bambooStacks.put(targetKey + "-bamboostack", 
-                                new BambooStack(targetBambooTree.getX(), targetBambooTree.getY()));
-                            bambooSaplings.put(targetKey + "-babybamboo", 
-                                new BambooSapling(targetBambooTree.getX() + 8, targetBambooTree.getY()));
-                            System.out.println("BambooStack dropped at: " + targetBambooTree.getX() + ", " + targetBambooTree.getY());
-                            System.out.println("BambooSapling dropped at: " + (targetBambooTree.getX() + 8) + ", " + targetBambooTree.getY());
+                            if (location1 != null) {
+                                bambooStacks.put(targetKey + "-bamboostack", 
+                                    new BambooStack(location1[0], location1[1]));
+                                System.out.println("BambooStack dropped at: " + location1[0] + ", " + location1[1]);
+                            }
+                            if (location2 != null) {
+                                bambooSaplings.put(targetKey + "-babybamboo", 
+                                    new BambooSapling(location2[0], location2[1]));
+                                System.out.println("BambooSapling dropped at: " + location2[0] + ", " + location2[1]);
+                            }
                         } else if (dropRoll < 0.66f) {
                             // Drop 2 BambooStack
-                            bambooStacks.put(targetKey + "-bamboostack1", 
-                                new BambooStack(targetBambooTree.getX(), targetBambooTree.getY()));
-                            bambooStacks.put(targetKey + "-bamboostack2", 
-                                new BambooStack(targetBambooTree.getX() + 8, targetBambooTree.getY()));
-                            System.out.println("2x BambooStack dropped at: " + targetBambooTree.getX() + ", " + targetBambooTree.getY());
+                            if (location1 != null) {
+                                bambooStacks.put(targetKey + "-bamboostack1", 
+                                    new BambooStack(location1[0], location1[1]));
+                                System.out.println("BambooStack dropped at: " + location1[0] + ", " + location1[1]);
+                            }
+                            if (location2 != null) {
+                                bambooStacks.put(targetKey + "-bamboostack2", 
+                                    new BambooStack(location2[0], location2[1]));
+                                System.out.println("BambooStack dropped at: " + location2[0] + ", " + location2[1]);
+                            }
                         } else {
                             // Drop 2 BambooSapling
-                            bambooSaplings.put(targetKey + "-babybamboo1", 
-                                new BambooSapling(targetBambooTree.getX(), targetBambooTree.getY()));
-                            bambooSaplings.put(targetKey + "-babybamboo2", 
-                                new BambooSapling(targetBambooTree.getX() + 8, targetBambooTree.getY()));
-                            System.out.println("2x BambooSapling dropped at: " + targetBambooTree.getX() + ", " + targetBambooTree.getY());
+                            if (location1 != null) {
+                                bambooSaplings.put(targetKey + "-babybamboo1", 
+                                    new BambooSapling(location1[0], location1[1]));
+                                System.out.println("BambooSapling dropped at: " + location1[0] + ", " + location1[1]);
+                            }
+                            if (location2 != null) {
+                                bambooSaplings.put(targetKey + "-babybamboo2", 
+                                    new BambooSapling(location2[0], location2[1]));
+                                System.out.println("BambooSapling dropped at: " + location2[0] + ", " + location2[1]);
+                            }
                         }
                         
                         // Register for respawn before removing
@@ -1177,17 +1304,22 @@ public class Player {
                     attackedSomething = true;
                     
                     if (destroyed) {
-                        // Spawn Banana at tree position
-                        bananas.put(targetKey, new Banana(targetBananaTree.getX(), targetBananaTree.getY()));
+                        // Validate spawn locations and find alternatives if needed
+                        float[] bananaLocation = findValidItemSpawnLocation(targetBananaTree.getX(), targetBananaTree.getY(), targetKey);
+                        float[] saplingLocation = findValidItemSpawnLocation(targetBananaTree.getX() + 8, targetBananaTree.getY(), targetKey + "-bananasapling");
                         
-                        // Spawn BananaSapling offset by 8 pixels horizontally
-                        bananaSaplings.put(targetKey + "-bananasapling", 
-                            new BananaSapling(targetBananaTree.getX() + 8, targetBananaTree.getY()));
+                        // Spawn Banana at validated position
+                        if (bananaLocation != null) {
+                            bananas.put(targetKey, new Banana(bananaLocation[0], bananaLocation[1]));
+                            System.out.println("Banana tree destroyed! Banana dropped at: " + bananaLocation[0] + ", " + bananaLocation[1]);
+                        }
                         
-                        System.out.println("Banana tree destroyed! Banana dropped at: " + 
-                            targetBananaTree.getX() + ", " + targetBananaTree.getY());
-                        System.out.println("BananaSapling dropped at: " + 
-                            (targetBananaTree.getX() + 8) + ", " + targetBananaTree.getY());
+                        // Spawn BananaSapling at validated position
+                        if (saplingLocation != null) {
+                            bananaSaplings.put(targetKey + "-bananasapling", 
+                                new BananaSapling(saplingLocation[0], saplingLocation[1]));
+                            System.out.println("BananaSapling dropped at: " + saplingLocation[0] + ", " + saplingLocation[1]);
+                        }
                         
                         // Register for respawn before removing
                         if (gameInstance != null && gameInstance instanceof wagemaker.uk.gdx.MyGdxGame) {
@@ -1288,9 +1420,14 @@ public class Player {
                     attackedSomething = true;
                     
                     if (destroyed) {
-                        // Spawn pebble at stone position
-                        pebbles.put(targetKey + "-pebble", new Pebble(targetStone.getX(), targetStone.getY()));
-                        System.out.println("Pebble dropped at: " + targetStone.getX() + ", " + targetStone.getY());
+                        // Validate spawn location and find alternative if needed
+                        float[] pebbleLocation = findValidItemSpawnLocation(targetStone.getX(), targetStone.getY(), targetKey + "-pebble");
+                        
+                        // Spawn pebble at validated position
+                        if (pebbleLocation != null) {
+                            pebbles.put(targetKey + "-pebble", new Pebble(pebbleLocation[0], pebbleLocation[1]));
+                            System.out.println("Pebble dropped at: " + pebbleLocation[0] + ", " + pebbleLocation[1]);
+                        }
                         
                         // Register for respawn before removing
                         if (gameInstance != null && gameInstance instanceof wagemaker.uk.gdx.MyGdxGame) {

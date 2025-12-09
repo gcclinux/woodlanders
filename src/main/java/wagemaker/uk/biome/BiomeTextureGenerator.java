@@ -226,6 +226,107 @@ public class BiomeTextureGenerator {
     }
     
     /**
+     * Generates a realistic water texture with wave patterns and reflections.
+     * Creates blue water with light reflections and depth variations.
+     * 
+     * @return A 64x64 tileable water texture
+     */
+    public Texture generateWaterTexture() {
+        Pixmap waterPixmap = new Pixmap(BiomeConfig.TEXTURE_SIZE, BiomeConfig.TEXTURE_SIZE, Pixmap.Format.RGBA8888);
+        Random waterRandom = new Random(BiomeConfig.TEXTURE_SEED_WATER);
+        
+        // Water colors from config
+        float[] baseColor = BiomeConfig.WATER_BASE_COLOR;
+        float[] lightColor = BiomeConfig.WATER_LIGHT_COLOR;
+        float[] darkColor = BiomeConfig.WATER_DARK_COLOR;
+        
+        // Fill with base water color
+        waterPixmap.setColor(baseColor[0], baseColor[1], baseColor[2], baseColor[3]);
+        waterPixmap.fill();
+        
+        // Add water patterns
+        addWaterWaves(waterPixmap, waterRandom, baseColor, lightColor);
+        addWaterReflections(waterPixmap, waterRandom, lightColor);
+        addWaterDepth(waterPixmap, waterRandom, darkColor);
+        
+        Texture texture = createTextureFromPixmap(waterPixmap);
+        waterPixmap.dispose();
+        return texture;
+    }
+    
+    /**
+     * Adds wave patterns to water texture.
+     * Creates horizontal wave lines with light color variations.
+     * 
+     * @param pixmap The pixmap to modify
+     * @param random Random number generator for variation
+     * @param baseColor Base water color
+     * @param lightColor Light water color for wave highlights
+     */
+    private void addWaterWaves(Pixmap pixmap, Random random, float[] baseColor, float[] lightColor) {
+        // Create horizontal wave patterns
+        for (int y = 0; y < BiomeConfig.TEXTURE_SIZE; y++) {
+            if (y % 8 == 0 || y % 8 == 1) {
+                for (int x = 0; x < BiomeConfig.TEXTURE_SIZE; x++) {
+                    if (random.nextFloat() > 0.3f) {
+                        // Lighter wave line
+                        pixmap.setColor(lightColor[0], lightColor[1], lightColor[2], lightColor[3]);
+                        pixmap.drawPixel(x, y);
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     * Adds light reflections to water surface.
+     * Creates scattered light spots simulating sun reflections.
+     * 
+     * @param pixmap The pixmap to modify
+     * @param random Random number generator for variation
+     * @param lightColor Light water color for reflections
+     */
+    private void addWaterReflections(Pixmap pixmap, Random random, float[] lightColor) {
+        // Add scattered light reflections
+        int reflectionCount = 15 + random.nextInt(10);
+        for (int i = 0; i < reflectionCount; i++) {
+            int x = random.nextInt(BiomeConfig.TEXTURE_SIZE);
+            int y = random.nextInt(BiomeConfig.TEXTURE_SIZE);
+            
+            pixmap.setColor(lightColor[0], lightColor[1], lightColor[2], lightColor[3]);
+            pixmap.drawPixel(x, y);
+            
+            // Extend reflection slightly
+            if (random.nextFloat() > 0.5f && x + 1 < BiomeConfig.TEXTURE_SIZE) {
+                pixmap.drawPixel(x + 1, y);
+            }
+        }
+    }
+    
+    /**
+     * Adds depth variations to water texture.
+     * Creates darker patches simulating water depth and shadows.
+     * 
+     * @param pixmap The pixmap to modify
+     * @param random Random number generator for variation
+     * @param darkColor Dark water color for depth areas
+     */
+    private void addWaterDepth(Pixmap pixmap, Random random, float[] darkColor) {
+        // Add darker patches for depth variation
+        for (int x = 0; x < BiomeConfig.TEXTURE_SIZE; x++) {
+            for (int y = 0; y < BiomeConfig.TEXTURE_SIZE; y++) {
+                float noise = random.nextFloat();
+                
+                if (noise > 0.85f) {
+                    // Darker depth areas
+                    pixmap.setColor(darkColor[0], darkColor[1], darkColor[2], darkColor[3]);
+                    pixmap.drawPixel(x, y);
+                }
+            }
+        }
+    }
+    
+    /**
      * Creates a LibGDX Texture from a Pixmap.
      * Sets the texture to repeat for seamless tiling.
      * 

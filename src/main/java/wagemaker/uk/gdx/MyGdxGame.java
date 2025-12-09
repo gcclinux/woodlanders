@@ -417,6 +417,9 @@ public class MyGdxGame extends ApplicationAdapter {
         // Connect puddle manager to player for fall damage detection
         player.setPuddleManager(rainSystem.getPuddleManager());
         
+        // Connect biome manager to puddle manager for water biome validation
+        rainSystem.getPuddleManager().setBiomeManager(biomeManager);
+        
         // Initialize dynamic rain manager for random rain events
         dynamicRainManager = new wagemaker.uk.weather.DynamicRainManager(rainSystem.getZoneManager());
         
@@ -996,6 +999,11 @@ public class MyGdxGame extends ApplicationAdapter {
                     return;
                 }
                 
+                // STEP 4.5: Check if location is valid for tree spawning (not in water)
+                if (!isValidTreeSpawnLocation(treeX, treeY)) {
+                    return; // Skip spawning if in water biome
+                }
+                
                 // STEP 5: Query biome type again for tree type selection
                 // BiomeManager returns consistent biome types based solely on world coordinates
                 wagemaker.uk.biome.BiomeType biome = biomeManager.getBiomeAtPosition(treeX, treeY);
@@ -1116,12 +1124,119 @@ public class MyGdxGame extends ApplicationAdapter {
     }
     
     /**
+     * Checks if a location is valid for tree spawning.
+     * Trees should not spawn in water biomes.
+     * 
+     * @param x The x-coordinate to check
+     * @param y The y-coordinate to check
+     * @return true if location is valid for tree spawning, false if in water
+     * 
+     * Requirements: 3.1 (tree spawn validation), 3.5 (alternative location selection)
+     */
+    private boolean isValidTreeSpawnLocation(float x, float y) {
+        if (biomeManager != null && biomeManager.isInitialized()) {
+            wagemaker.uk.biome.BiomeType biomeType = biomeManager.getBiomeAtPosition(x, y);
+            // Trees should not spawn in water
+            return biomeType != wagemaker.uk.biome.BiomeType.WATER;
+        }
+        // If biome manager not available, allow spawn (backward compatibility)
+        return true;
+    }
+    
+    /**
+     * Checks if a location is valid for stone spawning.
+     * Stones should only spawn on sand biomes and not in water.
+     * 
+     * @param x The x-coordinate to check
+     * @param y The y-coordinate to check
+     * @return true if location is valid for stone spawning (sand biome, not water), false otherwise
+     * 
+     * Requirements: 3.2 (stone spawn validation), 3.5 (alternative location selection)
+     */
+    private boolean isValidStoneSpawnLocation(float x, float y) {
+        if (biomeManager != null && biomeManager.isInitialized()) {
+            wagemaker.uk.biome.BiomeType biomeType = biomeManager.getBiomeAtPosition(x, y);
+            // Stones should only spawn on sand and not in water
+            return biomeType == wagemaker.uk.biome.BiomeType.SAND && 
+                   biomeType != wagemaker.uk.biome.BiomeType.WATER;
+        }
+        // If biome manager not available, allow spawn (backward compatibility)
+        return true;
+    }
+    
+    /**
+     * Checks if a location is valid for item spawning.
+     * Items (apples, saplings, wood stacks, pebbles, etc.) should not spawn in water.
+     * 
+     * @param x The x-coordinate to check
+     * @param y The y-coordinate to check
+     * @return true if location is valid for item spawning (not water), false otherwise
+     * 
+     * Requirements: 3.3 (item spawn validation), 3.5 (alternative location selection)
+     */
+    private boolean isValidItemSpawnLocation(float x, float y) {
+        if (biomeManager != null && biomeManager.isInitialized()) {
+            wagemaker.uk.biome.BiomeType biomeType = biomeManager.getBiomeAtPosition(x, y);
+            // Items should not spawn in water
+            return biomeType != wagemaker.uk.biome.BiomeType.WATER;
+        }
+        // If biome manager not available, allow spawn (backward compatibility)
+        return true;
+    }
+    
+    /**
+     * Finds a valid spawn location for an item, with retry logic if the original location is in water.
+     * Attempts to find an alternative location within a 100px radius if the original location is invalid.
+     * 
+     * @param originalX The original x-coordinate
+     * @param originalY The original y-coordinate
+     * @param itemId Unique identifier for the item (used for deterministic retry)
+     * @return A float array [x, y] with valid spawn coordinates, or null if no valid location found
+     * 
+     * Requirements: 3.3 (item spawn validation), 3.5 (alternative location selection)
+     */
+    private float[] findValidItemSpawnLocation(float originalX, float originalY, String itemId) {
+        // Check if original location is valid
+        if (isValidItemSpawnLocation(originalX, originalY)) {
+            return new float[]{originalX, originalY};
+        }
+        
+        // Original location is in water, try to find alternative location
+        Random retryRandom = new Random(itemId.hashCode()); // Deterministic based on item ID
+        int maxRetries = 100;
+        
+        for (int attempt = 0; attempt < maxRetries; attempt++) {
+            // Try random offset within 100px radius (smaller than trees since items are smaller)
+            float angle = retryRandom.nextFloat() * 2 * (float) Math.PI;
+            float distance = retryRandom.nextFloat() * 100f;
+            float offsetX = (float) Math.cos(angle) * distance;
+            float offsetY = (float) Math.sin(angle) * distance;
+            
+            float candidateX = originalX + offsetX;
+            float candidateY = originalY + offsetY;
+            
+            if (isValidItemSpawnLocation(candidateX, candidateY)) {
+                System.out.println("[ItemSpawn] Found alternative location for item " + itemId + 
+                                 " at (" + candidateX + ", " + candidateY + ") after " + (attempt + 1) + " attempts");
+                return new float[]{candidateX, candidateY};
+            }
+        }
+        
+        System.out.println("[ItemSpawn] WARNING: Could not find valid location for item " + itemId + 
+                         " - original location in water and no alternative found after " + maxRetries + " attempts");
+        return null; // No valid location found
+    }
+    
+    /**
      * Generates a stone at the specified world coordinates using deterministic procedural generation.
      * Stones spawn only on sand biomes with approximately 1 stone per 500x500 pixels.
      * Ensures minimum 100 pixel distance from trees to avoid overlap.
+     * Implements retry logic to find alternative locations if water is detected.
      * 
      * @param x The x-coordinate in world space (aligned to 64px grid)
      * @param y The y-coordinate in world space (aligned to 64px grid)
+     * 
+     * Requirements: 3.2 (stone spawn validation), 3.5 (alternative location selection)
      */
     private void generateStoneAt(int x, int y) {
         // CRITICAL: In multiplayer mode, clients should NEVER generate stones locally
@@ -1144,52 +1259,77 @@ public class MyGdxGame extends ApplicationAdapter {
         // Single-player: 0.001 (0.1%), Multiplayer: 0.005 (0.5%)
         float spawnRate = 0.001f;
         if (random.nextFloat() < spawnRate) {
-            // Add random offset to break grid pattern
-            float offsetX = (random.nextFloat() - 0.5f) * 64; // -32 to +32
-            float offsetY = (random.nextFloat() - 0.5f) * 64; // -32 to +32
-            float stoneX = x + offsetX;
-            float stoneY = y + offsetY;
+            // Try multiple times to find a valid position (not in water, proper spacing)
+            float stoneX = 0, stoneY = 0;
+            boolean validPosition = false;
+            int maxAttempts = 10; // More attempts than trees since stones are rarer
             
-            // Only spawn stones on sand biomes
-            wagemaker.uk.biome.BiomeType biome = biomeManager.getBiomeAtPosition(stoneX, stoneY);
-            if (biome != wagemaker.uk.biome.BiomeType.SAND) {
-                return;
-            }
-            
-            // Don't spawn stones too close to spawn point (within 200px)
-            float distanceFromSpawn = (float) Math.sqrt(stoneX * stoneX + stoneY * stoneY);
-            if (distanceFromSpawn < 200) {
-                return;
-            }
-            
-            // Don't spawn stones near player (512px minimum distance)
-            float distFromPlayer = (float) Math.sqrt((stoneX - player.getX()) * (stoneX - player.getX()) + (stoneY - player.getY()) * (stoneY - player.getY()));
-            if (distFromPlayer < 512) {
-                return;
-            }
-            
-            // Ensure minimum 100 pixel distance from trees
-            if (isTreeTooClose(stoneX, stoneY, 100f)) {
-                return;
-            }
-            
-            // Check if any existing stone is too close (minimum 100 pixels)
-            for (Stone existingStone : stones.values()) {
-                float dx = existingStone.getX() - stoneX;
-                float dy = existingStone.getY() - stoneY;
-                if (Math.sqrt(dx * dx + dy * dy) < 100) {
-                    return;
+            for (int attempt = 0; attempt < maxAttempts; attempt++) {
+                // Add random offset to break grid pattern
+                float offsetX = (random.nextFloat() - 0.5f) * 64; // -32 to +32
+                float offsetY = (random.nextFloat() - 0.5f) * 64; // -32 to +32
+                stoneX = x + offsetX;
+                stoneY = y + offsetY;
+                
+                // Validate spawn location (must be sand, not water)
+                if (!isValidStoneSpawnLocation(stoneX, stoneY)) {
+                    continue; // Try next position
                 }
-            }
-            for (Stone existingStone : stoneMap.values()) {
-                float dx = existingStone.getX() - stoneX;
-                float dy = existingStone.getY() - stoneY;
-                if (Math.sqrt(dx * dx + dy * dy) < 100) {
-                    return;
+                
+                // Don't spawn stones too close to spawn point (within 200px)
+                float distanceFromSpawn = (float) Math.sqrt(stoneX * stoneX + stoneY * stoneY);
+                if (distanceFromSpawn < 200) {
+                    continue; // Try next position
                 }
+                
+                // Don't spawn stones near player (512px minimum distance)
+                float distFromPlayer = (float) Math.sqrt((stoneX - player.getX()) * (stoneX - player.getX()) + (stoneY - player.getY()) * (stoneY - player.getY()));
+                if (distFromPlayer < 512) {
+                    continue; // Try next position
+                }
+                
+                // Ensure minimum 100 pixel distance from trees
+                if (isTreeTooClose(stoneX, stoneY, 100f)) {
+                    continue; // Try next position
+                }
+                
+                // Check if any existing stone is too close (minimum 100 pixels)
+                boolean tooCloseToStone = false;
+                for (Stone existingStone : stones.values()) {
+                    float dx = existingStone.getX() - stoneX;
+                    float dy = existingStone.getY() - stoneY;
+                    if (Math.sqrt(dx * dx + dy * dy) < 100) {
+                        tooCloseToStone = true;
+                        break;
+                    }
+                }
+                if (tooCloseToStone) {
+                    continue; // Try next position
+                }
+                
+                for (Stone existingStone : stoneMap.values()) {
+                    float dx = existingStone.getX() - stoneX;
+                    float dy = existingStone.getY() - stoneY;
+                    if (Math.sqrt(dx * dx + dy * dy) < 100) {
+                        tooCloseToStone = true;
+                        break;
+                    }
+                }
+                if (tooCloseToStone) {
+                    continue; // Try next position
+                }
+                
+                // All checks passed, position is valid
+                validPosition = true;
+                break;
             }
             
-            // Create stone at the calculated position
+            // If no valid position found after all attempts, skip this stone
+            if (!validPosition) {
+                return;
+            }
+            
+            // Create stone at the validated position
             Stone stone = new Stone(stoneX, stoneY);
             stones.put(key, stone);
             stoneMap.put(key, stone);
@@ -4212,6 +4352,9 @@ public class MyGdxGame extends ApplicationAdapter {
     /**
      * Processes pending item spawns on the main render thread.
      * This ensures OpenGL operations happen in the correct context.
+     * Validates spawn locations and finds alternatives if original location is in water.
+     * 
+     * Requirements: 3.3 (item spawn validation), 3.5 (alternative location selection)
      */
     private void processPendingItemSpawns() {
         ItemState itemState;
@@ -4221,56 +4364,68 @@ public class MyGdxGame extends ApplicationAdapter {
             float x = itemState.getX();
             float y = itemState.getY();
             
+            // Validate spawn location and find alternative if needed
+            float[] validLocation = findValidItemSpawnLocation(x, y, itemId);
+            if (validLocation == null) {
+                // No valid location found, skip this item spawn
+                System.out.println("[ItemSpawn] Skipping item spawn for " + itemId + " - no valid location found");
+                continue;
+            }
+            
+            // Use validated coordinates
+            float spawnX = validLocation[0];
+            float spawnY = validLocation[1];
+            
             // Create item on main thread (safe for OpenGL context)
             switch (type) {
                 case APPLE:
                     if (!apples.containsKey(itemId)) {
-                        apples.put(itemId, new Apple(x, y));
+                        apples.put(itemId, new Apple(spawnX, spawnY));
                     }
                     break;
                 case APPLE_SAPLING:
                     if (!appleSaplings.containsKey(itemId)) {
-                        appleSaplings.put(itemId, new AppleSapling(x, y));
+                        appleSaplings.put(itemId, new AppleSapling(spawnX, spawnY));
                     }
                     break;
                 case BANANA:
                     if (!bananas.containsKey(itemId)) {
-                        bananas.put(itemId, new Banana(x, y));
+                        bananas.put(itemId, new Banana(spawnX, spawnY));
                     }
                     break;
                 case BANANA_SAPLING:
                     if (!bananaSaplings.containsKey(itemId)) {
-                        bananaSaplings.put(itemId, new BananaSapling(x, y));
+                        bananaSaplings.put(itemId, new BananaSapling(spawnX, spawnY));
                     }
                     break;
                 case BAMBOO_STACK:
                     if (!bambooStacks.containsKey(itemId)) {
-                        bambooStacks.put(itemId, new BambooStack(x, y));
+                        bambooStacks.put(itemId, new BambooStack(spawnX, spawnY));
                     }
                     break;
                 case BABY_BAMBOO:
                     if (!bambooSaplings.containsKey(itemId)) {
-                        bambooSaplings.put(itemId, new BambooSapling(x, y));
+                        bambooSaplings.put(itemId, new BambooSapling(spawnX, spawnY));
                     }
                     break;
                 case BABY_TREE:
                     if (!treeSaplings.containsKey(itemId)) {
-                        treeSaplings.put(itemId, new TreeSapling(x, y));
+                        treeSaplings.put(itemId, new TreeSapling(spawnX, spawnY));
                     }
                     break;
                 case WOOD_STACK:
                     if (!woodStacks.containsKey(itemId)) {
-                        woodStacks.put(itemId, new WoodStack(x, y));
+                        woodStacks.put(itemId, new WoodStack(spawnX, spawnY));
                     }
                     break;
                 case PEBBLE:
                     if (!pebbles.containsKey(itemId)) {
-                        pebbles.put(itemId, new Pebble(x, y));
+                        pebbles.put(itemId, new Pebble(spawnX, spawnY));
                     }
                     break;
                 case PALM_FIBER:
                     if (!palmFibers.containsKey(itemId)) {
-                        palmFibers.put(itemId, new PalmFiber(x, y));
+                        palmFibers.put(itemId, new PalmFiber(spawnX, spawnY));
                     }
                     break;
             }
@@ -4637,12 +4792,54 @@ public class MyGdxGame extends ApplicationAdapter {
      * For CoconutTree and Cactus: respawns as full tree.
      * Must be called on the render thread (via deferOperation).
      * 
+     * If the original location is in water, attempts to find an alternative valid location
+     * within a 200px radius. If no valid location is found after 100 attempts, skips respawn.
+     * 
      * @param treeId Unique identifier for the tree
      * @param treeType Type of tree to create
      * @param x World X coordinate
      * @param y World Y coordinate
+     * 
+     * Requirements: 3.1 (tree spawn validation), 3.5 (alternative location selection)
      */
     public void createTreeForRespawn(String treeId, TreeType treeType, float x, float y) {
+        // Check if original location is valid for tree spawning
+        float spawnX = x;
+        float spawnY = y;
+        
+        if (!isValidTreeSpawnLocation(x, y)) {
+            // Original location is in water, try to find alternative location
+            boolean foundValidLocation = false;
+            Random retryRandom = new Random(treeId.hashCode()); // Deterministic based on tree ID
+            int maxRetries = 100;
+            
+            for (int attempt = 0; attempt < maxRetries; attempt++) {
+                // Try random offset within 200px radius
+                float angle = retryRandom.nextFloat() * 2 * (float) Math.PI;
+                float distance = retryRandom.nextFloat() * 200f;
+                float offsetX = (float) Math.cos(angle) * distance;
+                float offsetY = (float) Math.sin(angle) * distance;
+                
+                float candidateX = x + offsetX;
+                float candidateY = y + offsetY;
+                
+                if (isValidTreeSpawnLocation(candidateX, candidateY)) {
+                    spawnX = candidateX;
+                    spawnY = candidateY;
+                    foundValidLocation = true;
+                    System.out.println("[Respawn] Found alternative location for tree " + treeId + 
+                                     " at (" + spawnX + ", " + spawnY + ") after " + (attempt + 1) + " attempts");
+                    break;
+                }
+            }
+            
+            if (!foundValidLocation) {
+                System.out.println("[Respawn] WARNING: Could not find valid location for tree " + treeId + 
+                                 " - original location in water and no alternative found after " + maxRetries + " attempts");
+                return; // Skip respawn if no valid location found
+            }
+        }
+        
         // Remove old tree from WorldState first
         if (gameServer != null) {
             gameServer.getWorldState().getTrees().remove(treeId);
@@ -4651,63 +4848,63 @@ public class MyGdxGame extends ApplicationAdapter {
         switch (treeType) {
             case SMALL:
                 if (!plantedTrees.containsKey(treeId)) {
-                    PlantedTree plantedTree = new PlantedTree(x, y);
+                    PlantedTree plantedTree = new PlantedTree(spawnX, spawnY);
                     plantedTrees.put(treeId, plantedTree);
                     if (gameServer != null) {
                         gameServer.getWorldState().getPlantedTrees().put(treeId, 
-                            new wagemaker.uk.network.PlantedTreeState(treeId, x, y, 0.0f));
+                            new wagemaker.uk.network.PlantedTreeState(treeId, spawnX, spawnY, 0.0f));
                     }
-                    System.out.println("[Respawn] Planted TreeSapling at: " + x + ", " + y);
+                    System.out.println("[Respawn] Planted TreeSapling at: " + spawnX + ", " + spawnY);
                 }
                 break;
             case APPLE:
                 if (!plantedAppleTrees.containsKey(treeId)) {
-                    wagemaker.uk.planting.PlantedAppleTree plantedAppleTree = new wagemaker.uk.planting.PlantedAppleTree(x, y);
+                    wagemaker.uk.planting.PlantedAppleTree plantedAppleTree = new wagemaker.uk.planting.PlantedAppleTree(spawnX, spawnY);
                     plantedAppleTrees.put(treeId, plantedAppleTree);
                     if (gameServer != null) {
                         gameServer.getWorldState().getPlantedAppleTrees().put(treeId,
-                            new wagemaker.uk.network.PlantedAppleTreeState(treeId, x, y, 0.0f));
+                            new wagemaker.uk.network.PlantedAppleTreeState(treeId, spawnX, spawnY, 0.0f));
                     }
-                    System.out.println("[Respawn] Planted AppleSapling at: " + x + ", " + y);
+                    System.out.println("[Respawn] Planted AppleSapling at: " + spawnX + ", " + spawnY);
                 }
                 break;
             case COCONUT:
                 if (!coconutTrees.containsKey(treeId)) {
-                    CoconutTree coconutTree = new CoconutTree(x, y);
+                    CoconutTree coconutTree = new CoconutTree(spawnX, spawnY);
                     coconutTrees.put(treeId, coconutTree);
                     if (gameServer != null) {
                         gameServer.getWorldState().getTrees().put(treeId,
-                            new TreeState(treeId, TreeType.COCONUT, x, y, 100.0f, true));
+                            new TreeState(treeId, TreeType.COCONUT, spawnX, spawnY, 100.0f, true));
                     }
                 }
                 break;
             case BAMBOO:
                 if (!plantedBamboos.containsKey(treeId)) {
-                    PlantedBamboo plantedBamboo = new PlantedBamboo(x, y);
+                    PlantedBamboo plantedBamboo = new PlantedBamboo(spawnX, spawnY);
                     plantedBamboos.put(treeId, plantedBamboo);
                     if (gameServer != null) {
                         gameServer.getWorldState().getPlantedBamboos().put(treeId,
-                            new wagemaker.uk.network.PlantedBambooState(treeId, x, y, 0.0f));
+                            new wagemaker.uk.network.PlantedBambooState(treeId, spawnX, spawnY, 0.0f));
                     }
-                    System.out.println("[Respawn] Planted BambooSapling at: " + x + ", " + y);
+                    System.out.println("[Respawn] Planted BambooSapling at: " + spawnX + ", " + spawnY);
                 }
                 break;
             case BANANA:
                 if (!plantedBananaTrees.containsKey(treeId)) {
-                    wagemaker.uk.planting.PlantedBananaTree plantedBananaTree = new wagemaker.uk.planting.PlantedBananaTree(x, y);
+                    wagemaker.uk.planting.PlantedBananaTree plantedBananaTree = new wagemaker.uk.planting.PlantedBananaTree(spawnX, spawnY);
                     plantedBananaTrees.put(treeId, plantedBananaTree);
                     if (gameServer != null) {
                         gameServer.getWorldState().getPlantedBananaTrees().put(treeId,
-                            new wagemaker.uk.network.PlantedBananaTreeState(treeId, x, y, 0.0f));
+                            new wagemaker.uk.network.PlantedBananaTreeState(treeId, spawnX, spawnY, 0.0f));
                     }
-                    System.out.println("[Respawn] Planted BananaSapling at: " + x + ", " + y);
+                    System.out.println("[Respawn] Planted BananaSapling at: " + spawnX + ", " + spawnY);
                 }
                 break;
             case CACTUS:
                 if (cactus == null) {
-                    cactus = new Cactus(x, y);
+                    cactus = new Cactus(spawnX, spawnY);
                     player.setCactus(cactus);
-                    System.out.println("[MyGdxGame] Cactus respawned at: " + x + ", " + y);
+                    System.out.println("[MyGdxGame] Cactus respawned at: " + spawnX + ", " + spawnY);
                 }
                 break;
         }

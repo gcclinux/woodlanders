@@ -3,6 +3,7 @@ package wagemaker.uk.weather;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import wagemaker.uk.biome.BiomeManager;
 
 /**
  * Manages the lifecycle of water puddles based on rain state.
@@ -33,6 +34,7 @@ public class PuddleManager {
     private float accumulationTimer;
     private float evaporationTimer;
     private PuddleCollisionSystem collisionSystem;
+    private BiomeManager biomeManager;
     
     // Performance monitoring
     private float logTimer;
@@ -287,6 +289,19 @@ public class PuddleManager {
      */
     public void setCollisionSystem(PuddleCollisionSystem collisionSystem) {
         this.collisionSystem = collisionSystem;
+    }
+    
+    /**
+     * Sets the biome manager for water biome validation.
+     * Puddles will not spawn in water biomes.
+     * 
+     * @param biomeManager The biome manager to use for validation
+     */
+    public void setBiomeManager(BiomeManager biomeManager) {
+        this.biomeManager = biomeManager;
+        if (puddleRenderer != null) {
+            puddleRenderer.setBiomeManager(biomeManager);
+        }
     }
     
     /**

@@ -6,7 +6,8 @@ package wagemaker.uk.biome;
  */
 public enum BiomeType {
     GRASS,
-    SAND;
+    SAND,
+    WATER;
     
     /**
      * Returns a human-readable display name for the biome type.
