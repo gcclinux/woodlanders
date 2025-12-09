@@ -99,6 +99,9 @@ public class GameMenu implements LanguageChangeListener, FontChangeListener {
     // Controls dialog
     private ControlsDialog controlsDialog;
     
+    // Message board for announcements
+    private MessageBoard messageBoard;
+    
     // Notification system for save confirmation
     private boolean showSaveNotification = false;
     private float saveNotificationTimer = 0f;
@@ -149,6 +152,9 @@ public class GameMenu implements LanguageChangeListener, FontChangeListener {
         
         // Initialize controls dialog
         controlsDialog = new ControlsDialog();
+        
+        // Initialize message board
+        messageBoard = new MessageBoard();
         
         // Register as language change listener
         LocalizationManager.getInstance().addLanguageChangeListener(this);
@@ -818,6 +824,18 @@ public class GameMenu implements LanguageChangeListener, FontChangeListener {
             return;
         }
         
+        if (messageBoard.isVisible()) {
+            boolean wasVisible = true;
+            messageBoard.handleInput();
+            // Check if dialog was closed by ESC this frame
+            if (wasVisible && !messageBoard.isVisible()) {
+                dialogJustClosed = true;
+                framesSinceDialogClosed = 0;
+                return;
+            }
+            return;
+        }
+        
         if (controlsDialog.isVisible()) {
             boolean wasVisible = true;
             controlsDialog.handleInput();
@@ -1030,6 +1048,11 @@ public class GameMenu implements LanguageChangeListener, FontChangeListener {
             return;
         }
         
+        if (messageBoard.isVisible()) {
+            messageBoard.render(batch, shapeRenderer, camX, camY);
+            return;
+        }
+        
         if (controlsDialog.isVisible()) {
             controlsDialog.render(batch, shapeRenderer, camX, camY);
             return;
@@ -1205,9 +1228,9 @@ public class GameMenu implements LanguageChangeListener, FontChangeListener {
         } else if (selectedItem.equals(loc.getText("menu.free_world"))) {
             activateFreeWorld();
         } else if (selectedItem.equals(loc.getText("menu.story_mode"))) {
-            // Story Mode placeholder - no action taken
-            // This menu entry is reserved for future story mode functionality
-            System.out.println("Story Mode selected (placeholder - no action)");
+            // Show message board with story mode information
+            messageBoard.show();
+            System.out.println("Story Mode selected - showing message board");
         } else if (selectedItem.equals(loc.getText("menu.multiplayer"))) {
             openMultiplayerMenu();
         } else if (selectedItem.equals(loc.getText("menu.disconnect"))) {
@@ -2327,6 +2350,9 @@ public class GameMenu implements LanguageChangeListener, FontChangeListener {
         }
         if (controlsDialog != null) {
             controlsDialog.dispose();
+        }
+        if (messageBoard != null) {
+            messageBoard.dispose();
         }
         
         // Unregister from language change listener

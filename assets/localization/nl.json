@@ -56,6 +56,21 @@
     "select_instruction": "Omlaag om te selecteren, Enter om te bevestigen",
     "cancel_instruction": "ESC om te annuleren"
   },
+  "message_board": {
+    "title": "🎉 Welkom bij de nieuwste build!",
+    "welcome_header": "Wat is er nieuw?",
+    "welcome_line1": "Elke build brengt nieuwe functies en fixes!",
+    "welcome_line2": "Kom vaak terug voor de laatste updates.",
+    "welcome_line3": "",
+    "story_mode_header": "🚧 Verhaalmodus is nog niet beschikbaar.",
+    "story_mode_line1": "Verken voorlopig de Eindeloze Wereld",
+    "story_mode_line2": "en experimenteer met alle beschikbare functies!",
+    "story_mode_line3": "",
+    "feedback_header": "Uw feedback is altijd welkom!",
+    "feedback_line1": "Doe mee aan onze discussies - dagelijks spannende veranderingen!",
+    "feedback_line2": "Druk op D: github.com/gcclinux/woodlanders/discussions",
+    "close_instruction": "Druk op ESC om te sluiten | D voor discussies"
+  },
   "controls_dialog": {
     "title": "Spelbesturing",
     "movement_header": "Beweging",

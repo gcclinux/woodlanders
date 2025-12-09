@@ -57,6 +57,21 @@
     "select_instruction": "Hoch/Runter zum Auswählen, Enter zum Bestätigen",
     "cancel_instruction": "ESC zum Abbrechen"
   },
+  "message_board": {
+    "title": "🎉 Willkommen zum neuesten Build!",
+    "welcome_header": "Was ist neu?",
+    "welcome_line1": "Jeder Build bringt neue Funktionen und Korrekturen!",
+    "welcome_line2": "Schauen Sie oft vorbei für die neuesten Updates.",
+    "welcome_line3": "",
+    "story_mode_header": "🚧 Story-Modus ist noch nicht verfügbar.",
+    "story_mode_line1": "Erkunden Sie vorerst die Endlose Welt",
+    "story_mode_line2": "und experimentieren Sie mit allen verfügbaren Funktionen!",
+    "story_mode_line3": "",
+    "feedback_header": "Ihr Feedback ist immer willkommen!",
+    "feedback_line1": "Nehmen Sie an unseren Diskussionen teil - täglich neue Änderungen!",
+    "feedback_line2": "Drücken Sie D: github.com/gcclinux/woodlanders/discussions",
+    "close_instruction": "ESC zum Schließen | D für Diskussionen"
+  },
   "controls_dialog": {
     "title": "Spielsteuerung",
     "movement_header": "Bewegung",

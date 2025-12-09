@@ -56,6 +56,21 @@
     "select_instruction": "Góra/Dół aby wybrać, Enter aby potwierdzić",
     "cancel_instruction": "ESC aby anulować"
   },
+  "message_board": {
+    "title": "🎉 Witamy w najnowszej wersji!",
+    "welcome_header": "Co nowego?",
+    "welcome_line1": "Każda wersja przynosi nowe funkcje i poprawki!",
+    "welcome_line2": "Zaglądaj często po najnowsze aktualizacje.",
+    "welcome_line3": "",
+    "story_mode_header": "🚧 Tryb fabularny nie jest jeszcze dostępny.",
+    "story_mode_line1": "Na razie możesz eksplorować Nieskończony Świat",
+    "story_mode_line2": "i eksperymentować ze wszystkimi dostępnymi funkcjami!",
+    "story_mode_line3": "",
+    "feedback_header": "Twoja opinia jest zawsze mile widziana!",
+    "feedback_line1": "Dołącz do naszych dyskusji - codziennie ekscytujące zmiany!",
+    "feedback_line2": "Naciśnij D: github.com/gcclinux/woodlanders/discussions",
+    "close_instruction": "Naciśnij ESC aby zamknąć | D dla dyskusji"
+  },
   "controls_dialog": {
     "title": "Sterowanie Grą",
     "movement_header": "Ruch",
