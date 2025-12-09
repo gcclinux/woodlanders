@@ -30,10 +30,10 @@ public class PlayerState implements Serializable {
     private int woodStackCount;
     private int pebbleCount;
     private int palmFiberCount;
-    private int leftFenceCount;
+    private int fishCount;
     private int frontFenceCount;
     private int backFenceCount;
-    private int rightFenceCount;
+    private int bowAndArrowCount;
     
     public PlayerState() {
     }
@@ -211,12 +211,12 @@ public class PlayerState implements Serializable {
         this.palmFiberCount = palmFiberCount;
     }
     
-    public int getLeftFenceCount() {
-        return leftFenceCount;
+    public int getFishCount() {
+        return fishCount;
     }
     
-    public void setLeftFenceCount(int leftFenceCount) {
-        this.leftFenceCount = leftFenceCount;
+    public void setFishCount(int fishCount) {
+        this.fishCount = fishCount;
     }
     
     public int getFrontFenceCount() {
@@ -235,11 +235,11 @@ public class PlayerState implements Serializable {
         this.backFenceCount = backFenceCount;
     }
     
-    public int getRightFenceCount() {
-        return rightFenceCount;
+    public int getBowAndArrowCount() {
+        return bowAndArrowCount;
     }
     
-    public void setRightFenceCount(int rightFenceCount) {
-        this.rightFenceCount = rightFenceCount;
+    public void setBowAndArrowCount(int bowAndArrowCount) {
+        this.bowAndArrowCount = bowAndArrowCount;
     }
 }

@@ -16,10 +16,10 @@ public class Inventory {
     private int woodStackCount;
     private int pebbleCount;
     private int palmFiberCount;
-    private int leftFenceCount;
+    private int fishCount;
     private int frontFenceCount;
     private int backFenceCount;
-    private int rightFenceCount;
+    private int bowAndArrowCount;
     
     public Inventory() {
         this.appleCount = 0;
@@ -32,10 +32,10 @@ public class Inventory {
         this.woodStackCount = 0;
         this.pebbleCount = 0;
         this.palmFiberCount = 0;
-        this.leftFenceCount = 0;
+        this.fishCount = 0;
         this.frontFenceCount = 0;
         this.backFenceCount = 0;
-        this.rightFenceCount = 0;
+        this.bowAndArrowCount = 0;
     }
     
     // Apple methods
@@ -248,22 +248,22 @@ public class Inventory {
         return false;
     }
     
-    // LeftFence methods
-    public int getLeftFenceCount() {
-        return leftFenceCount;
+    // Fish methods
+    public int getFishCount() {
+        return fishCount;
     }
     
-    public void setLeftFenceCount(int count) {
-        this.leftFenceCount = Math.max(0, count);
+    public void setFishCount(int count) {
+        this.fishCount = Math.max(0, count);
     }
     
-    public void addLeftFence(int amount) {
-        this.leftFenceCount += amount;
+    public void addFish(int amount) {
+        this.fishCount += amount;
     }
     
-    public boolean removeLeftFence(int amount) {
-        if (leftFenceCount >= amount) {
-            leftFenceCount -= amount;
+    public boolean removeFish(int amount) {
+        if (fishCount >= amount) {
+            fishCount -= amount;
             return true;
         }
         return false;
@@ -311,22 +311,22 @@ public class Inventory {
         return false;
     }
     
-    // RightFence methods
-    public int getRightFenceCount() {
-        return rightFenceCount;
+    // BowAndArrow methods
+    public int getBowAndArrowCount() {
+        return bowAndArrowCount;
     }
     
-    public void setRightFenceCount(int count) {
-        this.rightFenceCount = Math.max(0, count);
+    public void setBowAndArrowCount(int count) {
+        this.bowAndArrowCount = Math.max(0, count);
     }
     
-    public void addRightFence(int amount) {
-        this.rightFenceCount += amount;
+    public void addBowAndArrow(int amount) {
+        this.bowAndArrowCount += amount;
     }
     
-    public boolean removeRightFence(int amount) {
-        if (rightFenceCount >= amount) {
-            rightFenceCount -= amount;
+    public boolean removeBowAndArrow(int amount) {
+        if (bowAndArrowCount >= amount) {
+            bowAndArrowCount -= amount;
             return true;
         }
         return false;
@@ -346,9 +346,9 @@ public class Inventory {
         this.woodStackCount = 0;
         this.pebbleCount = 0;
         this.palmFiberCount = 0;
-        this.leftFenceCount = 0;
+        this.fishCount = 0;
         this.frontFenceCount = 0;
         this.backFenceCount = 0;
-        this.rightFenceCount = 0;
+        this.bowAndArrowCount = 0;
     }
 }

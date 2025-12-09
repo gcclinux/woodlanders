@@ -931,8 +931,8 @@ public class ClientConnection implements Runnable {
             case PALM_FIBER:
                 playerState.setPalmFiberCount(playerState.getPalmFiberCount() + 1);
                 break;
-            case LEFT_FENCE:
-                playerState.setLeftFenceCount(playerState.getLeftFenceCount() + 1);
+            case FISH:
+                playerState.setFishCount(playerState.getFishCount() + 1);
                 break;
             case FRONT_FENCE:
                 playerState.setFrontFenceCount(playerState.getFrontFenceCount() + 1);
@@ -958,10 +958,10 @@ public class ClientConnection implements Runnable {
             playerState.getWoodStackCount(),
             playerState.getPebbleCount(),
             playerState.getPalmFiberCount(),
-            playerState.getLeftFenceCount(),
+            playerState.getFishCount(),
             playerState.getFrontFenceCount(),
             playerState.getBackFenceCount(),
-            playerState.getRightFenceCount()
+            playerState.getBowAndArrowCount()
         );
         server.broadcastToAll(inventoryMsg);
         
@@ -1126,10 +1126,10 @@ public class ClientConnection implements Runnable {
             playerState.getWoodStackCount(),
             playerState.getPebbleCount(),
             playerState.getPalmFiberCount(),
-            playerState.getLeftFenceCount(),
+            playerState.getFishCount(),
             playerState.getFrontFenceCount(),
             playerState.getBackFenceCount(),
-            playerState.getRightFenceCount()
+            playerState.getBowAndArrowCount()
         );
         server.broadcastToAll(inventoryMsg);
     }
@@ -1548,7 +1548,7 @@ public class ClientConnection implements Runnable {
             !isValidInventoryCount(message.getWoodStackCount()) ||
             !isValidInventoryCount(message.getPebbleCount()) ||
             !isValidInventoryCount(message.getPalmFiberCount()) ||
-            !isValidInventoryCount(message.getLeftFenceCount()) ||
+            !isValidInventoryCount(message.getFishCount()) ||
             !isValidInventoryCount(message.getFrontFenceCount())) {
             System.err.println("Invalid inventory counts from " + clientId);
             logSecurityViolation("Invalid inventory counts");
@@ -1566,7 +1566,7 @@ public class ClientConnection implements Runnable {
         playerState.setWoodStackCount(message.getWoodStackCount());
         playerState.setPebbleCount(message.getPebbleCount());
         playerState.setPalmFiberCount(message.getPalmFiberCount());
-        playerState.setLeftFenceCount(message.getLeftFenceCount());
+        playerState.setFishCount(message.getFishCount());
         playerState.setFrontFenceCount(message.getFrontFenceCount());
         
         // Update in world state
@@ -1583,7 +1583,7 @@ public class ClientConnection implements Runnable {
                          ", WoodStack=" + message.getWoodStackCount() +
                          ", Pebbles=" + message.getPebbleCount() +
                          ", PalmFiber=" + message.getPalmFiberCount() +
-                         ", LeftFence=" + message.getLeftFenceCount() +
+                         ", Fish=" + message.getFishCount() +
                          ", FrontFence=" + message.getFrontFenceCount());
     }
     
@@ -1614,10 +1614,10 @@ public class ClientConnection implements Runnable {
             playerState.getWoodStackCount(),
             playerState.getPebbleCount(),
             playerState.getPalmFiberCount(),
-            playerState.getLeftFenceCount(),
+            playerState.getFishCount(),
             playerState.getFrontFenceCount(),
             playerState.getBackFenceCount(),
-            playerState.getRightFenceCount()
+            playerState.getBowAndArrowCount()
         );
         sendMessage(syncMsg);
     }

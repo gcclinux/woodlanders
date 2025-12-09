@@ -129,8 +129,8 @@ public class InventoryManager {
             case PALM_FIBER:
                 inventory.addPalmFiber(amount);
                 break;
-            case LEFT_FENCE:
-                inventory.addLeftFence(amount);
+            case FISH:
+                inventory.addFish(amount);
                 break;
             case FRONT_FENCE:
                 inventory.addFrontFence(amount);
@@ -138,8 +138,8 @@ public class InventoryManager {
             case BACK_FENCE:
                 inventory.addBackFence(amount);
                 break;
-            case RIGHT_FENCE:
-                inventory.addRightFence(amount);
+            case BOW_AND_ARROW:
+                inventory.addBowAndArrow(amount);
                 break;
         }
         
@@ -168,10 +168,10 @@ public class InventoryManager {
                 inventory.getWoodStackCount(),
                 inventory.getPebbleCount(),
                 inventory.getPalmFiberCount(),
-                inventory.getLeftFenceCount(),
+                inventory.getFishCount(),
                 inventory.getFrontFenceCount(),
                 inventory.getBackFenceCount(),
-                inventory.getRightFenceCount()
+                inventory.getBowAndArrowCount()
             );
             
             gameClient.sendMessage(message);
@@ -201,14 +201,14 @@ public class InventoryManager {
      * @param woodStackCount The wood stack count from server
      * @param pebbleCount The pebble count from server
      * @param palmFiberCount The palm fiber count from server
-     * @param leftFenceCount The left fence count from server
+     * @param fishCount The fish count from server
      * @param frontFenceCount The front fence count from server
      * @param backFenceCount The back fence count from server
-     * @param rightFenceCount The right fence count from server
+     * @param bowAndArrowCount The bow and arrow count from server
      */
     public void syncFromServer(int appleCount, int bananaCount, int appleSaplingCount, int bananaSaplingCount,
                                 int bambooSaplingCount, int bambooStackCount, int treeSaplingCount, int woodStackCount, 
-                                int pebbleCount, int palmFiberCount, int leftFenceCount, int frontFenceCount, int backFenceCount, int rightFenceCount) {
+                                int pebbleCount, int palmFiberCount, int fishCount, int frontFenceCount, int backFenceCount, int bowAndArrowCount) {
         if (!isMultiplayerMode) {
             return; // Only sync in multiplayer mode
         }
@@ -224,10 +224,10 @@ public class InventoryManager {
         inventory.setWoodStackCount(woodStackCount);
         inventory.setPebbleCount(pebbleCount);
         inventory.setPalmFiberCount(palmFiberCount);
-        inventory.setLeftFenceCount(leftFenceCount);
+        inventory.setFishCount(fishCount);
         inventory.setFrontFenceCount(frontFenceCount);
         inventory.setBackFenceCount(backFenceCount);
-        inventory.setRightFenceCount(rightFenceCount);
+        inventory.setBowAndArrowCount(bowAndArrowCount);
         
         System.out.println("Inventory synced from server: Apples=" + appleCount +
                          ", Bananas=" + bananaCount +
@@ -239,10 +239,10 @@ public class InventoryManager {
                          ", WoodStack=" + woodStackCount +
                          ", Pebbles=" + pebbleCount +
                          ", PalmFibers=" + palmFiberCount +
-                         ", LeftFence=" + leftFenceCount +
+                         ", Fish=" + fishCount +
                          ", FrontFence=" + frontFenceCount +
                          ", BackFence=" + backFenceCount +
-                         ", RightFence=" + rightFenceCount);
+                         ", BowAndArrow=" + bowAndArrowCount);
     }
     
     /**
@@ -294,10 +294,10 @@ public class InventoryManager {
             case 7: return ItemType.PALM_FIBER;
             case 8: return ItemType.APPLE_SAPLING;
             case 9: return ItemType.BANANA_SAPLING;
-            case 10: return ItemType.LEFT_FENCE;
+            case 10: return ItemType.FISH;
             case 11: return ItemType.FRONT_FENCE;
             case 12: return ItemType.BACK_FENCE;
-            case 13: return ItemType.RIGHT_FENCE;
+            case 13: return ItemType.BOW_AND_ARROW;
             default: return null;
         }
     }
@@ -382,10 +382,10 @@ public class InventoryManager {
             case 7: itemCount = inventory.getPalmFiberCount(); break;
             case 8: itemCount = inventory.getAppleSaplingCount(); break;
             case 9: itemCount = inventory.getBananaSaplingCount(); break;
-            case 10: itemCount = inventory.getLeftFenceCount(); break;
+            case 10: itemCount = inventory.getFishCount(); break;
             case 11: itemCount = inventory.getFrontFenceCount(); break;
             case 12: itemCount = inventory.getBackFenceCount(); break;
-            case 13: itemCount = inventory.getRightFenceCount(); break;
+            case 13: itemCount = inventory.getBowAndArrowCount(); break;
         }
         
         if (itemCount == 0) {

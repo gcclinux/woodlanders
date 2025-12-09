@@ -31,13 +31,13 @@ public class RightFenceDisplayedCountPropertyTest {
             rightFenceCount = 0;
         }
         
-        // Create inventory and set RightFence count
+        // Create inventory and set BowAndArrow count
         Inventory inventory = new Inventory();
-        inventory.setRightFenceCount(rightFenceCount);
+        inventory.setBowAndArrowCount(rightFenceCount);
         
         // Verify that the inventory returns the same count that was set
         // This is what the renderer will query when displaying the count
-        int displayedCount = inventory.getRightFenceCount();
+        int displayedCount = inventory.getBowAndArrowCount();
         
         assertEquals(rightFenceCount, displayedCount,
                      "Displayed RightFence count should match inventory count");

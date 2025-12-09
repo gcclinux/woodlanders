@@ -71,8 +71,8 @@ public class InventoryRendererRightFenceTest {
     public void testRightFenceSlotPosition() {
         // RightFence should be at slot 13 (after BackFence at slot 12)
         // We verify this through the inventory's ability to store RightFence
-        inventory.setRightFenceCount(5);
-        assertEquals(5, inventory.getRightFenceCount(), 
+        inventory.setBowAndArrowCount(5);
+        assertEquals(5, inventory.getBowAndArrowCount(), 
             "RightFence should be accessible at slot 13 through inventory");
     }
     
@@ -83,9 +83,9 @@ public class InventoryRendererRightFenceTest {
     @Test
     public void testZeroCountDisplay() {
         // When RightFence count is 0, the UI should display "0"
-        inventory.setRightFenceCount(0);
+        inventory.setBowAndArrowCount(0);
         
-        int displayedCount = inventory.getRightFenceCount();
+        int displayedCount = inventory.getBowAndArrowCount();
         assertEquals(0, displayedCount, "Zero RightFence count should display as 0");
     }
     
@@ -100,8 +100,8 @@ public class InventoryRendererRightFenceTest {
     public void testSelectionHighlight() {
         // When selectedSlot == 13, the RightFence slot should be highlighted
         // We verify the inventory supports RightFence at slot 13
-        inventory.setRightFenceCount(5);
-        assertEquals(5, inventory.getRightFenceCount(), 
+        inventory.setBowAndArrowCount(5);
+        assertEquals(5, inventory.getBowAndArrowCount(), 
             "RightFence at slot 13 should be selectable when count > 0");
     }
     
@@ -116,8 +116,8 @@ public class InventoryRendererRightFenceTest {
     public void testDeselection() {
         // When selectedSlot != 13, the RightFence slot should not be highlighted
         // We verify the inventory state remains consistent
-        inventory.setRightFenceCount(5);
-        assertEquals(5, inventory.getRightFenceCount(), 
+        inventory.setBowAndArrowCount(5);
+        assertEquals(5, inventory.getBowAndArrowCount(), 
             "RightFence count should remain consistent regardless of selection state");
     }
     
@@ -129,8 +129,8 @@ public class InventoryRendererRightFenceTest {
         int[] testCounts = {0, 1, 5, 10, 50, 100, 999};
         
         for (int count : testCounts) {
-            inventory.setRightFenceCount(count);
-            int displayedCount = inventory.getRightFenceCount();
+            inventory.setBowAndArrowCount(count);
+            int displayedCount = inventory.getBowAndArrowCount();
             
             assertEquals(count, displayedCount, 
                 "RightFence count " + count + " should be stored and retrieved correctly");
@@ -142,15 +142,15 @@ public class InventoryRendererRightFenceTest {
      */
     @Test
     public void testSelectionStateChanges() {
-        inventory.setRightFenceCount(10);
+        inventory.setBowAndArrowCount(10);
         
         // Test that count remains consistent through state changes
-        assertEquals(10, inventory.getRightFenceCount(), 
+        assertEquals(10, inventory.getBowAndArrowCount(), 
             "RightFence count should remain 10 initially");
         
         // Simulate selection state changes by accessing the count multiple times
         for (int i = 0; i < 5; i++) {
-            assertEquals(10, inventory.getRightFenceCount(), 
+            assertEquals(10, inventory.getBowAndArrowCount(), 
                 "RightFence count should remain consistent through state changes");
         }
     }
@@ -163,10 +163,10 @@ public class InventoryRendererRightFenceTest {
         // Set counts for multiple items including RightFence
         inventory.setAppleCount(5);
         inventory.setBananaCount(3);
-        inventory.setLeftFenceCount(2);
+        inventory.setFishCount(2);
         inventory.setFrontFenceCount(4);
         inventory.setBackFenceCount(7);
-        inventory.setRightFenceCount(6);
+        inventory.setBowAndArrowCount(6);
         
         // Verify all items can be rendered together
         assertDoesNotThrow(() -> {

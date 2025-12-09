@@ -29,14 +29,14 @@ public class RightFenceCollectionPropertyTest {
         
         // Create inventory and set initial state
         Inventory inventory = new Inventory();
-        inventory.setRightFenceCount(initialCount);
+        inventory.setBowAndArrowCount(initialCount);
         
         // Simulate collecting one RightFence item
-        inventory.addRightFence(1);
+        inventory.addBowAndArrow(1);
         
         // Verify count increased by exactly 1
         int expectedCount = initialCount + 1;
-        int actualCount = inventory.getRightFenceCount();
+        int actualCount = inventory.getBowAndArrowCount();
         
         assertEquals(expectedCount, actualCount, 
                      "RightFence count should increase by 1 after collection");

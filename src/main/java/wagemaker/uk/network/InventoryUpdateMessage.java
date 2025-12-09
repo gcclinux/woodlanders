@@ -18,10 +18,10 @@ public class InventoryUpdateMessage extends NetworkMessage {
     private int woodStackCount;
     private int pebbleCount;
     private int palmFiberCount;
-    private int leftFenceCount;
+    private int fishCount;
     private int frontFenceCount;
     private int backFenceCount;
-    private int rightFenceCount;
+    private int bowAndArrowCount;
     
     public InventoryUpdateMessage() {
         super();
@@ -31,7 +31,7 @@ public class InventoryUpdateMessage extends NetworkMessage {
                                    int appleCount, int bananaCount, int appleSaplingCount, int bananaSaplingCount,
                                    int bambooSaplingCount, int bambooStackCount, 
                                    int treeSaplingCount, int woodStackCount, int pebbleCount, int palmFiberCount,
-                                   int leftFenceCount, int frontFenceCount, int backFenceCount, int rightFenceCount) {
+                                   int fishCount, int frontFenceCount, int backFenceCount, int bowAndArrowCount) {
         super(senderId);
         this.playerId = playerId;
         this.appleCount = appleCount;
@@ -44,10 +44,10 @@ public class InventoryUpdateMessage extends NetworkMessage {
         this.woodStackCount = woodStackCount;
         this.pebbleCount = pebbleCount;
         this.palmFiberCount = palmFiberCount;
-        this.leftFenceCount = leftFenceCount;
+        this.fishCount = fishCount;
         this.frontFenceCount = frontFenceCount;
         this.backFenceCount = backFenceCount;
-        this.rightFenceCount = rightFenceCount;
+        this.bowAndArrowCount = bowAndArrowCount;
     }
     
     @Override
@@ -99,8 +99,8 @@ public class InventoryUpdateMessage extends NetworkMessage {
         return palmFiberCount;
     }
     
-    public int getLeftFenceCount() {
-        return leftFenceCount;
+    public int getFishCount() {
+        return fishCount;
     }
     
     public int getFrontFenceCount() {
@@ -111,7 +111,7 @@ public class InventoryUpdateMessage extends NetworkMessage {
         return backFenceCount;
     }
     
-    public int getRightFenceCount() {
-        return rightFenceCount;
+    public int getBowAndArrowCount() {
+        return bowAndArrowCount;
     }
 }

@@ -25,10 +25,10 @@ public class InventoryRenderer {
     private Texture palmFiberIcon;
     private Texture appleSaplingIcon;
     private Texture bananaSaplingIcon;
-    private Texture leftFenceIcon;
+    private Texture fishIcon;
     private Texture frontFenceIcon;
     private Texture backFenceIcon;
-    private Texture rightFenceIcon;
+    private Texture bowAndArrowIcon;
     
     // Background and UI elements
     private Texture woodenBackground;
@@ -101,8 +101,8 @@ public class InventoryRenderer {
         // Load banana sapling icon (192, 192, 64x64)
         bananaSaplingIcon = extractIconFromSpriteSheet(192, 192, 64, 64);
         
-        // Load left fence icon (256, 192, 32x128) - scale to 32x32
-        leftFenceIcon = extractIconFromSpriteSheet(256, 192, 32, 64);
+        // Load fish icon (256, 256, 32, 64) - scale to 32x32
+        fishIcon = extractIconFromSpriteSheet(256, 192, 64, 64);
         
         // Load front fence icon (0, 320, 64x64) - scale to 32x32
         frontFenceIcon = extractIconFromSpriteSheet(0, 320, 64, 64);
@@ -110,8 +110,8 @@ public class InventoryRenderer {
         // Load back fence icon (64, 320, 64x64) - scale to 32x32
         backFenceIcon = extractIconFromSpriteSheet(64, 320, 64, 64);
         
-        // Load right fence icon (298, 192, 22x128) - scale to 32x32
-        rightFenceIcon = extractIconFromSpriteSheet(298, 192, 22, 64);
+        // Load bow and arrow icon (298, 192, 22x128) - scale to 32x32
+        bowAndArrowIcon = extractIconFromSpriteSheet(256, 256, 64, 64);
     }
     
     /**
@@ -209,7 +209,7 @@ public class InventoryRenderer {
             batch.draw(slotBorder, x, slotY, SLOT_SIZE, SLOT_SIZE);
         }
         
-        // Render slots with icons and counts in order: Apple, Banana, BambooSapling, BambooStack, TreeSapling, WoodStack, Pebble, PalmFiber, AppleSapling, BananaSapling, LeftFence, FrontFence, BackFence, RightFence
+        // Render slots with icons and counts in order: Apple, Banana, BambooSapling, BambooStack, TreeSapling, WoodStack, Pebble, PalmFiber, AppleSapling, BananaSapling, Fish, FrontFence, BackFence, BowAndArrow
         renderSlot(batch, appleIcon, inventory.getAppleCount(), slotX, slotY, selectedSlot == 0);
         renderSlot(batch, bananaIcon, inventory.getBananaCount(), slotX + (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 1);
         renderSlot(batch, bambooSaplingIcon, inventory.getBambooSaplingCount(), slotX + 2 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 2);
@@ -220,10 +220,10 @@ public class InventoryRenderer {
         renderSlot(batch, palmFiberIcon, inventory.getPalmFiberCount(), slotX + 7 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 7);
         renderSlot(batch, appleSaplingIcon, inventory.getAppleSaplingCount(), slotX + 8 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 8);
         renderSlot(batch, bananaSaplingIcon, inventory.getBananaSaplingCount(), slotX + 9 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 9);
-        renderSlot(batch, leftFenceIcon, inventory.getLeftFenceCount(), slotX + 10 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 10);
+        renderSlot(batch, fishIcon, inventory.getFishCount(), slotX + 10 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 10);
         renderSlot(batch, frontFenceIcon, inventory.getFrontFenceCount(), slotX + 11 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 11);
         renderSlot(batch, backFenceIcon, inventory.getBackFenceCount(), slotX + 12 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 12);
-        renderSlot(batch, rightFenceIcon, inventory.getRightFenceCount(), slotX + 13 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 13);
+        renderSlot(batch, bowAndArrowIcon, inventory.getBowAndArrowCount(), slotX + 13 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 13);
         
         batch.end();
     }
@@ -300,10 +300,10 @@ public class InventoryRenderer {
         if (palmFiberIcon != null) palmFiberIcon.dispose();
         if (appleSaplingIcon != null) appleSaplingIcon.dispose();
         if (bananaSaplingIcon != null) bananaSaplingIcon.dispose();
-        if (leftFenceIcon != null) leftFenceIcon.dispose();
+        if (fishIcon != null) fishIcon.dispose();
         if (frontFenceIcon != null) frontFenceIcon.dispose();
         if (backFenceIcon != null) backFenceIcon.dispose();
-        if (rightFenceIcon != null) rightFenceIcon.dispose();
+        if (bowAndArrowIcon != null) bowAndArrowIcon.dispose();
         if (woodenBackground != null) woodenBackground.dispose();
         if (slotBorder != null) slotBorder.dispose();
         if (countFont != null) countFont.dispose();

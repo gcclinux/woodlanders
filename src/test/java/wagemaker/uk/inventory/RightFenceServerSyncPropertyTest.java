@@ -51,10 +51,10 @@ public class RightFenceServerSyncPropertyTest {
             
             // Set a different initial local count to verify sync overwrites it
             int initialLocalCount = serverRightFenceCount + random.nextInt(50) + 1; // Different from server
-            inventoryManager.getCurrentInventory().setRightFenceCount(initialLocalCount);
+            inventoryManager.getCurrentInventory().setBowAndArrowCount(initialLocalCount);
             
             // Verify initial state is different
-            assertNotEquals(serverRightFenceCount, inventoryManager.getCurrentInventory().getRightFenceCount(),
+            assertNotEquals(serverRightFenceCount, inventoryManager.getCurrentInventory().getBowAndArrowCount(),
                 "Trial " + trial + ": Initial local count should differ from server count");
             
             // Simulate server sync with all item counts (using 0 for other items)
@@ -63,9 +63,9 @@ public class RightFenceServerSyncPropertyTest {
             );
             
             // Verify the local count matches the server count
-            assertEquals(serverRightFenceCount, inventoryManager.getCurrentInventory().getRightFenceCount(),
+            assertEquals(serverRightFenceCount, inventoryManager.getCurrentInventory().getBowAndArrowCount(),
                 "Trial " + trial + ": Local RightFence count should match server count after sync " +
-                "(server=" + serverRightFenceCount + ", local=" + inventoryManager.getCurrentInventory().getRightFenceCount() + ")");
+                "(server=" + serverRightFenceCount + ", local=" + inventoryManager.getCurrentInventory().getBowAndArrowCount() + ")");
         }
     }
     
@@ -94,7 +94,7 @@ public class RightFenceServerSyncPropertyTest {
             int serverCount = random.nextInt(200);
             
             // Set initial local count
-            inventoryManager.getCurrentInventory().setRightFenceCount(localCount);
+            inventoryManager.getCurrentInventory().setBowAndArrowCount(localCount);
             
             // Simulate server sync
             inventoryManager.syncFromServer(
@@ -102,7 +102,7 @@ public class RightFenceServerSyncPropertyTest {
             );
             
             // Verify the local count matches the server count (server wins)
-            assertEquals(serverCount, inventoryManager.getCurrentInventory().getRightFenceCount(),
+            assertEquals(serverCount, inventoryManager.getCurrentInventory().getBowAndArrowCount(),
                 "Trial " + trial + ": Server count should overwrite local count " +
                 "(local=" + localCount + ", server=" + serverCount + ")");
         }
@@ -130,7 +130,7 @@ public class RightFenceServerSyncPropertyTest {
             
             // Set initial local count
             int initialCount = random.nextInt(100);
-            inventoryManager.getCurrentInventory().setRightFenceCount(initialCount);
+            inventoryManager.getCurrentInventory().setBowAndArrowCount(initialCount);
             
             // Attempt server sync with different count
             int serverCount = initialCount + random.nextInt(50) + 1; // Different from initial
@@ -139,7 +139,7 @@ public class RightFenceServerSyncPropertyTest {
             );
             
             // Verify the local count was NOT changed (single-player mode ignores sync)
-            assertEquals(initialCount, inventoryManager.getCurrentInventory().getRightFenceCount(),
+            assertEquals(initialCount, inventoryManager.getCurrentInventory().getBowAndArrowCount(),
                 "Trial " + trial + ": Single-player mode should ignore server sync " +
                 "(initial=" + initialCount + ", server=" + serverCount + ")");
         }
@@ -167,7 +167,7 @@ public class RightFenceServerSyncPropertyTest {
             
             // Set initial local count (non-zero)
             int initialCount = random.nextInt(100) + 1; // 1 to 100
-            inventoryManager.getCurrentInventory().setRightFenceCount(initialCount);
+            inventoryManager.getCurrentInventory().setBowAndArrowCount(initialCount);
             
             // Simulate server sync with zero count
             inventoryManager.syncFromServer(
@@ -175,7 +175,7 @@ public class RightFenceServerSyncPropertyTest {
             );
             
             // Verify the local count is now zero
-            assertEquals(0, inventoryManager.getCurrentInventory().getRightFenceCount(),
+            assertEquals(0, inventoryManager.getCurrentInventory().getBowAndArrowCount(),
                 "Trial " + trial + ": Server sync with zero should clear local inventory " +
                 "(initial=" + initialCount + ")");
         }

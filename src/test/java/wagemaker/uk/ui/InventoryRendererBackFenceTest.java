@@ -163,7 +163,7 @@ public class InventoryRendererBackFenceTest {
         // Set counts for multiple items including BackFence
         inventory.setAppleCount(5);
         inventory.setBananaCount(3);
-        inventory.setLeftFenceCount(2);
+        inventory.setFishCount(2);
         inventory.setFrontFenceCount(4);
         inventory.setBackFenceCount(7);
         

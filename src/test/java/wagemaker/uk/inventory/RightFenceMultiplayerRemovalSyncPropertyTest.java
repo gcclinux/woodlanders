@@ -59,7 +59,7 @@ public class RightFenceMultiplayerRemovalSyncPropertyTest {
             // Generate random initial inventory state (at least 1 to remove)
             Inventory inventory = inventoryManager.getCurrentInventory();
             int initialRightFenceCount = random.nextInt(100) + 1; // 1 to 100
-            inventory.setRightFenceCount(initialRightFenceCount);
+            inventory.setBowAndArrowCount(initialRightFenceCount);
             
             // Reset mock to clear any previous interactions
             reset(mockGameClient);
@@ -67,7 +67,7 @@ public class RightFenceMultiplayerRemovalSyncPropertyTest {
             when(mockGameClient.getClientId()).thenReturn(String.valueOf(trial));
             
             // Remove a RightFence item
-            boolean removed = inventory.removeRightFence(1);
+            boolean removed = inventory.removeBowAndArrow(1);
             
             // Trigger sync by calling sendInventoryUpdateToServer
             inventoryManager.sendInventoryUpdateToServer();
@@ -89,12 +89,12 @@ public class RightFenceMultiplayerRemovalSyncPropertyTest {
             
             // Verify the message contains the updated RightFence count
             InventoryUpdateMessage updateMessage = (InventoryUpdateMessage) sentMessage;
-            assertEquals(initialRightFenceCount - 1, updateMessage.getRightFenceCount(),
+            assertEquals(initialRightFenceCount - 1, updateMessage.getBowAndArrowCount(),
                 "Trial " + trial + ": The message should contain the updated RightFence count " +
                 "(initial=" + initialRightFenceCount + ", expected=" + (initialRightFenceCount - 1) + ")");
             
             // Verify the inventory was actually updated
-            assertEquals(initialRightFenceCount - 1, inventory.getRightFenceCount(),
+            assertEquals(initialRightFenceCount - 1, inventory.getBowAndArrowCount(),
                 "Trial " + trial + ": The inventory should be updated with the new RightFence count");
         }
     }
@@ -128,7 +128,7 @@ public class RightFenceMultiplayerRemovalSyncPropertyTest {
             
             // Set RightFence count to zero
             Inventory inventory = inventoryManager.getCurrentInventory();
-            inventory.setRightFenceCount(0);
+            inventory.setBowAndArrowCount(0);
             
             // Reset mock to clear any previous interactions
             reset(mockGameClient);
@@ -136,7 +136,7 @@ public class RightFenceMultiplayerRemovalSyncPropertyTest {
             when(mockGameClient.getClientId()).thenReturn(String.valueOf(trial));
             
             // Attempt to remove a RightFence item
-            boolean removed = inventory.removeRightFence(1);
+            boolean removed = inventory.removeBowAndArrow(1);
             
             // Trigger sync attempt
             inventoryManager.sendInventoryUpdateToServer();
@@ -146,7 +146,7 @@ public class RightFenceMultiplayerRemovalSyncPropertyTest {
                 "Trial " + trial + ": RightFence removal should fail when count is 0");
             
             // Verify the inventory count is still zero
-            assertEquals(0, inventory.getRightFenceCount(),
+            assertEquals(0, inventory.getBowAndArrowCount(),
                 "Trial " + trial + ": The inventory count should remain 0 after failed removal");
             
             // Note: A sync message is still sent even though removal failed
@@ -185,7 +185,7 @@ public class RightFenceMultiplayerRemovalSyncPropertyTest {
             Inventory inventory = inventoryManager.getCurrentInventory();
             int removalCount = random.nextInt(5) + 2; // 2 to 6 removals
             int initialCount = removalCount + random.nextInt(10); // Enough to remove
-            inventory.setRightFenceCount(initialCount);
+            inventory.setBowAndArrowCount(initialCount);
             
             // Reset mock to clear any previous interactions
             reset(mockGameClient);
@@ -194,7 +194,7 @@ public class RightFenceMultiplayerRemovalSyncPropertyTest {
             
             // Perform multiple removals
             for (int i = 0; i < removalCount; i++) {
-                boolean removed = inventory.removeRightFence(1);
+                boolean removed = inventory.removeBowAndArrow(1);
                 assertTrue(removed,
                     "Trial " + trial + ", Removal " + i + ": Should successfully remove RightFence");
                 
@@ -206,7 +206,7 @@ public class RightFenceMultiplayerRemovalSyncPropertyTest {
             verify(mockGameClient, times(removalCount)).sendMessage(any(NetworkMessage.class));
             
             // Verify the final count
-            assertEquals(initialCount - removalCount, inventory.getRightFenceCount(),
+            assertEquals(initialCount - removalCount, inventory.getBowAndArrowCount(),
                 "Trial " + trial + ": Final count should reflect all removals " +
                 "(initial=" + initialCount + ", removed=" + removalCount + ")");
         }
@@ -240,10 +240,10 @@ public class RightFenceMultiplayerRemovalSyncPropertyTest {
             // Set initial count
             Inventory inventory = inventoryManager.getCurrentInventory();
             int initialCount = random.nextInt(100) + 1; // 1 to 100
-            inventory.setRightFenceCount(initialCount);
+            inventory.setBowAndArrowCount(initialCount);
             
             // Remove a RightFence item
-            boolean removed = inventory.removeRightFence(1);
+            boolean removed = inventory.removeBowAndArrow(1);
             
             // Trigger sync attempt
             inventoryManager.sendInventoryUpdateToServer();
@@ -256,7 +256,7 @@ public class RightFenceMultiplayerRemovalSyncPropertyTest {
             verify(mockGameClient, never()).sendMessage(any(NetworkMessage.class));
             
             // Verify the inventory was still updated
-            assertEquals(initialCount - 1, inventory.getRightFenceCount(),
+            assertEquals(initialCount - 1, inventory.getBowAndArrowCount(),
                 "Trial " + trial + ": The inventory should be updated even in single-player mode");
         }
     }

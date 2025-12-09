@@ -46,7 +46,7 @@ public class RightFenceAutoDeselectPropertyTest {
             // Generate random initial count (small enough to reach zero)
             Inventory inventory = inventoryManager.getCurrentInventory();
             int initialCount = random.nextInt(10) + 1; // 1 to 10
-            inventory.setRightFenceCount(initialCount);
+            inventory.setBowAndArrowCount(initialCount);
             
             // Select slot 13
             inventoryManager.setSelectedSlot(13);
@@ -55,7 +55,7 @@ public class RightFenceAutoDeselectPropertyTest {
             
             // Remove all RightFence items to reach zero
             for (int i = 0; i < initialCount; i++) {
-                boolean removed = inventory.removeRightFence(1);
+                boolean removed = inventory.removeBowAndArrow(1);
                 assertTrue(removed,
                     "Trial " + trial + ", Removal " + i + ": Should successfully remove RightFence");
                 
@@ -64,7 +64,7 @@ public class RightFenceAutoDeselectPropertyTest {
             }
             
             // Verify count is now zero
-            assertEquals(0, inventory.getRightFenceCount(),
+            assertEquals(0, inventory.getBowAndArrowCount(),
                 "Trial " + trial + ": RightFence count should be zero");
             
             // Verify slot was auto-deselected
@@ -97,7 +97,7 @@ public class RightFenceAutoDeselectPropertyTest {
             // Generate random non-zero count
             Inventory inventory = inventoryManager.getCurrentInventory();
             int count = random.nextInt(100) + 1; // 1 to 100
-            inventory.setRightFenceCount(count);
+            inventory.setBowAndArrowCount(count);
             
             // Select slot 13
             inventoryManager.setSelectedSlot(13);
@@ -109,9 +109,9 @@ public class RightFenceAutoDeselectPropertyTest {
             assertEquals(13, inventoryManager.getSelectedSlot(),
                 "Trial " + trial + ": Slot 13 should remain selected when count=" + count);
             
-            // Verify ItemType is still RIGHT_FENCE
-            assertEquals(ItemType.RIGHT_FENCE, inventoryManager.getSelectedItemType(),
-                "Trial " + trial + ": Should still return RIGHT_FENCE when count=" + count);
+            // Verify ItemType is still BOW_AND_ARROW
+            assertEquals(ItemType.BOW_AND_ARROW, inventoryManager.getSelectedItemType(),
+                "Trial " + trial + ": Should still return BOW_AND_ARROW when count=" + count);
         }
     }
     
@@ -150,10 +150,10 @@ public class RightFenceAutoDeselectPropertyTest {
                 case 7: inventory.setPalmFiberCount(0); break;
                 case 8: inventory.setAppleSaplingCount(0); break;
                 case 9: inventory.setBananaSaplingCount(0); break;
-                case 10: inventory.setLeftFenceCount(0); break;
+                case 10: inventory.setFishCount(0); break;
                 case 11: inventory.setFrontFenceCount(0); break;
                 case 12: inventory.setBackFenceCount(0); break;
-                case 13: inventory.setRightFenceCount(0); break;
+                case 13: inventory.setBowAndArrowCount(0); break;
             }
             
             // Check auto-deselect
@@ -185,7 +185,7 @@ public class RightFenceAutoDeselectPropertyTest {
             // Set initial non-zero count
             Inventory inventory = inventoryManager.getCurrentInventory();
             int initialCount = random.nextInt(100) + 1; // 1 to 100
-            inventory.setRightFenceCount(initialCount);
+            inventory.setBowAndArrowCount(initialCount);
             
             // Select slot 13
             inventoryManager.setSelectedSlot(13);
@@ -193,7 +193,7 @@ public class RightFenceAutoDeselectPropertyTest {
                 "Trial " + trial + ": Slot 13 should be selected initially");
             
             // Set count to zero
-            inventory.setRightFenceCount(0);
+            inventory.setBowAndArrowCount(0);
             
             // Check auto-deselect
             inventoryManager.checkAndAutoDeselect();
@@ -259,13 +259,13 @@ public class RightFenceAutoDeselectPropertyTest {
             // Generate random initial count
             Inventory inventory = inventoryManager.getCurrentInventory();
             int initialCount = random.nextInt(20) + 1; // 1 to 20
-            inventory.setRightFenceCount(initialCount);
+            inventory.setBowAndArrowCount(initialCount);
             
             // Select slot 13
             inventoryManager.setSelectedSlot(13);
             
             // Remove all items at once
-            boolean removed = inventory.removeRightFence(initialCount);
+            boolean removed = inventory.removeBowAndArrow(initialCount);
             assertTrue(removed,
                 "Trial " + trial + ": Should successfully remove all " + initialCount + " items");
             
@@ -273,7 +273,7 @@ public class RightFenceAutoDeselectPropertyTest {
             inventoryManager.checkAndAutoDeselect();
             
             // Verify count is zero
-            assertEquals(0, inventory.getRightFenceCount(),
+            assertEquals(0, inventory.getBowAndArrowCount(),
                 "Trial " + trial + ": Count should be zero after removing all items");
             
             // Verify slot was auto-deselected

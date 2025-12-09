@@ -3,11 +3,11 @@ package wagemaker.uk.items;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 
-public class LeftFence {
+public class BowAndArrow {
     private float x, y;
     private Texture texture;
 
-    public LeftFence(float x, float y) {
+    public BowAndArrow(float x, float y) {
         this.x = x;
         this.y = y;
         createTexture();
@@ -19,8 +19,8 @@ public class LeftFence {
         spriteSheet.getTextureData().prepare();
         Pixmap sheetPixmap = spriteSheet.getTextureData().consumePixmap();
         
-        // LeftFence coordinates: 256 from left, 192 from top, 128x32 size
-        pixmap.drawPixmap(sheetPixmap, 0, 0, 256,256, 32,64);
+        // BowAndArrow coordinates: 298 from left, 192 from top, 22x128 size
+        pixmap.drawPixmap(sheetPixmap, 0, 0, 298,192, 22,128);
         
         texture = new Texture(pixmap);
         pixmap.dispose();

@@ -13,7 +13,7 @@ import static org.mockito.Mockito.*;
 
 /**
  * Property-based test for RightFence slot selection.
- * Feature: right-fence-inventory, Property 6: Slot 13 selection returns RIGHT_FENCE
+ * Feature: right-fence-inventory, Property 6: Slot 13 selection returns BOW_AND_ARROW
  * Validates: Requirements 3.2
  */
 public class RightFenceSlotSelectionPropertyTest {
@@ -25,13 +25,13 @@ public class RightFenceSlotSelectionPropertyTest {
     }
     
     /**
-     * Property 6: Slot 13 selection returns RIGHT_FENCE
+     * Property 6: Slot 13 selection returns BOW_AND_ARROW
      * For any inventory state where slot 13 is selected, calling getSelectedItemType()
-     * should return ItemType.RIGHT_FENCE.
+     * should return ItemType.BOW_AND_ARROW.
      * Validates: Requirements 3.2
      * 
      * This property-based test runs 100 trials with randomly generated inventory states,
-     * verifying that slot 13 always returns RIGHT_FENCE.
+     * verifying that slot 13 always returns BOW_AND_ARROW.
      */
     @Test
     public void slot13SelectionReturnsRightFence() {
@@ -45,10 +45,10 @@ public class RightFenceSlotSelectionPropertyTest {
             
             // Generate random inventory state
             Inventory inventory = inventoryManager.getCurrentInventory();
-            inventory.setRightFenceCount(random.nextInt(100));
+            inventory.setBowAndArrowCount(random.nextInt(100));
             inventory.setAppleCount(random.nextInt(50));
             inventory.setBananaCount(random.nextInt(50));
-            inventory.setLeftFenceCount(random.nextInt(20));
+            inventory.setFishCount(random.nextInt(20));
             inventory.setFrontFenceCount(random.nextInt(20));
             inventory.setBackFenceCount(random.nextInt(20));
             
@@ -59,10 +59,10 @@ public class RightFenceSlotSelectionPropertyTest {
             assertEquals(13, inventoryManager.getSelectedSlot(),
                 "Trial " + trial + ": Selected slot should be 13");
             
-            // Verify getSelectedItemType returns RIGHT_FENCE
+            // Verify getSelectedItemType returns BOW_AND_ARROW
             ItemType selectedType = inventoryManager.getSelectedItemType();
-            assertEquals(ItemType.RIGHT_FENCE, selectedType,
-                "Trial " + trial + ": Slot 13 should return ItemType.RIGHT_FENCE");
+            assertEquals(ItemType.BOW_AND_ARROW, selectedType,
+                "Trial " + trial + ": Slot 13 should return ItemType.BOW_AND_ARROW");
         }
     }
     
@@ -95,9 +95,9 @@ public class RightFenceSlotSelectionPropertyTest {
             assertEquals(13, inventoryManager.getSelectedSlot(),
                 "Trial " + trial + ": Slot 13 should be a valid selection");
             
-            // Verify it returns RIGHT_FENCE
-            assertEquals(ItemType.RIGHT_FENCE, inventoryManager.getSelectedItemType(),
-                "Trial " + trial + ": Slot 13 should return RIGHT_FENCE");
+            // Verify it returns BOW_AND_ARROW
+            assertEquals(ItemType.BOW_AND_ARROW, inventoryManager.getSelectedItemType(),
+                "Trial " + trial + ": Slot 13 should return BOW_AND_ARROW");
         }
     }
     
@@ -124,10 +124,10 @@ public class RightFenceSlotSelectionPropertyTest {
             ItemType.PALM_FIBER,      // Slot 7
             ItemType.APPLE_SAPLING,   // Slot 8
             ItemType.BANANA_SAPLING,  // Slot 9
-            ItemType.LEFT_FENCE,      // Slot 10
+            ItemType.FISH,            // Slot 10
             ItemType.FRONT_FENCE,     // Slot 11
             ItemType.BACK_FENCE,      // Slot 12
-            ItemType.RIGHT_FENCE      // Slot 13
+            ItemType.BOW_AND_ARROW    // Slot 13
         };
         
         // Run 100 trials (cycling through slots)
@@ -213,7 +213,7 @@ public class RightFenceSlotSelectionPropertyTest {
             
             // Set initial RightFence count (non-zero to avoid auto-deselect)
             Inventory inventory = inventoryManager.getCurrentInventory();
-            inventory.setRightFenceCount(random.nextInt(50) + 10); // 10 to 59
+            inventory.setBowAndArrowCount(random.nextInt(50) + 10); // 10 to 59
             
             // Select slot 13
             inventoryManager.setSelectedSlot(13);
@@ -229,11 +229,11 @@ public class RightFenceSlotSelectionPropertyTest {
                         break;
                     case 1:
                         // Add RightFence items
-                        inventory.addRightFence(random.nextInt(10) + 1);
+                        inventory.addBowAndArrow(random.nextInt(10) + 1);
                         break;
                     case 2:
                         // Query inventory state
-                        int count = inventory.getRightFenceCount();
+                        int count = inventory.getBowAndArrowCount();
                         assertTrue(count > 0, "RightFence count should remain positive");
                         break;
                 }
@@ -243,9 +243,9 @@ public class RightFenceSlotSelectionPropertyTest {
             assertEquals(13, inventoryManager.getSelectedSlot(),
                 "Trial " + trial + ": Slot 13 should remain selected after operations");
             
-            // Verify it still returns RIGHT_FENCE
-            assertEquals(ItemType.RIGHT_FENCE, inventoryManager.getSelectedItemType(),
-                "Trial " + trial + ": Slot 13 should still return RIGHT_FENCE");
+            // Verify it still returns BOW_AND_ARROW
+            assertEquals(ItemType.BOW_AND_ARROW, inventoryManager.getSelectedItemType(),
+                "Trial " + trial + ": Slot 13 should still return BOW_AND_ARROW");
         }
     }
 }

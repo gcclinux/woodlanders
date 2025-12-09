@@ -52,10 +52,10 @@ public class FreeWorldManager {
         inventory.setWoodStackCount(250);
         inventory.setPebbleCount(250);
         inventory.setPalmFiberCount(250);
-        inventory.setLeftFenceCount(250);
+        inventory.setFishCount(250);
         inventory.setFrontFenceCount(250);
         inventory.setBackFenceCount(250);
-        inventory.setRightFenceCount(250);
+        inventory.setBowAndArrowCount(250);
         
         System.out.println("Granted 250 of each item type");
     }

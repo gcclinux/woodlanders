@@ -59,13 +59,13 @@ public class RightFenceMultiplayerCollectionSyncPropertyTest {
             // Generate random initial inventory state
             Inventory inventory = inventoryManager.getCurrentInventory();
             int initialRightFenceCount = random.nextInt(100); // 0 to 99
-            inventory.setRightFenceCount(initialRightFenceCount);
+            inventory.setBowAndArrowCount(initialRightFenceCount);
             
             // Also set random counts for other items to ensure message includes all fields
             inventory.setAppleCount(random.nextInt(50));
             inventory.setBananaCount(random.nextInt(50));
             inventory.setBambooSaplingCount(random.nextInt(30));
-            inventory.setLeftFenceCount(random.nextInt(20));
+            inventory.setFishCount(random.nextInt(20));
             inventory.setFrontFenceCount(random.nextInt(20));
             inventory.setBackFenceCount(random.nextInt(20));
             
@@ -75,7 +75,7 @@ public class RightFenceMultiplayerCollectionSyncPropertyTest {
             when(mockGameClient.getClientId()).thenReturn(String.valueOf(trial));
             
             // Collect a RightFence item
-            inventoryManager.collectItem(ItemType.RIGHT_FENCE);
+            inventoryManager.collectItem(ItemType.BOW_AND_ARROW);
             
             // Verify that sendMessage was called
             ArgumentCaptor<NetworkMessage> messageCaptor = ArgumentCaptor.forClass(NetworkMessage.class);
@@ -90,12 +90,12 @@ public class RightFenceMultiplayerCollectionSyncPropertyTest {
             
             // Verify the message contains the updated RightFence count
             InventoryUpdateMessage updateMessage = (InventoryUpdateMessage) sentMessage;
-            assertEquals(initialRightFenceCount + 1, updateMessage.getRightFenceCount(),
+            assertEquals(initialRightFenceCount + 1, updateMessage.getBowAndArrowCount(),
                 "Trial " + trial + ": The message should contain the updated RightFence count " +
                 "(initial=" + initialRightFenceCount + ", expected=" + (initialRightFenceCount + 1) + ")");
             
             // Verify the inventory was actually updated
-            assertEquals(initialRightFenceCount + 1, inventory.getRightFenceCount(),
+            assertEquals(initialRightFenceCount + 1, inventory.getBowAndArrowCount(),
                 "Trial " + trial + ": The inventory should be updated with the new RightFence count");
         }
     }
@@ -129,16 +129,16 @@ public class RightFenceMultiplayerCollectionSyncPropertyTest {
             // Generate random initial inventory state
             Inventory inventory = inventoryManager.getCurrentInventory();
             int initialRightFenceCount = random.nextInt(100);
-            inventory.setRightFenceCount(initialRightFenceCount);
+            inventory.setBowAndArrowCount(initialRightFenceCount);
             
             // Collect a RightFence item
-            inventoryManager.collectItem(ItemType.RIGHT_FENCE);
+            inventoryManager.collectItem(ItemType.BOW_AND_ARROW);
             
             // Verify that sendMessage was NOT called
             verify(mockGameClient, never()).sendMessage(any(NetworkMessage.class));
             
             // Verify the inventory was still updated
-            assertEquals(initialRightFenceCount + 1, inventory.getRightFenceCount(),
+            assertEquals(initialRightFenceCount + 1, inventory.getBowAndArrowCount(),
                 "Trial " + trial + ": The inventory should be updated even in single-player mode");
         }
     }
@@ -172,16 +172,16 @@ public class RightFenceMultiplayerCollectionSyncPropertyTest {
             // Generate random initial inventory state
             Inventory inventory = inventoryManager.getCurrentInventory();
             int initialRightFenceCount = random.nextInt(100);
-            inventory.setRightFenceCount(initialRightFenceCount);
+            inventory.setBowAndArrowCount(initialRightFenceCount);
             
             // Collect a RightFence item
-            inventoryManager.collectItem(ItemType.RIGHT_FENCE);
+            inventoryManager.collectItem(ItemType.BOW_AND_ARROW);
             
             // Verify that sendMessage was NOT called
             verify(mockGameClient, never()).sendMessage(any(NetworkMessage.class));
             
             // Verify the inventory was still updated
-            assertEquals(initialRightFenceCount + 1, inventory.getRightFenceCount(),
+            assertEquals(initialRightFenceCount + 1, inventory.getBowAndArrowCount(),
                 "Trial " + trial + ": The inventory should be updated even when disconnected");
         }
     }
