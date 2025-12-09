@@ -1377,15 +1377,15 @@ public class Player {
             if (currentSelection == -1) {
                 newSelection = 0; // Start at first slot
             } else {
-                newSelection = (currentSelection + 1) % 10; // Wrap to 0 after slot 9
+                newSelection = (currentSelection + 1) % 14; // Wrap to 0 after slot 13
             }
         }
         // LEFT arrow: move to previous slot (wrap around)
         else if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
             if (currentSelection == -1) {
-                newSelection = 9; // Start at last slot
+                newSelection = 13; // Start at last slot
             } else {
-                newSelection = (currentSelection - 1 + 10) % 10; // Wrap to 9 from slot 0
+                newSelection = (currentSelection - 1 + 14) % 14; // Wrap to 13 from slot 0
             }
         }
         // UP/DOWN: Reserved for future multi-row layout
