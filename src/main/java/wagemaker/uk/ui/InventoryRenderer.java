@@ -103,15 +103,15 @@ public class InventoryRenderer {
         
         // Load fish icon (256, 256, 32, 64) - scale to 32x32
         fishIcon = extractIconFromSpriteSheet(256, 192, 64, 64);
-        
+                
+        // Load bow and arrow icon (298, 192, 22x128) - scale to 32x32
+        bowAndArrowIcon = extractIconFromSpriteSheet(256, 256, 64, 64);
+
         // Load front fence icon (0, 320, 64x64) - scale to 32x32
         frontFenceIcon = extractIconFromFenceSpriteSheet(64, 128, 64, 64);
         
         // Load back fence icon (64, 320, 64x64) - scale to 32x32
         backFenceIcon = extractIconFromFenceSpriteSheet(64, 0, 64, 64);
-        
-        // Load bow and arrow icon (298, 192, 22x128) - scale to 32x32
-        bowAndArrowIcon = extractIconFromSpriteSheet(256, 256, 64, 64);
     }
     
     /**
@@ -240,8 +240,8 @@ public class InventoryRenderer {
         renderSlot(batch, appleSaplingIcon, inventory.getAppleSaplingCount(), slotX + 8 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 8);
         renderSlot(batch, bananaSaplingIcon, inventory.getBananaSaplingCount(), slotX + 9 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 9);
         renderSlot(batch, fishIcon, inventory.getFishCount(), slotX + 10 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 10);
-        renderSlot(batch, frontFenceIcon, inventory.getFrontFenceCount(), slotX + 11 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 11);
-        renderSlot(batch, backFenceIcon, inventory.getBackFenceCount(), slotX + 12 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 12);
+        //renderSlot(batch, frontFenceIcon, inventory.getFrontFenceCount(), slotX + 11 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 11);
+        //renderSlot(batch, backFenceIcon, inventory.getBackFenceCount(), slotX + 12 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 12);
         renderSlot(batch, bowAndArrowIcon, inventory.getBowAndArrowCount(), slotX + 13 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 13);
         
         batch.end();
