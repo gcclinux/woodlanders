@@ -7,14 +7,17 @@ This feature enables players to construct custom-shaped fences using collected f
 ## Glossary
 
 - **Fence Building System**: The game system that manages placement, construction, and rendering of custom fence structures
-- **Fence Segment**: An individual piece of fence (horizontal, vertical, or corner piece) that can be placed on the game grid
+- **Fence Segment**: An individual piece of fence that can be placed on the game grid
 - **Fence Material**: Collectible items (wood, bamboo, etc.) required to construct fence segments
-- **Building Mode**: A special game mode where players can place and remove fence segments
+- **Building Mode**: A special game mode where players can place and remove fence segments using cursor-based interaction
 - **Fence Grid**: The underlying grid system that determines valid fence placement positions
 - **Fence Structure**: A connected group of fence segments forming an enclosure or barrier
-- **Horizontal Fence**: Fence segments that run left-to-right (top and bottom edges of enclosures)
-- **Vertical Fence**: Fence segments that run up-down (left and right edges of enclosures)
-- **Corner Fence**: Special fence pieces that connect horizontal and vertical segments at corners
+- **Fence Piece Types**: The eight distinct fence pieces that form complete rectangular enclosures
+- **Corner Pieces**: FenceBackLeft, FenceBackRight, FenceFrontLeft, FenceFrontRight - used at enclosure corners
+- **Edge Pieces**: FenceBack, FenceFront, FenceMiddleLeft, FenceMiddleRight - used for straight sections
+- **Rectangular Enclosure**: A complete fence structure using all 8 fence piece types in sequence
+- **Collision Boundary**: The invisible barrier created by fence structures that prevents player and object movement
+- **Inventory Integration**: The connection between fence materials and the existing game inventory system
 
 ## Requirements
 
@@ -60,11 +63,11 @@ This feature enables players to construct custom-shaped fences using collected f
 
 #### Acceptance Criteria
 
-1. WHEN two fence segments are adjacent horizontally THEN the Fence Building System SHALL render them with connecting horizontal fence pieces
-2. WHEN two fence segments are adjacent vertically THEN the Fence Building System SHALL render them with connecting vertical fence pieces
-3. WHEN fence segments meet at a corner THEN the Fence Building System SHALL render appropriate corner pieces
-4. WHEN a fence segment has no adjacent segments THEN the Fence Building System SHALL render it as a standalone post
-5. WHEN fence segments form a closed loop THEN the Fence Building System SHALL ensure all connections are visually seamless
+1. WHEN creating rectangular enclosures THEN the Fence Building System SHALL automatically select the correct fence piece type for each position in the sequence
+2. WHEN extending existing fence structures THEN the Fence Building System SHALL maintain proper piece sequencing and visual continuity
+3. WHEN fence structures form complete rectangles THEN the Fence Building System SHALL ensure corner pieces connect properly with adjacent edge pieces
+4. WHEN fence structures are incomplete THEN the Fence Building System SHALL use appropriate end pieces or temporary connectors
+5. WHEN multiple fence structures are adjacent THEN the Fence Building System SHALL handle connections between separate enclosures
 
 ### Requirement 5
 
@@ -72,11 +75,11 @@ This feature enables players to construct custom-shaped fences using collected f
 
 #### Acceptance Criteria
 
-1. WHEN rendering horizontal fence segments THEN the Fence Building System SHALL use front fence (0, 320, 64x64) and back fence (64, 320, 64x64) textures from the sprite sheet
-2. WHEN rendering vertical fence segments THEN the Fence Building System SHALL use left fence (128, 320, 64x64) and right fence (192, 320, 64x64) textures from the sprite sheet
-3. WHEN rendering corner pieces THEN the Fence Building System SHALL use corner textures: top-left (256, 320, 64x64), top-right (320, 320, 64x64), bottom-left (384, 320, 64x64), bottom-right (448, 320, 64x64)
-4. WHEN fence textures are missing THEN the Fence Building System SHALL use placeholder textures and log warnings
-5. WHEN loading fence assets THEN the Fence Building System SHALL validate that all required fence piece textures are available in the sprite sheet at the specified coordinates
+1. WHEN rendering fence structures THEN the Fence Building System SHALL use eight distinct fence piece types: FenceBackLeft, FenceBack, FenceBackRight, FenceMiddleRight, FenceFrontRight, FenceFront, FenceFrontLeft, and FenceMiddleLeft
+2. WHEN creating rectangular enclosures THEN the Fence Building System SHALL arrange pieces in clockwise order starting from top-left corner
+3. WHEN placing corner pieces THEN the Fence Building System SHALL use FenceBackLeft, FenceBackRight, FenceFrontRight, and FenceFrontLeft at appropriate corner positions
+4. WHEN placing edge pieces THEN the Fence Building System SHALL use FenceBack, FenceMiddleRight, FenceFront, and FenceMiddleLeft for straight sections between corners
+5. WHEN fence textures are missing THEN the Fence Building System SHALL use placeholder textures and log warnings
 
 ### Requirement 6
 
@@ -125,3 +128,63 @@ This feature enables players to construct custom-shaped fences using collected f
 3. WHEN a player has insufficient materials THEN the Fence Building System SHALL dim the preview and show the required material count
 4. WHEN placing a fence segment THEN the Fence Building System SHALL play appropriate sound effects and visual feedback
 5. WHEN removing a fence segment THEN the Fence Building System SHALL show a preview of the resulting structure before confirmation
+
+### Requirement 10
+
+**User Story:** As a player, I want fence structures to have collision detection, so that they act as barriers in the game world.
+
+#### Acceptance Criteria
+
+1. WHEN a player moves toward a fence structure THEN the Fence Building System SHALL prevent the player from passing through the fence
+2. WHEN other game objects interact with fences THEN the Fence Building System SHALL provide appropriate collision boundaries
+3. WHEN fence segments are placed THEN the Fence Building System SHALL update the collision map immediately
+4. WHEN fence segments are removed THEN the Fence Building System SHALL remove collision boundaries from the affected area
+5. WHEN fence structures form enclosures THEN the Fence Building System SHALL create continuous collision boundaries around the perimeter
+
+### Requirement 11
+
+**User Story:** As a player, I want to collect fence materials from the game world, so that I can build fence structures.
+
+#### Acceptance Criteria
+
+1. WHEN a player harvests wood from trees THEN the Fence Building System SHALL add wood fence materials to the player's inventory
+2. WHEN a player harvests bamboo THEN the Fence Building System SHALL add bamboo fence materials to the player's inventory
+3. WHEN fence materials are collected THEN the Fence Building System SHALL display the material count in the inventory UI
+4. WHEN a player consumes fence materials for building THEN the Fence Building System SHALL deduct the materials from the inventory
+5. WHEN fence materials are returned from removal THEN the Fence Building System SHALL add the materials back to the inventory
+
+### Requirement 12
+
+**User Story:** As a player, I want fence building to integrate with the existing inventory system, so that fence materials work like other game items.
+
+#### Acceptance Criteria
+
+1. WHEN fence materials are added to inventory THEN the Fence Building System SHALL use the existing inventory management system
+2. WHEN displaying fence materials THEN the Fence Building System SHALL show them in the standard inventory UI with appropriate icons
+3. WHEN fence materials reach inventory limits THEN the Fence Building System SHALL prevent further collection and display appropriate messages
+4. WHEN fence materials are used or returned THEN the Fence Building System SHALL trigger inventory update events for UI synchronization
+5. WHEN fence materials are dropped THEN the Fence Building System SHALL create droppable items that other players can collect
+
+### Requirement 13
+
+**User Story:** As a player, I want to activate fence building mode through a simple control mechanism, so that I can easily switch between normal gameplay and building.
+
+#### Acceptance Criteria
+
+1. WHEN a player presses the designated fence building key THEN the Fence Building System SHALL toggle building mode on or off
+2. WHEN entering building mode THEN the Fence Building System SHALL display building instructions and available materials
+3. WHEN in building mode THEN the Fence Building System SHALL disable normal player movement and enable cursor-based interaction
+4. WHEN exiting building mode THEN the Fence Building System SHALL restore normal player controls and hide building UI elements
+5. WHEN a player has no fence materials THEN the Fence Building System SHALL prevent entering building mode and display an informative message
+
+### Requirement 14
+
+**User Story:** As a player, I want to build rectangular fence enclosures of any size, so that I can create custom-sized areas for different purposes.
+
+#### Acceptance Criteria
+
+1. WHEN a player defines a rectangular area THEN the Fence Building System SHALL calculate the required fence pieces for a complete enclosure
+2. WHEN building a 192x192 enclosure THEN the Fence Building System SHALL use the 8-piece sequence: FenceBackLeft → FenceBack → FenceBackRight → FenceMiddleRight → FenceFrontRight → FenceFront → FenceFrontLeft → FenceMiddleLeft
+3. WHEN building larger enclosures THEN the Fence Building System SHALL repeat edge pieces (FenceBack, FenceMiddleRight, FenceFront, FenceMiddleLeft) as needed between corners
+4. WHEN building smaller enclosures THEN the Fence Building System SHALL use only corner pieces for minimum-size rectangles
+5. WHEN calculating material requirements THEN the Fence Building System SHALL display the total number of fence pieces needed before construction begins
