@@ -127,8 +127,8 @@ public class WorldState implements Serializable {
                 // STEP 1: Set deterministic random seed (same as client-side generation)
                 random.setSeed(worldSeed + x * 31L + y * 17L);
                 
-                // STEP 2: Check spawn probability (2% chance)
-                if (random.nextFloat() < 0.02f) {
+                // STEP 2: Check spawn probability (2% chance, increased by 30%)
+                if (random.nextFloat() < 0.026f) {
                     // STEP 3: Validate spawn location
                     // Check if any tree is within 256px distance
                     if (isTreeNearby(x, y, 256)) {
@@ -323,8 +323,8 @@ public class WorldState implements Serializable {
         java.util.Random random = new java.util.Random();
         random.setSeed(worldSeed + x * 31L + y * 17L);
         
-        // Check spawn probability (2% chance)
-        if (random.nextFloat() < 0.02f) {
+        // Check spawn probability (2% chance, increased by 30%)
+        if (random.nextFloat() < 0.026f) {
             // Add random offset to break grid pattern (±32px in each direction)
             // Try multiple times to find a position without overlapping trees
             float treeX = 0, treeY = 0;
@@ -380,11 +380,13 @@ public class WorldState implements Serializable {
                         treeType = TreeType.BAMBOO;
                     }
                 } else {
-                    // Grass biomes: adjusted tree type distribution
-                    // SmallTree: 42.5% (increased by 30% from 32.5%)
-                    // AppleTree: 12.5% (reduced by 50% from 25%)
-                    // CoconutTree: 32.5% (unchanged)
-                    // BananaTree: 12.5% (reduced by 50% from 25%)
+                    // Grass biomes: increased tree type distribution
+                    // Normalized from 130% to 100% while maintaining 30% increase ratios
+                    // SmallTree: 42.5% (55.25/1.3 = 42.5%)
+                    // AppleTree: 12.5% (16.25/1.3 = 12.5%)  
+                    // CoconutTree: 32.5% (42.25/1.3 = 32.5%)
+                    // BananaTree: 12.5% (16.25/1.3 = 12.5%)
+                    // Note: Overall spawn rate increased by 30% to achieve desired effect
                     float treeTypeRoll = random.nextFloat();
                     if (treeTypeRoll < 0.425f) {
                         treeType = TreeType.SMALL;

@@ -961,9 +961,9 @@ public class MyGdxGame extends ApplicationAdapter {
             // reproducible seeds for each coordinate pair across all clients
             random.setSeed(worldSeed + x * 31L + y * 17L);
             
-            // STEP 2: Check spawn probability (2% chance)
+            // STEP 2: Check spawn probability (2% chance, increased by 30%)
             // Uses the seeded random to ensure same coordinates always get same spawn decision
-            if (random.nextFloat() < 0.005f) {
+            if (random.nextFloat() < 0.0065f) {
                 // STEP 3: Add random offset to break grid pattern (±32px in each direction)
                 // Try multiple times to find a position without overlapping trees
                 float treeX = 0, treeY = 0;
@@ -1016,11 +1016,12 @@ public class MyGdxGame extends ApplicationAdapter {
                         bambooTrees.put(key, new BambooTree(treeX, treeY));
                     }
                 } else {
-                    // Grass biomes: adjusted tree type distribution
-                    // SmallTree: 42.5% (increased by 30% from 32.5%)
-                    // AppleTree: 12.5% (reduced by 50% from 25%)
-                    // CoconutTree: 32.5% (unchanged)
-                    // BananaTree: 12.5% (reduced by 50% from 25%)
+                    // Grass biomes: tree type distribution (maintained ratios)
+                    // SmallTree: 42.5%
+                    // AppleTree: 12.5%
+                    // CoconutTree: 32.5%
+                    // BananaTree: 12.5%
+                    // Note: Overall spawn rate increased by 30% to achieve 130% total trees
                     float treeType = random.nextFloat();
                     if (treeType < 0.425f) {
                         trees.put(key, new SmallTree(treeX, treeY));
