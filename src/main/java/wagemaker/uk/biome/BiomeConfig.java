@@ -203,6 +203,91 @@ public class BiomeConfig {
      */
     public static final float WATER_NOISE_THRESHOLD = 0.53f;
     
+    // ========== BEACH-STYLE BIOME CONFIGURATION ==========
+    
+    /**
+     * Threshold for base biome determination (grass vs sand).
+     * Adjusted to achieve 50% grass, 50% sand base distribution.
+     * 
+     * Gameplay impact: High
+     * Target: 50/50 split between grass and sand base areas
+     * Default: 0.5 (noise values > 0.5 = sand, <= 0.5 = grass)
+     * 
+     * Requirements: 1.1, 2.1 - Water only spawns in sand areas, 50% grass/sand distribution
+     */
+    public static final float SAND_BASE_THRESHOLD = 0.5f;
+    
+    /**
+     * Threshold for water placement within sand areas.
+     * Controls what percentage of sand areas contain water.
+     * 
+     * Gameplay impact: High
+     * Target: 40% of sand areas contain water
+     * Default: 0.55f (noise values > 0.55 = water within sand)
+     * Adjusted from 0.57f to account for corrected buffer distance validation
+     * 
+     * Requirements: 1.1, 1.4 - Water only in sand, 40% coverage in sand areas
+     */
+    public static final float WATER_IN_SAND_THRESHOLD = 0.55f;
+    
+    /**
+     * Minimum distance in pixels between water and grass biomes.
+     * Creates realistic beach buffer zones.
+     * 
+     * Gameplay impact: High
+     * Visual impact: High
+     * Default: 64.0f (1 block buffer for better water contiguity)
+     * 
+     * Requirements: 1.3, 3.1 - Water maintains buffer distance from grass
+     */
+    public static final float BEACH_BUFFER_DISTANCE = 64.0f;
+    
+    /**
+     * Scale factor for base biome noise generation.
+     * Controls the size of grass vs sand regions.
+     * 
+     * Performance impact: Low
+     * Visual impact: Medium
+     * Default: 0.0003f (creates large biome regions)
+     * 
+     * Requirements: 2.1 - Base biome distribution
+     */
+    public static final float BASE_BIOME_NOISE_SCALE = 0.0003f;
+    
+    /**
+     * Scale factor for water-in-sand noise generation.
+     * Controls the size of water areas within sand biomes.
+     * 
+     * Performance impact: Low
+     * Visual impact: Medium
+     * Default: 0.0008f (creates medium-sized water areas)
+     * 
+     * Requirements: 1.4, 1.5 - Water coverage and contiguity in sand
+     */
+    public static final float WATER_NOISE_SCALE = 0.0008f;
+    
+    /**
+     * Random seed for base biome (grass/sand) generation.
+     * Using a fixed seed ensures consistent base biome layout.
+     * 
+     * Visual impact: High
+     * Default: 11111 (different from existing seeds to avoid conflicts)
+     * 
+     * Requirements: 2.1 - Deterministic base biome calculation
+     */
+    public static final int BASE_BIOME_SEED = 11111;
+    
+    /**
+     * Random seed for water-in-sand generation.
+     * Using a fixed seed ensures consistent water placement within sand.
+     * 
+     * Visual impact: High
+     * Default: 22222 (different from base biome seed)
+     * 
+     * Requirements: 1.1, 1.4 - Deterministic water placement in sand areas
+     */
+    public static final int WATER_IN_SAND_SEED = 22222;
+    
     // ========== PERFORMANCE SETTINGS ==========
     
     /**
@@ -215,6 +300,59 @@ public class BiomeConfig {
      * Default: true
      */
     public static final boolean ENABLE_TEXTURE_VARIATION = true;
+    
+    /**
+     * Maximum size for spatial performance caches.
+     * When caches exceed this size, they will be cleared to prevent memory issues.
+     * 
+     * Performance impact: High
+     * Memory impact: Medium
+     * Default: 10000 entries
+     */
+    public static final int MAX_PERFORMANCE_CACHE_SIZE = 10000;
+    
+    /**
+     * Grid size for spatial caching in pixels.
+     * Buffer validation and base biome results are cached per grid cell.
+     * Smaller values provide better accuracy but use more memory.
+     * 
+     * Performance impact: Medium
+     * Memory impact: Medium
+     * Default: 128.0f pixels (2 blocks)
+     */
+    public static final float PERFORMANCE_CACHE_GRID_SIZE = 128.0f;
+    
+    /**
+     * Enable spatial caching for buffer zone validation.
+     * When enabled, buffer validation results are cached to improve performance.
+     * When disabled, buffer validation is calculated fresh each time.
+     * 
+     * Performance impact: High
+     * Memory impact: Low
+     * Default: true
+     */
+    public static final boolean ENABLE_BUFFER_VALIDATION_CACHE = true;
+    
+    /**
+     * Enable early-exit optimizations in buffer zone validation.
+     * When enabled, validation stops as soon as grass is found.
+     * When disabled, full validation is always performed.
+     * 
+     * Performance impact: Medium
+     * Accuracy impact: None
+     * Default: true
+     */
+    public static final boolean ENABLE_EARLY_EXIT_OPTIMIZATION = true;
+    
+    /**
+     * Reduced sampling distance for locations far from spawn.
+     * Buffer validation uses fewer sample points for areas unlikely to have grass.
+     * 
+     * Performance impact: Medium
+     * Accuracy impact: Low
+     * Default: 20000.0f pixels (areas beyond this distance use reduced sampling)
+     */
+    public static final float REDUCED_SAMPLING_DISTANCE = 20000.0f;
     
     // ========== FUTURE EXTENSIBILITY ==========
     

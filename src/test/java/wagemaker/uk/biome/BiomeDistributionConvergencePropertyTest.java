@@ -43,13 +43,14 @@ public class BiomeDistributionConvergencePropertyTest {
             int sandCount = 0;
             int waterCount = 0;
             
-            // Sample coordinates from a representative area of the world
-            // Use a large rectangular area to get overall distribution
-            // Sample from -10000 to +10000 in both X and Y (20000x20000 area)
+            // Sample coordinates from a representative area of the world outside spawn zones
+            // Use a large rectangular area beyond the inner grass and sand zones
+            // Sample from -25000 to +25000 in both X and Y (50000x50000 area)
+            // This ensures most samples are in the noise-based biome generation area
             for (int i = 0; i < sampleSize; i++) {
                 // Generate random coordinates in a square area
-                float worldX = -10000 + random.nextFloat() * 20000;
-                float worldY = -10000 + random.nextFloat() * 20000;
+                float worldX = -25000 + random.nextFloat() * 50000;
+                float worldY = -25000 + random.nextFloat() * 50000;
                 
                 BiomeType biomeType = biomeManager.getBiomeAtPosition(worldX, worldY);
                 
@@ -71,20 +72,22 @@ public class BiomeDistributionConvergencePropertyTest {
             double sandPercent = (sandCount * 100.0) / sampleSize;
             double waterPercent = (waterCount * 100.0) / sampleSize;
             
-            // Expected distribution: 50% grass, 35% sand, 15% water (±5% tolerance)
-            // These targets apply to areas outside the spawn exclusion zones
+            // Expected distribution for beach-style biome system: 50% grass, 30% sand, 20% water (±5% tolerance)
+            // These targets apply to the new two-phase biome calculation system
             double tolerance = 5.0;
             
             assertTrue(grassPercent >= 45.0 && grassPercent <= 55.0,
                 String.format("Grass distribution should be 50%% ±5%%, but was %.2f%% (%d/%d samples)", 
                     grassPercent, grassCount, sampleSize));
             
-            assertTrue(sandPercent >= 30.0 && sandPercent <= 40.0,
-                String.format("Sand distribution should be 35%% ±5%%, but was %.2f%% (%d/%d samples)", 
+
+            
+            assertTrue(sandPercent >= 25.0 && sandPercent <= 35.0,
+                String.format("Sand distribution should be 30%% ±5%%, but was %.2f%% (%d/%d samples)", 
                     sandPercent, sandCount, sampleSize));
             
-            assertTrue(waterPercent >= 10.0 && waterPercent <= 20.0,
-                String.format("Water distribution should be 15%% ±5%%, but was %.2f%% (%d/%d samples)", 
+            assertTrue(waterPercent >= 15.0 && waterPercent <= 25.0,
+                String.format("Water distribution should be 20%% ±5%%, but was %.2f%% (%d/%d samples)", 
                     waterPercent, waterCount, sampleSize));
             
         } finally {

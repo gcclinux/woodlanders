@@ -47,12 +47,12 @@ public class StoneSpawnWaterValidationTest {
         BiomeManager biomeManager = new BiomeManager();
         biomeManager.initialize();
         
-        // Find a sand biome location
+        // Find a sand biome location in the sand zone (10000-13000 pixels from spawn)
         float sandX = 0, sandY = 0;
         boolean foundSand = false;
         
-        for (int x = 2000; x < 5000; x += 100) {
-            for (int y = 2000; y < 5000; y += 100) {
+        for (int x = 10500; x < 12500; x += 100) {
+            for (int y = 10500; y < 12500; y += 100) {
                 BiomeType biome = biomeManager.getBiomeAtPosition(x, y);
                 if (biome == BiomeType.SAND) {
                     sandX = x;
@@ -102,16 +102,25 @@ public class StoneSpawnWaterValidationTest {
         boolean foundGrass = false;
         boolean foundSand = false;
         
-        // Sample various locations
+        // Sample various locations - grass near spawn, sand in sand zone
+        // Check grass zone (0-10000 pixels from spawn)
         for (int x = 0; x < 5000; x += 200) {
             for (int y = 0; y < 5000; y += 200) {
                 BiomeType biome = biomeManager.getBiomeAtPosition(x, y);
                 if (biome == BiomeType.GRASS) foundGrass = true;
-                if (biome == BiomeType.SAND) foundSand = true;
-                
-                if (foundGrass && foundSand) break;
+                if (foundGrass) break;
             }
-            if (foundGrass && foundSand) break;
+            if (foundGrass) break;
+        }
+        
+        // Check sand zone (10000-13000 pixels from spawn)
+        for (int x = 10500; x < 12500; x += 200) {
+            for (int y = 10500; y < 12500; y += 200) {
+                BiomeType biome = biomeManager.getBiomeAtPosition(x, y);
+                if (biome == BiomeType.SAND) foundSand = true;
+                if (foundSand) break;
+            }
+            if (foundSand) break;
         }
         
         assertTrue(foundGrass, "Should find grass biome");

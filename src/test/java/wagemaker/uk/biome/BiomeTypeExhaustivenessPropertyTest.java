@@ -10,14 +10,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Property-based test for biome type exhaustiveness.
  * 
- * Feature: water-lake-biome, Property 1: Biome type exhaustiveness
+ * Feature: beach-style-water-biome, Property 2: Biome type exhaustiveness
  * Validates: Requirements 1.2
  */
 @RunWith(JUnitQuickcheck.class)
 public class BiomeTypeExhaustivenessPropertyTest {
     
     /**
-     * Property 1: Biome type exhaustiveness
+     * Property 2: Biome type exhaustiveness
      * For any world coordinate, getBiomeAtPosition should return exactly one of 
      * the three valid BiomeType enum values (GRASS, SAND, or WATER).
      * 

@@ -327,6 +327,84 @@ public class BiomeManagerTest {
             "Disposal should clear initialization flag");
     }
     
+    // ===== Base Biome Calculation Tests =====
+    
+    @Test
+    public void testBaseBiomeAtSpawn() {
+        // At spawn point (0,0), should be GRASS
+        BiomeType baseBiome = biomeManager.getBaseBiomeAtPosition(0.0f, 0.0f);
+        assertEquals(BiomeType.GRASS, baseBiome, "Spawn point should be GRASS base biome");
+    }
+    
+    @Test
+    public void testBaseBiomeInInnerGrassZone() {
+        // Within inner grass radius (< 10000px), should be GRASS
+        BiomeType baseBiome1 = biomeManager.getBaseBiomeAtPosition(5000.0f, 0.0f);
+        BiomeType baseBiome2 = biomeManager.getBaseBiomeAtPosition(0.0f, 5000.0f);
+        BiomeType baseBiome3 = biomeManager.getBaseBiomeAtPosition(3000.0f, 4000.0f); // 5000px diagonal
+        
+        assertEquals(BiomeType.GRASS, baseBiome1, "Inner grass zone should be GRASS base biome");
+        assertEquals(BiomeType.GRASS, baseBiome2, "Inner grass zone should be GRASS base biome");
+        assertEquals(BiomeType.GRASS, baseBiome3, "Inner grass zone should be GRASS base biome");
+    }
+    
+    @Test
+    public void testBaseBiomeInSandZone() {
+        // Within sand zone (10000-13000px), should be SAND
+        BiomeType baseBiome1 = biomeManager.getBaseBiomeAtPosition(11000.0f, 0.0f);
+        BiomeType baseBiome2 = biomeManager.getBaseBiomeAtPosition(0.0f, 12000.0f);
+        
+        assertEquals(BiomeType.SAND, baseBiome1, "Sand zone should be SAND base biome");
+        assertEquals(BiomeType.SAND, baseBiome2, "Sand zone should be SAND base biome");
+    }
+    
+    @Test
+    public void testBaseBiomeBeyondSandZone() {
+        // Beyond sand zone (> 13000px), should be noise-based grass/sand
+        BiomeType baseBiome1 = biomeManager.getBaseBiomeAtPosition(15000.0f, 0.0f);
+        BiomeType baseBiome2 = biomeManager.getBaseBiomeAtPosition(0.0f, 20000.0f);
+        
+        // Should be either GRASS or SAND (not WATER)
+        assertTrue(baseBiome1 == BiomeType.GRASS || baseBiome1 == BiomeType.SAND, 
+            "Base biome beyond sand zone should be GRASS or SAND");
+        assertTrue(baseBiome2 == BiomeType.GRASS || baseBiome2 == BiomeType.SAND, 
+            "Base biome beyond sand zone should be GRASS or SAND");
+    }
+    
+    @Test
+    public void testBaseBiomeDeterministic() {
+        // Same coordinates should always return same base biome
+        float testX = 15000.0f;
+        float testY = 15000.0f;
+        
+        BiomeType baseBiome1 = biomeManager.getBaseBiomeAtPosition(testX, testY);
+        BiomeType baseBiome2 = biomeManager.getBaseBiomeAtPosition(testX, testY);
+        BiomeType baseBiome3 = biomeManager.getBaseBiomeAtPosition(testX, testY);
+        
+        assertEquals(baseBiome1, baseBiome2, "Same coordinates should return same base biome");
+        assertEquals(baseBiome2, baseBiome3, "Same coordinates should return same base biome");
+    }
+    
+    @Test
+    public void testBaseBiomeNeverReturnsWater() {
+        // Base biome should never return WATER (only GRASS or SAND)
+        float[][] testPositions = {
+            {0.0f, 0.0f},
+            {5000.0f, 5000.0f},
+            {11000.0f, 0.0f},
+            {15000.0f, 15000.0f},
+            {-10000.0f, -10000.0f}
+        };
+        
+        for (float[] pos : testPositions) {
+            BiomeType baseBiome = biomeManager.getBaseBiomeAtPosition(pos[0], pos[1]);
+            assertNotEquals(BiomeType.WATER, baseBiome, 
+                "Base biome at (" + pos[0] + ", " + pos[1] + ") should never be WATER");
+            assertTrue(baseBiome == BiomeType.GRASS || baseBiome == BiomeType.SAND,
+                "Base biome at (" + pos[0] + ", " + pos[1] + ") should be GRASS or SAND");
+        }
+    }
+    
     // ===== Biome Zone Configuration Tests =====
     
     @Test
@@ -365,5 +443,87 @@ public class BiomeManagerTest {
             "Third zone should extend to infinity");
         assertEquals(BiomeType.GRASS, zones.get(2).getBiomeType(), 
             "Third zone should be GRASS");
+    }
+    
+    // ===== Buffer Zone Validation Tests =====
+    
+    @Test
+    public void testIsValidBeachBufferInGrassArea() {
+        // Test buffer validation in a known grass area (spawn point)
+        boolean isValid = biomeManager.isValidBeachBuffer(0.0f, 0.0f);
+        assertFalse(isValid, "Buffer validation should fail in grass area (spawn point)");
+    }
+    
+    @Test
+    public void testIsValidBeachBufferInSandZone() {
+        // Test buffer validation in the sand zone (11000px from spawn)
+        boolean isValid = biomeManager.isValidBeachBuffer(11000.0f, 0.0f);
+        assertTrue(isValid, "Buffer validation should pass in sand zone");
+    }
+    
+    @Test
+    public void testIsValidBeachBufferNearGrassBoundary() {
+        // Test buffer validation near the grass/sand boundary
+        // At 10000px + 64px (just inside sand zone but close to grass)
+        float testX = BiomeConfig.INNER_GRASS_RADIUS + 64.0f;
+        boolean isValid = biomeManager.isValidBeachBuffer(testX, 0.0f);
+        
+        // Should fail because buffer extends into grass area
+        assertFalse(isValid, "Buffer validation should fail near grass boundary");
+    }
+    
+    @Test
+    public void testIsValidBeachBufferFarFromGrass() {
+        // Test buffer validation far from any grass areas
+        // At 11500px from spawn (well into sand zone)
+        float testX = BiomeConfig.INNER_GRASS_RADIUS + 1500.0f;
+        boolean isValid = biomeManager.isValidBeachBuffer(testX, 0.0f);
+        
+        assertTrue(isValid, "Buffer validation should pass far from grass areas");
+    }
+    
+    @Test
+    public void testCalculateDistanceToGrassAtSpawn() {
+        // At spawn point, distance to grass should be 0 (we're in grass)
+        float distance = biomeManager.calculateDistanceToGrass(0.0f, 0.0f);
+        assertEquals(0.0f, distance, 1.0f, "Distance to grass at spawn should be 0");
+    }
+    
+    @Test
+    public void testCalculateDistanceToGrassInSandZone() {
+        // In sand zone, distance to grass should be approximately the distance to the boundary
+        float testX = BiomeConfig.INNER_GRASS_RADIUS + 500.0f; // 500px into sand zone
+        float distance = biomeManager.calculateDistanceToGrass(testX, 0.0f);
+        
+        // Should be approximately 500px (distance back to grass boundary)
+        assertTrue(distance >= 400.0f && distance <= 600.0f, 
+            "Distance to grass in sand zone should be approximately distance to boundary, got: " + distance);
+    }
+    
+    @Test
+    public void testCalculateDistanceToGrassConsistency() {
+        // Same position should return same distance
+        float testX = 11000.0f;
+        float testY = 0.0f;
+        
+        float distance1 = biomeManager.calculateDistanceToGrass(testX, testY);
+        float distance2 = biomeManager.calculateDistanceToGrass(testX, testY);
+        
+        assertEquals(distance1, distance2, 0.01f, 
+            "Same position should return same distance to grass");
+    }
+    
+    @Test
+    public void testBufferValidationDeterministic() {
+        // Same position should return same buffer validation result
+        float testX = 11000.0f;
+        float testY = 0.0f;
+        
+        boolean isValid1 = biomeManager.isValidBeachBuffer(testX, testY);
+        boolean isValid2 = biomeManager.isValidBeachBuffer(testX, testY);
+        boolean isValid3 = biomeManager.isValidBeachBuffer(testX, testY);
+        
+        assertEquals(isValid1, isValid2, "Same position should return same buffer validation");
+        assertEquals(isValid2, isValid3, "Same position should return same buffer validation");
     }
 }

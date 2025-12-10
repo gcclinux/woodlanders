@@ -54,9 +54,9 @@ public class TreeSpawnWaterValidationTest {
         boolean foundSandLocation = false;
         float sandX = 0, sandY = 0;
         
-        // Sample coordinates in a grid pattern to find sand
-        for (int x = 1500; x < 5000; x += 100) {
-            for (int y = 1500; y < 5000; y += 100) {
+        // Sample coordinates in the sand zone (10000-13000 pixels from spawn)
+        for (int x = 10500; x < 12500; x += 100) {
+            for (int y = 10500; y < 12500; y += 100) {
                 BiomeType biome = biomeManager.getBiomeAtPosition(x, y);
                 if (biome == BiomeType.SAND) {
                     sandX = x;
@@ -96,16 +96,25 @@ public class TreeSpawnWaterValidationTest {
         int sandCount = 0;
         int waterCount = 0;
         
-        // Sample a grid of locations
-        for (int x = 0; x < 10000; x += 500) {
-            for (int y = 0; y < 10000; y += 500) {
+        // Sample grass zone (0-10000 pixels from spawn)
+        for (int x = 0; x < 8000; x += 500) {
+            for (int y = 0; y < 8000; y += 500) {
+                BiomeType biome = biomeManager.getBiomeAtPosition(x, y);
+                assertNotNull(biome, "Biome type should never be null");
+                
+                if (biome == BiomeType.GRASS) {
+                    grassCount++;
+                }
+            }
+        }
+        
+        // Sample sand zone (10000-13000 pixels from spawn)
+        for (int x = 10500; x < 12500; x += 500) {
+            for (int y = 10500; y < 12500; y += 500) {
                 BiomeType biome = biomeManager.getBiomeAtPosition(x, y);
                 assertNotNull(biome, "Biome type should never be null");
                 
                 switch (biome) {
-                    case GRASS:
-                        grassCount++;
-                        break;
                     case SAND:
                         sandCount++;
                         break;
