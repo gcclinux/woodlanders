@@ -14,13 +14,13 @@ public class FrontFence {
     }
 
     private void createTexture() {
-        Texture spriteSheet = new Texture("sprites/assets.png");
+        Texture spriteSheet = new Texture("textures/fense.png");
         Pixmap pixmap = new Pixmap(64, 64, Pixmap.Format.RGBA8888);
         spriteSheet.getTextureData().prepare();
         Pixmap sheetPixmap = spriteSheet.getTextureData().consumePixmap();
         
         // FrontFence coordinates: 0 from left, 320 from top, 64x64 size
-        pixmap.drawPixmap(sheetPixmap, 0, 0, 0, 320, 64, 64);
+        pixmap.drawPixmap(sheetPixmap, 0, 0, 64, 128, 64, 64);
         
         texture = new Texture(pixmap);
         pixmap.dispose();

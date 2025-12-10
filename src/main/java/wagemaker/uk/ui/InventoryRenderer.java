@@ -105,10 +105,10 @@ public class InventoryRenderer {
         fishIcon = extractIconFromSpriteSheet(256, 192, 64, 64);
         
         // Load front fence icon (0, 320, 64x64) - scale to 32x32
-        frontFenceIcon = extractIconFromSpriteSheet(0, 320, 64, 64);
+        frontFenceIcon = extractIconFromFenceSpriteSheet(64, 128, 64, 64);
         
         // Load back fence icon (64, 320, 64x64) - scale to 32x32
-        backFenceIcon = extractIconFromSpriteSheet(64, 320, 64, 64);
+        backFenceIcon = extractIconFromFenceSpriteSheet(64, 0, 64, 64);
         
         // Load bow and arrow icon (298, 192, 22x128) - scale to 32x32
         bowAndArrowIcon = extractIconFromSpriteSheet(256, 256, 64, 64);
@@ -119,6 +119,25 @@ public class InventoryRenderer {
      */
     private Texture extractIconFromSpriteSheet(int srcX, int srcY, int width, int height) {
         Texture spriteSheet = new Texture("sprites/assets.png");
+        Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
+        spriteSheet.getTextureData().prepare();
+        Pixmap sheetPixmap = spriteSheet.getTextureData().consumePixmap();
+        
+        pixmap.drawPixmap(sheetPixmap, 0, 0, srcX, srcY, width, height);
+        
+        Texture icon = new Texture(pixmap);
+        pixmap.dispose();
+        sheetPixmap.dispose();
+        spriteSheet.dispose();
+        
+        return icon;
+    }
+
+        /**
+     * Extract an icon from the sprite sheet at the specified coordinates.
+     */
+    private Texture extractIconFromFenceSpriteSheet(int srcX, int srcY, int width, int height) {
+        Texture spriteSheet = new Texture("textures/fense.png");
         Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
         spriteSheet.getTextureData().prepare();
         Pixmap sheetPixmap = spriteSheet.getTextureData().consumePixmap();
