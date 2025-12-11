@@ -416,7 +416,9 @@ public class GameMessageHandler extends DefaultMessageHandler {
                 message.getFishCount(),
                 message.getFrontFenceCount(),
                 message.getBackFenceCount(),
-                message.getBowAndArrowCount()
+                message.getBowAndArrowCount(),
+                message.getWoodFenceMaterialCount(),
+                message.getBambooFenceMaterialCount()
             );
         }
     }

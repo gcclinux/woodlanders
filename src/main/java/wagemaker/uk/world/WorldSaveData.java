@@ -9,6 +9,7 @@ import wagemaker.uk.network.PlantedBananaTreeState;
 import wagemaker.uk.network.PlantedAppleTreeState;
 import wagemaker.uk.weather.RainZone;
 import wagemaker.uk.respawn.RespawnEntry;
+import wagemaker.uk.fence.FenceEnclosureData;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -40,6 +41,9 @@ public class WorldSaveData implements Serializable {
     
     // Respawn system data
     private List<RespawnEntry> pendingRespawns;
+    
+    // Fence system data
+    private List<FenceEnclosureData> fenceStructures;
     
     // Player data at save time
     private float playerX;
@@ -418,6 +422,14 @@ public class WorldSaveData implements Serializable {
     
     public void setPendingRespawns(List<RespawnEntry> pendingRespawns) {
         this.pendingRespawns = pendingRespawns;
+    }
+    
+    public List<FenceEnclosureData> getFenceStructures() {
+        return fenceStructures;
+    }
+    
+    public void setFenceStructures(List<FenceEnclosureData> fenceStructures) {
+        this.fenceStructures = fenceStructures;
     }
     
     @Override

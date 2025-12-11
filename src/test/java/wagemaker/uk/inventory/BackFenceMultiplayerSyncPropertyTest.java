@@ -82,7 +82,7 @@ public class BackFenceMultiplayerSyncPropertyTest {
         
         // Simulate server sync with all item counts (using 0 for other items)
         inventoryManager.syncFromServer(
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, serverCount, 0
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, serverCount, 0, 0, 0
         );
         
         // Verify the local count matches the server count

@@ -18,7 +18,9 @@ public enum ItemType {
     WOOD_STACK(false, 0, false),
     BABY_TREE(false, 0, false),
     PEBBLE(false, 0, false),
-    PALM_FIBER(false, 0, false);
+    PALM_FIBER(false, 0, false),
+    WOOD_FENCE_MATERIAL(false, 0, false),
+    BAMBOO_FENCE_MATERIAL(false, 0, false);
     
     private final boolean restoresHealth;
     private final int healthRestore;

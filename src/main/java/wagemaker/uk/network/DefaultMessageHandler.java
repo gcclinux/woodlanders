@@ -175,6 +175,18 @@ public class DefaultMessageHandler implements MessageHandler {
                     handlePlayerInfo((PlayerInfoMessage) message);
                     break;
                     
+                case FENCE_PLACE:
+                    handleFencePlace((FencePlaceMessage) message);
+                    break;
+                    
+                case FENCE_REMOVE:
+                    handleFenceRemove((FenceRemoveMessage) message);
+                    break;
+                    
+                case FENCE_SYNC:
+                    handleFenceSync((FenceSyncMessage) message);
+                    break;
+                    
                 default:
                     System.err.println("Unknown message type: " + message.getType());
             }
@@ -548,5 +560,35 @@ public class DefaultMessageHandler implements MessageHandler {
     protected void handlePlayerInfo(PlayerInfoMessage message) {
         System.out.println("Player info update: " + message.getPlayerName() + 
                          ", sprite: " + message.getCharacterSprite());
+    }
+    
+    /**
+     * Handles FENCE_PLACE message.
+     * Override this method to place fence pieces in the game world.
+     */
+    protected void handleFencePlace(FencePlaceMessage message) {
+        System.out.println("Fence placed: " + message.getFenceId() + 
+                         " (" + message.getPieceType() + ", " + message.getMaterialType() + 
+                         ") at grid (" + message.getGridX() + ", " + message.getGridY() + 
+                         ") by player " + message.getPlayerId());
+    }
+    
+    /**
+     * Handles FENCE_REMOVE message.
+     * Override this method to remove fence pieces from the game world.
+     */
+    protected void handleFenceRemove(FenceRemoveMessage message) {
+        System.out.println("Fence removed: " + message.getFenceId() + 
+                         " (" + message.getMaterialType() + 
+                         ") at grid (" + message.getGridX() + ", " + message.getGridY() + 
+                         ") by player " + message.getPlayerId());
+    }
+    
+    /**
+     * Handles FENCE_SYNC message.
+     * Override this method to synchronize fence structures from server.
+     */
+    protected void handleFenceSync(FenceSyncMessage message) {
+        System.out.println("Fence sync: " + message.getFenceCount() + " fence pieces");
     }
 }

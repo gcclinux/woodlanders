@@ -28,6 +28,16 @@ The targeting system stays active as long as an item is selected, allowing you t
   - **Spacebar** - Plant item or consume food
 - Selected items show a yellow highlight box
 
+## Fence Building
+- **B** - Toggle fence building mode on/off
+- **When in building mode**:
+  - **Left Click** - Place fence segment at cursor position
+  - **Right Click** - Remove fence segment at cursor position
+  - **B** - Exit building mode
+- Fence materials are automatically collected when harvesting trees (wood) or bamboo
+- Building mode shows a grid overlay and material count
+- Fence segments automatically connect and select correct orientations
+
 ## Interface
 - **Escape** - Open/close game menu
 

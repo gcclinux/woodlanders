@@ -106,6 +106,24 @@
 - **Server Configuration**: Configurable via server.properties file
 - **Network Synchronization**: Real-time player position and action updates
 
+## Fence Building System
+- **Custom Fence Construction**: Build rectangular fence enclosures of any size using collected materials
+- **8-Piece Fence System**: Complete fence structures using corner and edge pieces in clockwise sequence
+- **Material Types**: Wood and bamboo fence materials with distinct textures
+- **Building Mode**: Dedicated building mode activated with B key
+- **Grid-Based Placement**: 64x64 pixel grid system for precise fence positioning
+- **Automatic Piece Selection**: System automatically selects correct fence piece type based on position
+- **Visual Feedback**: Grid overlay, material count display, and placement previews
+- **Click-to-Build**: Left-click to place fence segments, right-click to remove
+- **Material Collection**: Fence materials automatically collected when harvesting trees and bamboo
+- **Inventory Integration**: Fence materials work with existing inventory system
+- **Collision Detection**: Fence structures create collision boundaries that block movement
+- **World Persistence**: Fence structures save and load with world data
+- **Multiplayer Synchronization**: Fence building synchronized across all clients
+- **Ownership System**: Players can only remove fence pieces they placed in multiplayer
+- **Material Conservation**: Removing fence pieces returns materials to inventory
+- **Performance Optimization**: Efficient rendering with texture atlasing and viewport culling
+
 ## Technical Features
 - **Collision Detection**: Precise collision boxes for trees, cacti, and player
 - **Individual Attack Ranges**: Each tree type has unique attack collision detection

@@ -141,6 +141,12 @@ public class InventoryManager {
             case BOW_AND_ARROW:
                 inventory.addBowAndArrow(amount);
                 break;
+            case WOOD_FENCE_MATERIAL:
+                inventory.addWoodFenceMaterial(amount);
+                break;
+            case BAMBOO_FENCE_MATERIAL:
+                inventory.addBambooFenceMaterial(amount);
+                break;
         }
         
         // Send inventory update to server in multiplayer mode
@@ -171,7 +177,9 @@ public class InventoryManager {
                 inventory.getFishCount(),
                 inventory.getFrontFenceCount(),
                 inventory.getBackFenceCount(),
-                inventory.getBowAndArrowCount()
+                inventory.getBowAndArrowCount(),
+                inventory.getWoodFenceMaterialCount(),
+                inventory.getBambooFenceMaterialCount()
             );
             
             gameClient.sendMessage(message);
@@ -208,7 +216,8 @@ public class InventoryManager {
      */
     public void syncFromServer(int appleCount, int bananaCount, int appleSaplingCount, int bananaSaplingCount,
                                 int bambooSaplingCount, int bambooStackCount, int treeSaplingCount, int woodStackCount, 
-                                int pebbleCount, int palmFiberCount, int fishCount, int frontFenceCount, int backFenceCount, int bowAndArrowCount) {
+                                int pebbleCount, int palmFiberCount, int fishCount, int frontFenceCount, int backFenceCount, int bowAndArrowCount,
+                                int woodFenceMaterialCount, int bambooFenceMaterialCount) {
         if (!isMultiplayerMode) {
             return; // Only sync in multiplayer mode
         }
@@ -228,6 +237,8 @@ public class InventoryManager {
         inventory.setFrontFenceCount(frontFenceCount);
         inventory.setBackFenceCount(backFenceCount);
         inventory.setBowAndArrowCount(bowAndArrowCount);
+        inventory.setWoodFenceMaterialCount(woodFenceMaterialCount);
+        inventory.setBambooFenceMaterialCount(bambooFenceMaterialCount);
         
         System.out.println("Inventory synced from server: Apples=" + appleCount +
                          ", Bananas=" + bananaCount +
@@ -242,7 +253,9 @@ public class InventoryManager {
                          ", Fish=" + fishCount +
                          ", FrontFence=" + frontFenceCount +
                          ", BackFence=" + backFenceCount +
-                         ", BowAndArrow=" + bowAndArrowCount);
+                         ", BowAndArrow=" + bowAndArrowCount +
+                         ", WoodFenceMaterial=" + woodFenceMaterialCount +
+                         ", BambooFenceMaterial=" + bambooFenceMaterialCount);
     }
     
     /**
@@ -250,7 +263,7 @@ public class InventoryManager {
      * @param slot The slot index (0-13 for valid slots, any other value clears selection)
      */
     public void setSelectedSlot(int slot) {
-        if (slot >= 0 && slot <= 13) {
+        if (slot >= 0 && slot <= 15) {
             this.selectedSlot = slot;
         } else {
             this.selectedSlot = -1; // Clear selection
@@ -259,7 +272,7 @@ public class InventoryManager {
     
     /**
      * Get the currently selected inventory slot.
-     * @return The selected slot index (0-13), or -1 if no slot is selected
+     * @return The selected slot index (0-15), or -1 if no slot is selected
      */
     public int getSelectedSlot() {
         return selectedSlot;
@@ -298,6 +311,8 @@ public class InventoryManager {
             case 11: return ItemType.FRONT_FENCE;
             case 12: return ItemType.BACK_FENCE;
             case 13: return ItemType.BOW_AND_ARROW;
+            case 14: return ItemType.WOOD_FENCE_MATERIAL;
+            case 15: return ItemType.BAMBOO_FENCE_MATERIAL;
             default: return null;
         }
     }
@@ -386,6 +401,8 @@ public class InventoryManager {
             case 11: itemCount = inventory.getFrontFenceCount(); break;
             case 12: itemCount = inventory.getBackFenceCount(); break;
             case 13: itemCount = inventory.getBowAndArrowCount(); break;
+            case 14: itemCount = inventory.getWoodFenceMaterialCount(); break;
+            case 15: itemCount = inventory.getBambooFenceMaterialCount(); break;
         }
         
         if (itemCount == 0) {

@@ -34,6 +34,8 @@ public class PlayerState implements Serializable {
     private int frontFenceCount;
     private int backFenceCount;
     private int bowAndArrowCount;
+    private int woodFenceMaterialCount;
+    private int bambooFenceMaterialCount;
     
     public PlayerState() {
     }
@@ -241,5 +243,21 @@ public class PlayerState implements Serializable {
     
     public void setBowAndArrowCount(int bowAndArrowCount) {
         this.bowAndArrowCount = bowAndArrowCount;
+    }
+    
+    public int getWoodFenceMaterialCount() {
+        return woodFenceMaterialCount;
+    }
+    
+    public void setWoodFenceMaterialCount(int woodFenceMaterialCount) {
+        this.woodFenceMaterialCount = woodFenceMaterialCount;
+    }
+    
+    public int getBambooFenceMaterialCount() {
+        return bambooFenceMaterialCount;
+    }
+    
+    public void setBambooFenceMaterialCount(int bambooFenceMaterialCount) {
+        this.bambooFenceMaterialCount = bambooFenceMaterialCount;
     }
 }

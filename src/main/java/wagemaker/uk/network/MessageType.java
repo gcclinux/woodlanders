@@ -43,5 +43,8 @@ public enum MessageType {
     PLAYER_RESPAWN,
     FREE_WORLD_ACTIVATION,
     PLAYER_FALL,
-    PLAYER_INFO
+    PLAYER_INFO,
+    FENCE_PLACE,
+    FENCE_REMOVE,
+    FENCE_SYNC
 }

@@ -12,6 +12,7 @@ public class WorldStateUpdateMessage extends NetworkMessage {
     private Map<String, PlayerState> updatedPlayers;
     private Map<String, TreeState> updatedTrees;
     private Map<String, ItemState> updatedItems;
+    private Map<String, FenceState> updatedFences;
     
     public WorldStateUpdateMessage() {
         super();
@@ -20,11 +21,13 @@ public class WorldStateUpdateMessage extends NetworkMessage {
     public WorldStateUpdateMessage(String senderId,
                                    Map<String, PlayerState> updatedPlayers,
                                    Map<String, TreeState> updatedTrees,
-                                   Map<String, ItemState> updatedItems) {
+                                   Map<String, ItemState> updatedItems,
+                                   Map<String, FenceState> updatedFences) {
         super(senderId);
         this.updatedPlayers = updatedPlayers;
         this.updatedTrees = updatedTrees;
         this.updatedItems = updatedItems;
+        this.updatedFences = updatedFences;
     }
     
     @Override
@@ -42,5 +45,9 @@ public class WorldStateUpdateMessage extends NetworkMessage {
     
     public Map<String, ItemState> getUpdatedItems() {
         return updatedItems;
+    }
+    
+    public Map<String, FenceState> getUpdatedFences() {
+        return updatedFences;
     }
 }

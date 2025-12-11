@@ -4,6 +4,9 @@ import wagemaker.uk.freeworld.FreeWorldManager;
 import wagemaker.uk.network.WorldState;
 import wagemaker.uk.respawn.RespawnEntry;
 import wagemaker.uk.respawn.RespawnManager;
+import wagemaker.uk.fence.FenceStructureManager;
+import wagemaker.uk.fence.FenceEnclosureData;
+import wagemaker.uk.fence.FencePersistenceManager;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -184,6 +187,31 @@ public class WorldSaveManager {
                                   wagemaker.uk.inventory.Inventory inventory,
                                   boolean isMultiplayer,
                                   RespawnManager respawnManager) {
+        return saveWorld(saveName, worldState, playerX, playerY, playerHealth, 
+                        inventory, isMultiplayer, respawnManager, null);
+    }
+    
+    /**
+     * Saves the current world state to a file including fence structures.
+     * Creates a backup of existing save before overwriting.
+     * 
+     * @param saveName The name for the save file
+     * @param worldState The current world state to save
+     * @param playerX Player X position at save time
+     * @param playerY Player Y position at save time
+     * @param playerHealth Player health at save time
+     * @param inventory Player inventory at save time (can be null)
+     * @param isMultiplayer true if this is a multiplayer save, false for singleplayer
+     * @param respawnManager The respawn manager containing pending respawn data (can be null)
+     * @param fenceStructureManager The fence structure manager containing fence data (can be null)
+     * @return true if save was successful, false otherwise
+     */
+    public static boolean saveWorld(String saveName, WorldState worldState, 
+                                  float playerX, float playerY, float playerHealth,
+                                  wagemaker.uk.inventory.Inventory inventory,
+                                  boolean isMultiplayer,
+                                  RespawnManager respawnManager,
+                                  FenceStructureManager fenceStructureManager) {
         try {
             // Validate save name
             if (!isValidSaveName(saveName)) {
@@ -273,6 +301,23 @@ public class WorldSaveManager {
                     System.err.println("ERROR: Failed to get respawn data for save: " + e.getMessage());
                     e.printStackTrace();
                     // Continue with save even if respawn data fails
+                }
+            }
+            
+            // Set fence structure data if provided
+            if (fenceStructureManager != null) {
+                try {
+                    List<FenceEnclosureData> fenceData = FencePersistenceManager.serializeFenceStructures(fenceStructureManager);
+                    if (fenceData != null && !fenceData.isEmpty()) {
+                        saveData.setFenceStructures(fenceData);
+                        System.out.println("Saved " + fenceData.size() + " fence structures");
+                    } else {
+                        System.out.println("No fence structures to save");
+                    }
+                } catch (Exception e) {
+                    System.err.println("ERROR: Failed to serialize fence structures for save: " + e.getMessage());
+                    e.printStackTrace();
+                    // Continue with save even if fence data fails
                 }
             }
             
@@ -366,6 +411,20 @@ public class WorldSaveManager {
             System.out.println("Loaded " + saveData.getExistingTreeCount() + " trees, " + 
                              saveData.getExistingStoneCount() + " stones, and " + 
                              saveData.getUncollectedItemCount() + " items");
+            
+            // Log fence structure data if present
+            try {
+                List<FenceEnclosureData> fenceData = saveData.getFenceStructures();
+                if (fenceData != null && !fenceData.isEmpty()) {
+                    System.out.println("Loaded " + fenceData.size() + " fence structures");
+                } else {
+                    System.out.println("No fence structures in save file");
+                }
+            } catch (Exception e) {
+                System.err.println("ERROR: Failed to process fence structure data from save file: " + e.getMessage());
+                e.printStackTrace();
+                // Continue loading even if fence data processing fails
+            }
             
             // Log respawn data if present
             try {
@@ -753,6 +812,57 @@ public class WorldSaveManager {
         } catch (Exception e) {
             System.err.println("Error restoring from backup: " + e.getMessage());
             return false;
+        }
+    }
+    
+    /**
+     * Restores fence structures from save data to a fence structure manager.
+     * 
+     * @param saveData The loaded world save data
+     * @param fenceStructureManager The fence structure manager to restore data to
+     * @return Number of successfully restored fence structures
+     */
+    public static int restoreFenceStructures(WorldSaveData saveData, FenceStructureManager fenceStructureManager) {
+        if (saveData == null || fenceStructureManager == null) {
+            return 0;
+        }
+        
+        try {
+            List<FenceEnclosureData> fenceData = saveData.getFenceStructures();
+            if (fenceData == null || fenceData.isEmpty()) {
+                System.out.println("No fence structures to restore");
+                return 0;
+            }
+            
+            // Validate fence data before restoration
+            FencePersistenceManager.ValidationResult validation = 
+                FencePersistenceManager.validateFenceStructureData(fenceData);
+            
+            if (!validation.isValid()) {
+                System.err.println("WARNING: Fence structure data validation failed:");
+                for (String error : validation.getErrors()) {
+                    System.err.println("  ERROR: " + error);
+                }
+                // Continue with restoration of valid structures
+            }
+            
+            if (validation.hasWarnings()) {
+                System.out.println("Fence structure data validation warnings:");
+                for (String warning : validation.getWarnings()) {
+                    System.out.println("  WARNING: " + warning);
+                }
+            }
+            
+            // Restore fence structures
+            int restoredCount = FencePersistenceManager.deserializeFenceStructures(fenceData, fenceStructureManager);
+            
+            System.out.println("Successfully restored " + restoredCount + " fence structures");
+            return restoredCount;
+            
+        } catch (Exception e) {
+            System.err.println("ERROR: Failed to restore fence structures: " + e.getMessage());
+            e.printStackTrace();
+            return 0;
         }
     }
     

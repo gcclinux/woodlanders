@@ -2481,6 +2481,8 @@ public class Player {
             // Single-player mode: handle locally via inventory manager
             if (inventoryManager != null) {
                 inventoryManager.collectItem(wagemaker.uk.inventory.ItemType.BAMBOO_STACK);
+                // Also collect bamboo fence material when harvesting bamboo
+                inventoryManager.collectItem(wagemaker.uk.inventory.ItemType.BAMBOO_FENCE_MATERIAL);
             }
             
             // Remove bamboo stack from game
@@ -2607,6 +2609,8 @@ public class Player {
             // Single-player mode: handle locally via inventory manager
             if (inventoryManager != null) {
                 inventoryManager.collectItem(wagemaker.uk.inventory.ItemType.WOOD_STACK);
+                // Also collect wood fence material when harvesting wood
+                inventoryManager.collectItem(wagemaker.uk.inventory.ItemType.WOOD_FENCE_MATERIAL);
             }
             
             // Remove wood stack from game

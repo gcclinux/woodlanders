@@ -20,6 +20,8 @@ public class Inventory {
     private int frontFenceCount;
     private int backFenceCount;
     private int bowAndArrowCount;
+    private int woodFenceMaterialCount;
+    private int bambooFenceMaterialCount;
     
     public Inventory() {
         this.appleCount = 0;
@@ -36,6 +38,8 @@ public class Inventory {
         this.frontFenceCount = 0;
         this.backFenceCount = 0;
         this.bowAndArrowCount = 0;
+        this.woodFenceMaterialCount = 0;
+        this.bambooFenceMaterialCount = 0;
     }
     
     // Apple methods
@@ -332,6 +336,48 @@ public class Inventory {
         return false;
     }
     
+    // WoodFenceMaterial methods
+    public int getWoodFenceMaterialCount() {
+        return woodFenceMaterialCount;
+    }
+    
+    public void setWoodFenceMaterialCount(int count) {
+        this.woodFenceMaterialCount = Math.max(0, count);
+    }
+    
+    public void addWoodFenceMaterial(int amount) {
+        this.woodFenceMaterialCount += amount;
+    }
+    
+    public boolean removeWoodFenceMaterial(int amount) {
+        if (woodFenceMaterialCount >= amount) {
+            woodFenceMaterialCount -= amount;
+            return true;
+        }
+        return false;
+    }
+    
+    // BambooFenceMaterial methods
+    public int getBambooFenceMaterialCount() {
+        return bambooFenceMaterialCount;
+    }
+    
+    public void setBambooFenceMaterialCount(int count) {
+        this.bambooFenceMaterialCount = Math.max(0, count);
+    }
+    
+    public void addBambooFenceMaterial(int amount) {
+        this.bambooFenceMaterialCount += amount;
+    }
+    
+    public boolean removeBambooFenceMaterial(int amount) {
+        if (bambooFenceMaterialCount >= amount) {
+            bambooFenceMaterialCount -= amount;
+            return true;
+        }
+        return false;
+    }
+    
     /**
      * Clear all items from inventory, resetting all counts to 0.
      */
@@ -350,5 +396,7 @@ public class Inventory {
         this.frontFenceCount = 0;
         this.backFenceCount = 0;
         this.bowAndArrowCount = 0;
+        this.woodFenceMaterialCount = 0;
+        this.bambooFenceMaterialCount = 0;
     }
 }

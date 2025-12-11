@@ -62,6 +62,13 @@ import wagemaker.uk.inventory.InventoryManager;
 import wagemaker.uk.respawn.RespawnManager;
 import wagemaker.uk.respawn.ResourceType;
 import wagemaker.uk.targeting.TargetingSystem;
+import wagemaker.uk.fence.FenceBuildingManager;
+import wagemaker.uk.fence.FenceWorldIntegration;
+import wagemaker.uk.fence.FenceGrid;
+import wagemaker.uk.fence.FenceStructureManager;
+import wagemaker.uk.fence.FenceMaterialProvider;
+import wagemaker.uk.fence.InventoryFenceMaterialProvider;
+import wagemaker.uk.fence.FencePlacementValidator;
 
 /**
  * Main game class for Woodlanders multiplayer game.
@@ -211,6 +218,10 @@ public class MyGdxGame extends ApplicationAdapter {
     wagemaker.uk.weather.DynamicRainManager dynamicRainManager; // Dynamic rain event manager
     RespawnManager respawnManager; // Resource respawn timer system
     BirdFormationManager birdFormationManager; // Ambient flying birds system
+    
+    // Fence building system
+    FenceBuildingManager fenceBuildingManager; // Fence building and management system
+    FenceWorldIntegration fenceWorldIntegration; // Fence world lifecycle integration
     
     // Multiplayer fields
     private GameMode gameMode;
@@ -432,6 +443,16 @@ public class MyGdxGame extends ApplicationAdapter {
         // Initialize bird formation manager for ambient flying birds
         birdFormationManager = new BirdFormationManager(camera, viewport);
         birdFormationManager.initialize();
+        
+        // Initialize fence building system
+        FenceGrid fenceGrid = new FenceGrid();
+        FenceStructureManager fenceStructureManager = new FenceStructureManager(fenceGrid);
+        FenceMaterialProvider fenceMaterialProvider = new InventoryFenceMaterialProvider(inventoryManager);
+        FencePlacementValidator fencePlacementValidator = new FencePlacementValidator(fenceGrid, fenceMaterialProvider, fenceStructureManager);
+        
+        fenceBuildingManager = new FenceBuildingManager(fenceStructureManager, fencePlacementValidator, camera);
+        fenceWorldIntegration = new FenceWorldIntegration();
+        fenceWorldIntegration.setBuildingManager(fenceBuildingManager);
 
     }
 
@@ -587,6 +608,11 @@ public class MyGdxGame extends ApplicationAdapter {
         // Update bird formation manager (ambient flying birds)
         if (birdFormationManager != null) {
             birdFormationManager.update(deltaTime, playerCenterX, playerCenterY);
+        }
+        
+        // Update fence building system
+        if (fenceBuildingManager != null) {
+            fenceBuildingManager.update(deltaTime);
         }
         
         if (!gameMenu.isAnyMenuOpen()) {
@@ -821,7 +847,18 @@ public class MyGdxGame extends ApplicationAdapter {
         renderRemotePlayers();
         drawAppleTrees();
         drawBananaTrees();
+        
+        // Render fence structures
+        if (fenceBuildingManager != null) {
+            fenceBuildingManager.renderFences();
+        }
+        
         batch.end();
+        
+        // Render fence visual effects (after batch.end())
+        if (fenceBuildingManager != null) {
+            fenceBuildingManager.renderVisualEffects();
+        }
         
         // Render rain effects after batch.end() but before UI
         rainSystem.render(camera);
@@ -5053,6 +5090,11 @@ public class MyGdxGame extends ApplicationAdapter {
         // Dispose bird formation manager
         if (birdFormationManager != null) {
             birdFormationManager.dispose();
+        }
+        
+        // Dispose fence building system
+        if (fenceWorldIntegration != null) {
+            fenceWorldIntegration.dispose();
         }
         
         // Clean up multiplayer resources

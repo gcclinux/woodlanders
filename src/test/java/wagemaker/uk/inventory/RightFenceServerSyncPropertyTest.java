@@ -59,7 +59,7 @@ public class RightFenceServerSyncPropertyTest {
             
             // Simulate server sync with all item counts (using 0 for other items)
             inventoryManager.syncFromServer(
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, serverRightFenceCount
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, serverRightFenceCount, 0, 0
             );
             
             // Verify the local count matches the server count
@@ -98,7 +98,7 @@ public class RightFenceServerSyncPropertyTest {
             
             // Simulate server sync
             inventoryManager.syncFromServer(
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, serverCount
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, serverCount, 0, 0
             );
             
             // Verify the local count matches the server count (server wins)
@@ -135,7 +135,7 @@ public class RightFenceServerSyncPropertyTest {
             // Attempt server sync with different count
             int serverCount = initialCount + random.nextInt(50) + 1; // Different from initial
             inventoryManager.syncFromServer(
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, serverCount
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, serverCount, 0, 0
             );
             
             // Verify the local count was NOT changed (single-player mode ignores sync)
@@ -171,7 +171,7 @@ public class RightFenceServerSyncPropertyTest {
             
             // Simulate server sync with zero count
             inventoryManager.syncFromServer(
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
             );
             
             // Verify the local count is now zero

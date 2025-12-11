@@ -18,6 +18,7 @@ public class WorldStateMessage extends NetworkMessage {
     private Map<String, TreeState> trees;
     private Map<String, StoneState> stones;
     private Map<String, ItemState> items;
+    private Map<String, FenceState> fences;
     private Set<String> clearedPositions;
     private List<RainZone> rainZones;
     
@@ -30,6 +31,7 @@ public class WorldStateMessage extends NetworkMessage {
                             Map<String, TreeState> trees,
                             Map<String, StoneState> stones,
                             Map<String, ItemState> items,
+                            Map<String, FenceState> fences,
                             Set<String> clearedPositions,
                             List<RainZone> rainZones) {
         super(senderId);
@@ -38,6 +40,7 @@ public class WorldStateMessage extends NetworkMessage {
         this.trees = trees;
         this.stones = stones;
         this.items = items;
+        this.fences = fences;
         this.clearedPositions = clearedPositions;
         this.rainZones = rainZones;
     }
@@ -69,6 +72,10 @@ public class WorldStateMessage extends NetworkMessage {
     
     public Set<String> getClearedPositions() {
         return clearedPositions;
+    }
+    
+    public Map<String, FenceState> getFences() {
+        return fences;
     }
     
     public List<RainZone> getRainZones() {

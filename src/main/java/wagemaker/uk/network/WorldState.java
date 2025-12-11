@@ -29,6 +29,7 @@ public class WorldState implements Serializable {
     private Map<String, PlantedBambooState> plantedBamboos;
     private Map<String, PlantedBananaTreeState> plantedBananaTrees;
     private Map<String, PlantedAppleTreeState> plantedAppleTrees;
+    private Map<String, FenceState> fences;
     private Set<String> clearedPositions;
     private List<RainZone> rainZones;
     private long lastUpdateTimestamp;
@@ -46,6 +47,7 @@ public class WorldState implements Serializable {
         this.plantedBamboos = new ConcurrentHashMap<>();
         this.plantedBananaTrees = new ConcurrentHashMap<>();
         this.plantedAppleTrees = new ConcurrentHashMap<>();
+        this.fences = new ConcurrentHashMap<>();
         this.clearedPositions = ConcurrentHashMap.newKeySet();
         this.rainZones = new ArrayList<>();
         this.lastUpdateTimestamp = System.currentTimeMillis();
@@ -816,6 +818,14 @@ public class WorldState implements Serializable {
         this.plantedAppleTrees = plantedAppleTrees;
     }
     
+    public Map<String, FenceState> getFences() {
+        return fences;
+    }
+    
+    public void setFences(Map<String, FenceState> fences) {
+        this.fences = fences;
+    }
+    
     // Convenience methods for managing state
     
     /**
@@ -902,6 +912,81 @@ public class WorldState implements Serializable {
     public void removeItem(String itemId) {
         this.items.remove(itemId);
         this.lastUpdateTimestamp = System.currentTimeMillis();
+    }
+    
+    /**
+     * Adds or updates a fence in the world state.
+     */
+    public void addOrUpdateFence(FenceState fence) {
+        if (fence != null) {
+            this.fences.put(fence.getFenceId(), fence);
+            this.lastUpdateTimestamp = System.currentTimeMillis();
+        }
+    }
+    
+    /**
+     * Removes a fence from the world state.
+     */
+    public void removeFence(String fenceId) {
+        this.fences.remove(fenceId);
+        this.lastUpdateTimestamp = System.currentTimeMillis();
+    }
+    
+    /**
+     * Gets a fence by its ID.
+     */
+    public FenceState getFence(String fenceId) {
+        return this.fences.get(fenceId);
+    }
+    
+    /**
+     * Checks if a fence exists at the specified grid position.
+     */
+    public boolean hasFenceAt(int gridX, int gridY) {
+        for (FenceState fence : fences.values()) {
+            if (fence.getGridX() == gridX && fence.getGridY() == gridY) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Gets a fence at the specified grid position.
+     */
+    public FenceState getFenceAt(int gridX, int gridY) {
+        for (FenceState fence : fences.values()) {
+            if (fence.getGridX() == gridX && fence.getGridY() == gridY) {
+                return fence;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Gets all fences owned by a specific player.
+     */
+    public Map<String, FenceState> getFencesByOwner(String ownerId) {
+        Map<String, FenceState> ownedFences = new HashMap<>();
+        for (Map.Entry<String, FenceState> entry : fences.entrySet()) {
+            if (entry.getValue().getOwnerId().equals(ownerId)) {
+                ownedFences.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return ownedFences;
+    }
+    
+    /**
+     * Gets the total number of fences owned by a specific player.
+     */
+    public int getFenceCountByOwner(String ownerId) {
+        int count = 0;
+        for (FenceState fence : fences.values()) {
+            if (fence.getOwnerId().equals(ownerId)) {
+                count++;
+            }
+        }
+        return count;
     }
     
     // World Save/Load Methods

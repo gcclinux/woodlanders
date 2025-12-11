@@ -520,6 +520,31 @@ public class GameServer {
     }
     
     /**
+     * Sends the current fence state to a specific client.
+     * Called when a client joins to synchronize existing fence structures.
+     * @param client The client connection to send the state to
+     */
+    public void sendFenceStateToClient(ClientConnection client) {
+        Map<String, FenceState> fences = worldState.getFences();
+        if (fences.isEmpty()) {
+            System.out.println("[GameServer] No fences to sync for client " + client.getClientId());
+            return;
+        }
+        
+        FenceSyncMessage message = new FenceSyncMessage("server", fences);
+        
+        System.out.println("[GameServer] Sending fence state to client " + client.getClientId() + 
+                         " (" + fences.size() + " fence pieces)");
+        
+        try {
+            client.sendMessage(message);
+        } catch (Exception e) {
+            System.err.println("[GameServer] Error sending fence state to client " + 
+                             client.getClientId() + ": " + e.getMessage());
+        }
+    }
+    
+    /**
      * Generates chunks around all players.
      * Called when players move to ensure trees/stones exist in their vicinity.
      * Only generates entities that don't already exist.

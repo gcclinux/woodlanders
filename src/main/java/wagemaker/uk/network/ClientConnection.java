@@ -101,11 +101,15 @@ public class ClientConnection implements Runnable {
                 snapshot.getTrees(),
                 snapshot.getStones(),
                 snapshot.getItems(),
+                snapshot.getFences(),
                 snapshot.getClearedPositions(),
                 snapshot.getRainZones()));
             
             // Send respawn state to synchronize pending respawn timers
             server.sendRespawnStateToClient(this);
+            
+            // Send fence state to synchronize existing fence structures
+            server.sendFenceStateToClient(this);
             
             // Add player to world state
             server.getWorldState().addOrUpdatePlayer(playerState);
@@ -309,9 +313,18 @@ public class ClientConnection implements Runnable {
                 handlePlayerInfo((PlayerInfoMessage) message);
                 break;
                 
+            case FENCE_PLACE:
+                handleFencePlace((FencePlaceMessage) message);
+                break;
+                
+            case FENCE_REMOVE:
+                handleFenceRemove((FenceRemoveMessage) message);
+                break;
+                
             case RESOURCE_RESPAWN:
             case RESPAWN_STATE:
             case FREE_WORLD_ACTIVATION:
+            case FENCE_SYNC:
                 // These messages are server-to-client only
                 // Clients should not send these to the server
                 System.err.println("Client " + clientId + " sent server-only message: " + message.getType());
@@ -494,7 +507,8 @@ public class ClientConnection implements Runnable {
                         WorldStateUpdateMessage updateMsg = new WorldStateUpdateMessage("server", 
                             new HashMap<>(), // no player updates
                             newTreeMap,      // tree update
-                            new HashMap<>()); // no item updates
+                            new HashMap<>(), // no item updates
+                            new HashMap<>()); // no fence updates
                         server.broadcastToAll(updateMsg);
                         
                         System.out.println("[TREE_SYNC] Broadcast complete - all clients should now see tree " + targetId);
@@ -918,12 +932,16 @@ public class ClientConnection implements Runnable {
                 break;
             case BAMBOO_STACK:
                 playerState.setBambooStackCount(playerState.getBambooStackCount() + 1);
+                // Also collect bamboo fence material when harvesting bamboo
+                playerState.setBambooFenceMaterialCount(playerState.getBambooFenceMaterialCount() + 1);
                 break;
             case BABY_TREE:
                 playerState.setTreeSaplingCount(playerState.getTreeSaplingCount() + 1);
                 break;
             case WOOD_STACK:
                 playerState.setWoodStackCount(playerState.getWoodStackCount() + 1);
+                // Also collect wood fence material when harvesting wood
+                playerState.setWoodFenceMaterialCount(playerState.getWoodFenceMaterialCount() + 1);
                 break;
             case PEBBLE:
                 playerState.setPebbleCount(playerState.getPebbleCount() + 1);
@@ -961,7 +979,9 @@ public class ClientConnection implements Runnable {
             playerState.getFishCount(),
             playerState.getFrontFenceCount(),
             playerState.getBackFenceCount(),
-            playerState.getBowAndArrowCount()
+            playerState.getBowAndArrowCount(),
+            playerState.getWoodFenceMaterialCount(),
+            playerState.getBambooFenceMaterialCount()
         );
         server.broadcastToAll(inventoryMsg);
         
@@ -1129,7 +1149,9 @@ public class ClientConnection implements Runnable {
             playerState.getFishCount(),
             playerState.getFrontFenceCount(),
             playerState.getBackFenceCount(),
-            playerState.getBowAndArrowCount()
+            playerState.getBowAndArrowCount(),
+            playerState.getWoodFenceMaterialCount(),
+            playerState.getBambooFenceMaterialCount()
         );
         server.broadcastToAll(inventoryMsg);
     }
@@ -1617,7 +1639,9 @@ public class ClientConnection implements Runnable {
             playerState.getFishCount(),
             playerState.getFrontFenceCount(),
             playerState.getBackFenceCount(),
-            playerState.getBowAndArrowCount()
+            playerState.getBowAndArrowCount(),
+            playerState.getWoodFenceMaterialCount(),
+            playerState.getBambooFenceMaterialCount()
         );
         sendMessage(syncMsg);
     }
@@ -2007,6 +2031,157 @@ public class ClientConnection implements Runnable {
         
         System.out.println("[SERVER] Apple tree transformed: " + plantedAppleTreeId + " -> " + appleTreeId + " at (" + x + ", " + y + ")");
         
+        server.broadcastToAll(message);
+    }
+    
+    /**
+     * Handles a fence place message from the client.
+     * Validates the fence placement and broadcasts to all clients.
+     * @param message The fence place message
+     */
+    private void handleFencePlace(FencePlaceMessage message) {
+        // Validate message data
+        if (message == null) {
+            logSecurityViolation("Null fence place message");
+            return;
+        }
+        
+        String fenceId = message.getFenceId();
+        int gridX = message.getGridX();
+        int gridY = message.getGridY();
+        String playerId = message.getPlayerId();
+        
+        // Validate fence ID
+        if (fenceId == null || fenceId.isEmpty()) {
+            System.err.println("Invalid fence ID from " + clientId);
+            logSecurityViolation("Invalid fence ID in place message");
+            return;
+        }
+        
+        // Validate player ID matches the client
+        if (!playerId.equals(clientId)) {
+            System.err.println("Player ID mismatch in fence place message from " + clientId);
+            logSecurityViolation("Player ID mismatch in fence place: " + playerId);
+            return;
+        }
+        
+        // Validate piece type and material type
+        if (message.getPieceType() == null || message.getMaterialType() == null) {
+            System.err.println("Invalid piece or material type from " + clientId);
+            logSecurityViolation("Invalid piece or material type");
+            return;
+        }
+        
+        // Validate grid coordinates (reasonable bounds check)
+        if (Math.abs(gridX) > 10000 || Math.abs(gridY) > 10000) {
+            System.err.println("Invalid grid coordinates from " + clientId + ": (" + gridX + ", " + gridY + ")");
+            logSecurityViolation("Invalid grid coordinates: (" + gridX + ", " + gridY + ")");
+            return;
+        }
+        
+        // Check if position is already occupied
+        if (server.getWorldState().hasFenceAt(gridX, gridY)) {
+            System.err.println("Fence position already occupied at (" + gridX + ", " + gridY + ") from " + clientId);
+            logSecurityViolation("Attempted to place fence at occupied position");
+            return;
+        }
+        
+        // Create fence state and add to world state
+        FenceState fenceState = new FenceState(
+            fenceId,
+            gridX,
+            gridY,
+            message.getPieceType(),
+            message.getMaterialType(),
+            playerId,
+            System.currentTimeMillis()
+        );
+        
+        server.getWorldState().addOrUpdateFence(fenceState);
+        
+        System.out.println("Player " + clientId + " placed fence " + fenceId + 
+                         " (" + message.getPieceType() + ", " + message.getMaterialType() + 
+                         ") at grid (" + gridX + ", " + gridY + ")");
+        
+        // Broadcast to all clients
+        server.broadcastToAll(message);
+    }
+    
+    /**
+     * Handles a fence remove message from the client.
+     * Validates the fence removal and broadcasts to all clients.
+     * @param message The fence remove message
+     */
+    private void handleFenceRemove(FenceRemoveMessage message) {
+        // Validate message data
+        if (message == null) {
+            logSecurityViolation("Null fence remove message");
+            return;
+        }
+        
+        String fenceId = message.getFenceId();
+        int gridX = message.getGridX();
+        int gridY = message.getGridY();
+        String playerId = message.getPlayerId();
+        
+        // Validate fence ID
+        if (fenceId == null || fenceId.isEmpty()) {
+            System.err.println("Invalid fence ID from " + clientId);
+            logSecurityViolation("Invalid fence ID in remove message");
+            return;
+        }
+        
+        // Validate player ID matches the client
+        if (!playerId.equals(clientId)) {
+            System.err.println("Player ID mismatch in fence remove message from " + clientId);
+            logSecurityViolation("Player ID mismatch in fence remove: " + playerId);
+            return;
+        }
+        
+        // Validate material type
+        if (message.getMaterialType() == null) {
+            System.err.println("Invalid material type from " + clientId);
+            logSecurityViolation("Invalid material type in remove message");
+            return;
+        }
+        
+        // Validate grid coordinates (reasonable bounds check)
+        if (Math.abs(gridX) > 10000 || Math.abs(gridY) > 10000) {
+            System.err.println("Invalid grid coordinates from " + clientId + ": (" + gridX + ", " + gridY + ")");
+            logSecurityViolation("Invalid grid coordinates: (" + gridX + ", " + gridY + ")");
+            return;
+        }
+        
+        // Check if fence exists at the position
+        FenceState existingFence = server.getWorldState().getFenceAt(gridX, gridY);
+        if (existingFence == null) {
+            System.err.println("No fence found at position (" + gridX + ", " + gridY + ") from " + clientId);
+            logSecurityViolation("Attempted to remove non-existent fence");
+            return;
+        }
+        
+        // Validate fence ID matches
+        if (!existingFence.getFenceId().equals(fenceId)) {
+            System.err.println("Fence ID mismatch at position (" + gridX + ", " + gridY + ") from " + clientId);
+            logSecurityViolation("Fence ID mismatch in remove operation");
+            return;
+        }
+        
+        // Validate ownership in multiplayer mode
+        if (!existingFence.getOwnerId().equals(playerId)) {
+            System.err.println("Player " + clientId + " attempted to remove fence owned by " + existingFence.getOwnerId());
+            logSecurityViolation("Attempted to remove fence owned by another player");
+            return;
+        }
+        
+        // Remove fence from world state
+        server.getWorldState().removeFence(fenceId);
+        
+        System.out.println("Player " + clientId + " removed fence " + fenceId + 
+                         " (" + message.getMaterialType() + 
+                         ") at grid (" + gridX + ", " + gridY + ")");
+        
+        // Broadcast to all clients
         server.broadcastToAll(message);
     }
     
