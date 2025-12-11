@@ -61,6 +61,12 @@ public class FenceBuildingManager {
     /** Visual effects manager for fence operation visual feedback */
     private FenceVisualEffectsManager visualEffectsManager;
     
+    /** Frame counter to track when building mode was activated for stability */
+    private int framesSinceBuildingActivation = 0;
+    
+    /** Flag to indicate building mode was just activated this frame */
+    private boolean buildingModeJustActivated = false;
+    
     /**
      * Creates a new FenceBuildingManager with the specified dependencies.
      * 
@@ -100,13 +106,26 @@ public class FenceBuildingManager {
      * @param deltaTime Time elapsed since last frame
      */
     public void update(float deltaTime) {
-        // Handle building mode toggle input
-        if (Gdx.input.isKeyJustPressed(buildingModeToggleKey)) {
-            toggleBuildingMode();
+        // Update frame counter for building mode stability
+        if (buildingModeActive) {
+            framesSinceBuildingActivation++;
+            // Clear the just activated flag after first frame
+            if (buildingModeJustActivated && framesSinceBuildingActivation > 1) {
+                buildingModeJustActivated = false;
+                System.out.println("[FenceBuildingManager] Building mode stabilized");
+            }
         }
         
-        // Only process building input when in building mode
-        if (buildingModeActive) {
+        // Handle building mode toggle input - only enter building mode, not exit
+        // (Player class handles B key when already in building mode for fence navigation)
+        // Add state validation to ensure we don't process B key inappropriately
+        if (Gdx.input.isKeyJustPressed(buildingModeToggleKey) && !buildingModeActive) {
+            System.out.println("[FenceBuildingManager] B key pressed - entering building mode");
+            enterBuildingMode();
+        }
+        
+        // Only process building input when in building mode and stable
+        if (buildingModeActive && !buildingModeJustActivated) {
             processBuildingInput();
         }
         
@@ -148,6 +167,8 @@ public class FenceBuildingManager {
         }
     }
     
+
+    
     /**
      * Enters building mode if conditions are met.
      * Validates material availability before allowing entry.
@@ -161,7 +182,7 @@ public class FenceBuildingManager {
             
             if (!hasWood && !hasBamboo) {
                 // No materials available, show message and prevent entry
-                System.out.println("Cannot enter building mode: No fence materials available");
+                System.out.println("[FenceBuildingManager] Cannot enter building mode: No fence materials available");
                 return;
             }
             
@@ -174,25 +195,33 @@ public class FenceBuildingManager {
         }
         
         buildingModeActive = true;
+        buildingModeJustActivated = true; // Mark as just activated
+        framesSinceBuildingActivation = 0; // Reset frame counter
         lastProcessedGridPos = null;
         leftMousePressed = false;
         rightMousePressed = false;
         
-        System.out.println("Entered fence building mode - Press " + Input.Keys.toString(buildingModeToggleKey) + " to exit");
-        System.out.println("Left click to place fence, Right click to remove fence");
-        System.out.println("Current material: " + selectedMaterialType.getDisplayName());
+        System.out.println("[FenceBuildingManager] Entered fence building mode - Press " + Input.Keys.toString(buildingModeToggleKey) + " to exit");
+        System.out.println("[FenceBuildingManager] Left click to place fence, Right click to remove fence");
+        System.out.println("[FenceBuildingManager] Current material: " + selectedMaterialType.getDisplayName());
+        System.out.println("[FenceBuildingManager] State: buildingModeActive=" + buildingModeActive + 
+                         ", buildingModeJustActivated=" + buildingModeJustActivated + 
+                         ", framesSinceBuildingActivation=" + framesSinceBuildingActivation);
     }
     
     /**
      * Exits building mode and returns to normal gameplay.
      */
-    private void exitBuildingMode() {
+    public void exitBuildingMode() {
+        System.out.println("[FenceBuildingManager] Exiting building mode");
         buildingModeActive = false;
+        buildingModeJustActivated = false; // Clear activation flag
+        framesSinceBuildingActivation = 0; // Reset frame counter
         lastProcessedGridPos = null;
         leftMousePressed = false;
         rightMousePressed = false;
         
-        System.out.println("Exited fence building mode");
+        System.out.println("[FenceBuildingManager] Exited fence building mode");
     }
     
     /**
@@ -512,6 +541,16 @@ public class FenceBuildingManager {
      */
     public boolean isBuildingModeActive() {
         return buildingModeActive;
+    }
+    
+    /**
+     * Checks if building mode was just activated this frame.
+     * Used for coordination with Player class to prevent double B key processing.
+     * 
+     * @return true if building mode was just activated, false otherwise
+     */
+    public boolean wasBuildingModeJustActivated() {
+        return buildingModeJustActivated;
     }
     
     /**

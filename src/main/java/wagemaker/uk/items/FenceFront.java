@@ -19,7 +19,7 @@ public class FenceFront {
         spriteSheet.getTextureData().prepare();
         Pixmap sheetPixmap = spriteSheet.getTextureData().consumePixmap();
         
-        // FrontFence coordinates: 0 from left, 320 from top, 64x64 size
+        // FrontFence coordinates: 64 from left, 128  from top, 64x64 size
         pixmap.drawPixmap(sheetPixmap, 0, 0, 64, 128, 64, 64);
         
         texture = new Texture(pixmap);

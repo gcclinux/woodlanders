@@ -8,11 +8,11 @@ public enum FencePieceType {
     FENCE_BACK_LEFT(0, 0, "Top-left corner piece"),
     FENCE_BACK(64, 0, "Top edge piece"),
     FENCE_BACK_RIGHT(128, 0, "Top-right corner piece"),
-    FENCE_MIDDLE_RIGHT(192, 0, "Right edge piece"),
-    FENCE_FRONT_RIGHT(0, 64, "Bottom-right corner piece"),
-    FENCE_FRONT(64, 64, "Bottom edge piece"),
-    FENCE_FRONT_LEFT(128, 64, "Bottom-left corner piece"),
-    FENCE_MIDDLE_LEFT(192, 64, "Left edge piece");
+    FENCE_FRONT_LEFT(0, 64, "Bottom-left corner piece"),
+    FENCE_MIDDLE_LEFT(0, 128, "Left edge piece"),
+    FENCE_FRONT(64, 128, "Bottom edge piece"),
+    FENCE_MIDDLE_RIGHT(128, 64, "Right edge piece"),
+    FENCE_FRONT_RIGHT(128, 128, "Bottom-right corner piece");
 
     private final int textureX;
     private final int textureY;

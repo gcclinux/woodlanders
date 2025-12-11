@@ -206,12 +206,29 @@ public class InventoryRenderer {
      */
     public void render(SpriteBatch batch, Inventory inventory, 
                       float camX, float camY, float viewWidth, float viewHeight, int selectedSlot) {
+        render(batch, inventory, camX, camY, viewWidth, viewHeight, selectedSlot, 0);
+    }
+    
+    /**
+     * Render the inventory UI panel at the bottom-right corner of the screen with offset.
+     * 
+     * @param batch The SpriteBatch to use for rendering
+     * @param inventory The inventory to display
+     * @param camX Camera X position
+     * @param camY Camera Y position
+     * @param viewWidth Viewport width
+     * @param viewHeight Viewport height
+     * @param selectedSlot The currently selected slot index (0-6), or -1 for no selection
+     * @param xOffset Additional X offset to move the panel left (positive values move left)
+     */
+    public void render(SpriteBatch batch, Inventory inventory, 
+                      float camX, float camY, float viewWidth, float viewHeight, int selectedSlot, float xOffset) {
         if (inventory == null) {
             return;
         }
         
-        // Calculate bottom-right position
-        float panelX = camX + viewWidth / 2 - PANEL_WIDTH - 20;
+        // Calculate bottom-right position with offset
+        float panelX = camX + viewWidth / 2 - PANEL_WIDTH - 20 - xOffset;
         float panelY = camY - viewHeight / 2 + 20;
         
         batch.begin();
@@ -303,6 +320,22 @@ public class InventoryRenderer {
         // Draw main text
         countFont.setColor(Color.WHITE);
         countFont.draw(batch, countText, textX, textY);
+    }
+    
+    /**
+     * Get the width of the inventory panel for positioning other UI elements.
+     * @return The panel width in pixels
+     */
+    public static int getPanelWidth() {
+        return PANEL_WIDTH;
+    }
+    
+    /**
+     * Get the height of the inventory panel for positioning other UI elements.
+     * @return The panel height in pixels
+     */
+    public static int getPanelHeight() {
+        return PANEL_HEIGHT;
     }
     
     /**

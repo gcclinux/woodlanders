@@ -111,12 +111,16 @@
 - **8-Piece Fence System**: Complete fence structures using corner and edge pieces in clockwise sequence
 - **Material Types**: Wood and bamboo fence materials with distinct textures
 - **Building Mode**: Dedicated building mode activated with B key
+- **Fence Piece Selection**: Visual fence piece selector showing all 8 fence types with arrow key navigation
+- **Dual UI System**: Fence selection panel appears above inventory when fence building mode is active
 - **Grid-Based Placement**: 64x64 pixel grid system for precise fence positioning
 - **Automatic Piece Selection**: System automatically selects correct fence piece type based on position
-- **Visual Feedback**: Grid overlay, material count display, and placement previews
+- **Visual Feedback**: Grid overlay, material count display, fence piece selection, and placement previews
+- **Interactive Selection**: Press B key to activate fence selection mode, use left/right arrows to select fence pieces
+- **Targeting Integration**: Fence selection automatically activates targeting system for precise placement
 - **Click-to-Build**: Left-click to place fence segments, right-click to remove
 - **Material Collection**: Fence materials automatically collected when harvesting trees and bamboo
-- **Inventory Integration**: Fence materials work with existing inventory system
+- **Inventory Integration**: Fence materials work with existing inventory system and display in Free World mode
 - **Collision Detection**: Fence structures create collision boundaries that block movement
 - **World Persistence**: Fence structures save and load with world data
 - **Multiplayer Synchronization**: Fence building synchronized across all clients

@@ -38,3 +38,22 @@ The system works best for rectangular shapes but supports custom layouts
 You can build with either wood or bamboo materials
 Fences create collision boundaries, so plan your layouts carefully
 Try it out by harvesting some trees or bamboo, then pressing B to enter building mode! 🎮
+
+## TEST
+
+The game should now exit cleanly without the disposal error. The fence building system remains fully functional, and players can still:
+
+- Use Free World mode to get 250 fence materials of each type
+- ***Press B*** key to enter fence building mode
+- ***Left-click*** to place fences, ***Right-click*** to remove fences
+- Collect fence materials automatically when harvesting trees/bamboo
+- The disposal error should no longer occur when exiting the game!
+
+- Activate Free World → Get 250 fence materials
+- ***Press B*** → Enter fence building mode (fence panel appears above inventory)
+- ***Press B*** again → Activate fence selection mode (targeting system activates)
+- ***Left/Right Arrows*** → Select different fence piece types (no player movement)
+- ***A/W/D/S Keys*** → Move targeting cursor to desired location
+- ***Spacebar*** → Place selected fence piece at target location
+- ***ESC*** → Cancel fence selection and targeting
+- ***Right Click*** → Remove fence pieces (in building mode)

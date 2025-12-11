@@ -185,6 +185,7 @@ public class MyGdxGame extends ApplicationAdapter {
     Player player;
     InventoryManager inventoryManager;
     wagemaker.uk.ui.InventoryRenderer inventoryRenderer;
+    wagemaker.uk.ui.FenceItemRenderer fenceItemRenderer;
     OrthographicCamera camera;
     Viewport viewport;
     Map<String, SmallTree> trees;
@@ -374,6 +375,9 @@ public class MyGdxGame extends ApplicationAdapter {
         
         // Initialize inventory renderer
         inventoryRenderer = new wagemaker.uk.ui.InventoryRenderer();
+        
+        // Initialize fence item renderer
+        fenceItemRenderer = new wagemaker.uk.ui.FenceItemRenderer();
 
         gameMenu = new GameMenu();
         gameMenu.setPlayer(player); // Set player reference for saving
@@ -453,6 +457,9 @@ public class MyGdxGame extends ApplicationAdapter {
         fenceBuildingManager = new FenceBuildingManager(fenceStructureManager, fencePlacementValidator, camera);
         fenceWorldIntegration = new FenceWorldIntegration();
         fenceWorldIntegration.setBuildingManager(fenceBuildingManager);
+        
+        // Set fence building manager reference in fence item renderer
+        fenceItemRenderer.setFenceBuildingManager(fenceBuildingManager);
 
     }
 
@@ -613,6 +620,11 @@ public class MyGdxGame extends ApplicationAdapter {
         // Update fence building system
         if (fenceBuildingManager != null) {
             fenceBuildingManager.update(deltaTime);
+        }
+        
+        // Update fence item renderer
+        if (fenceItemRenderer != null) {
+            fenceItemRenderer.update();
         }
         
         if (!gameMenu.isAnyMenuOpen()) {
@@ -910,6 +922,13 @@ public class MyGdxGame extends ApplicationAdapter {
                                     camera.position.x, camera.position.y, 
                                     viewport.getWorldWidth(), viewport.getWorldHeight(),
                                     selectedSlot);
+        }
+        
+        // render fence item selection UI (only when fence building mode is active)
+        if (fenceItemRenderer != null) {
+            fenceItemRenderer.render(batch, camera.position.x, camera.position.y, 
+                                   viewport.getWorldWidth(), viewport.getWorldHeight(),
+                                   wagemaker.uk.ui.InventoryRenderer.getPanelWidth());
         }
         
         // draw menu on top
@@ -5080,6 +5099,11 @@ public class MyGdxGame extends ApplicationAdapter {
         // Dispose inventory renderer
         if (inventoryRenderer != null) {
             inventoryRenderer.dispose();
+        }
+        
+        // Dispose fence item renderer
+        if (fenceItemRenderer != null) {
+            fenceItemRenderer.dispose();
         }
         
         // Dispose rain system

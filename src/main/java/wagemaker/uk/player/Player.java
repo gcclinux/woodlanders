@@ -123,8 +123,20 @@ public class Player {
     private Direction currentDirection = Direction.DOWN;
     private boolean isMoving = false;
     
-    // Inventory navigation mode
+    // Navigation mode state management
+    private NavigationMode currentNavigationMode = NavigationMode.NORMAL;
+    private NavigationMode requestedNavigationMode = NavigationMode.NORMAL;
+    
+    // Legacy compatibility fields (deprecated - use currentNavigationMode instead)
     private boolean inventoryNavigationMode = false;
+    private boolean fenceNavigationMode = false;
+    
+    // Flag to prevent double B key processing - tracks when building mode was just entered
+    private boolean buildingModeJustEntered = false;
+    
+    // Frame-based stability for fence navigation mode
+    private boolean fenceNavigationStable = false;
+    private int framesSinceFenceActivation = 0;
 
     public Player(float startX, float startY, OrthographicCamera camera) {
         this.x = startX;
@@ -381,6 +393,7 @@ public class Player {
     }
 
     public void update(float deltaTime) {
+        
         // Update fall animation if active
         if (isFalling) {
             fallAnimationSystem.update(deltaTime);
@@ -403,22 +416,109 @@ public class Player {
             }
             
             // ESC exits inventory mode (if active and menu not open)
-            if (inventoryNavigationMode && Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-                inventoryNavigationMode = false;
-                if (inventoryManager != null) {
-                    inventoryManager.clearSelection();
-                }
+            if (isNavigationModeActive(NavigationMode.INVENTORY) && Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+                requestNavigationMode(NavigationMode.NORMAL);
                 System.out.println("Inventory navigation mode: OFF (ESC pressed, deselected)");
             }
         }
         
         // Exit inventory mode when menu opens
-        if (gameMenu != null && gameMenu.isAnyMenuOpen() && inventoryNavigationMode) {
-            inventoryNavigationMode = false;
-            if (inventoryManager != null) {
-                inventoryManager.clearSelection();
-            }
+        if (gameMenu != null && gameMenu.isAnyMenuOpen() && isNavigationModeActive(NavigationMode.INVENTORY)) {
+            requestNavigationMode(NavigationMode.NORMAL);
             System.out.println("Inventory navigation mode: OFF (menu opened, deselected)");
+        }
+        
+        // Handle fence building mode - fence navigation is always active when building mode is active
+        wagemaker.uk.fence.FenceBuildingManager fenceBuildingManager = getFenceBuildingManager();
+        if (fenceBuildingManager != null && fenceBuildingManager.isBuildingModeActive()) {
+            // Ensure fence navigation mode is active when building mode is active
+            if (!isNavigationModeActive(NavigationMode.FENCE_BUILDING)) {
+                // If we're in inventory navigation mode, force exit it first to allow fence building
+                if (isNavigationModeActive(NavigationMode.INVENTORY)) {
+                    System.out.println("[FenceNav] Forcing exit from inventory navigation to allow fence building");
+                    forceNavigationMode(NavigationMode.NORMAL);
+                }
+                
+                boolean accepted = requestNavigationMode(NavigationMode.FENCE_BUILDING);
+                if (accepted) {
+                    fenceNavigationStable = false; // Reset stability flag
+                    framesSinceFenceActivation = 0; // Reset frame counter
+                    buildingModeJustEntered = true; // Mark that we just entered building mode
+                    System.out.println("[FenceNav] Fence navigation mode: ON (building mode active)");
+                    System.out.println("[FenceNav] State: fenceNavigationMode=" + fenceNavigationMode + 
+                                     ", fenceNavigationStable=" + fenceNavigationStable + 
+                                     ", framesSinceFenceActivation=" + framesSinceFenceActivation +
+                                     ", buildingModeJustEntered=" + buildingModeJustEntered);
+                } else {
+                    System.out.println("[FenceNav] Cannot activate fence navigation - higher priority mode is active");
+                }
+            }
+            
+            // Update frame counter and stability
+            if (isNavigationModeActive(NavigationMode.FENCE_BUILDING)) {
+                framesSinceFenceActivation++;
+                if (framesSinceFenceActivation >= 2) { // Stable after 2 frames
+                    fenceNavigationStable = true;
+                    // Clear the buildingModeJustEntered flag once we're stable
+                    if (buildingModeJustEntered) {
+                        buildingModeJustEntered = false;
+                        System.out.println("[FenceNav] Building mode stabilized, cleared buildingModeJustEntered flag");
+                    }
+                }
+            }
+            
+            // Handle B key when in building mode - exit both modes
+            // Only process B key when fence navigation is stable AND we didn't just enter building mode
+            // AND the FenceBuildingManager didn't just activate building mode this frame
+            // This prevents double B key processing between FenceBuildingManager and Player
+            boolean fenceBuildingJustActivated = fenceBuildingManager.wasBuildingModeJustActivated();
+            if (Gdx.input.isKeyJustPressed(Input.Keys.B) && fenceNavigationStable && 
+                !buildingModeJustEntered && !fenceBuildingJustActivated) {
+                System.out.println("[FenceNav] B key pressed - exiting fence navigation and building mode");
+                // Exit fence navigation mode and building mode
+                requestNavigationMode(NavigationMode.NORMAL);
+                // Exit building mode
+                fenceBuildingManager.exitBuildingMode();
+                System.out.println("[FenceNav] Exited fence navigation mode and building mode");
+            }
+            
+            // ESC exits fence navigation mode only (stay in building mode)
+            if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+                System.out.println("[FenceNav] ESC key pressed - exiting fence navigation mode only");
+                requestNavigationMode(NavigationMode.NORMAL);
+                System.out.println("[FenceNav] Fence navigation mode: OFF (ESC pressed)");
+            }
+        } else {
+            // Exit fence navigation mode if fence building is no longer active
+            if (isNavigationModeActive(NavigationMode.FENCE_BUILDING)) {
+                System.out.println("[FenceNav] Building mode deactivated - exiting fence navigation mode");
+                requestNavigationMode(NavigationMode.NORMAL);
+                System.out.println("[FenceNav] Fence navigation mode: OFF (fence building deactivated)");
+            }
+        }
+        
+        // Handle special navigation modes first (higher priority than movement)
+        if (gameMenu != null && !gameMenu.isAnyMenuOpen()) {
+            switch (currentNavigationMode) {
+                case INVENTORY:
+                    handleInventoryNavigation();
+                    break;
+                case FENCE_BUILDING:
+                    handleFenceNavigation();
+                    break;
+                case TARGETING:
+                    // Targeting input is handled separately in handleTargetingInput()
+                    break;
+                case NORMAL:
+                    // Normal mode - no special navigation handling needed
+                    break;
+            }
+        }
+        
+        // Handle targeting input (A/W/D/S when targeting active)
+        if (gameMenu != null && !gameMenu.isAnyMenuOpen()) {
+            handleTargetingInput();
+            handlePlantingAction();
         }
         
         // Track movement in both directions
@@ -431,8 +531,8 @@ public class Player {
         float newX = x;
         float newY = y;
         
-        // Only process movement if inventory navigation mode is OFF
-        if (!inventoryNavigationMode) {
+        // Only process movement if no special navigation modes are active
+        if (!shouldBlockPlayerMovement()) {
             // Check horizontal movement
             if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) { 
                 float testX = x - speed * deltaTime;
@@ -497,14 +597,7 @@ public class Player {
             gameClient.sendPlayerMovement(x, y, networkDirection, isMoving);
         }
 
-        // Handle inventory navigation or targeting input (only when menu is not open)
-        if (gameMenu != null && !gameMenu.isAnyMenuOpen()) {
-            if (inventoryNavigationMode) {
-                handleInventoryNavigation();
-            }
-            handleTargetingInput();
-            handlePlantingAction();
-        }
+
 
         // Handle spacebar - context-sensitive action
         // Priority 1: If targeting is active: plant item at target
@@ -901,6 +994,261 @@ public class Player {
         }
         
         return false;
+    }
+    
+    /**
+     * Check if any special navigation mode is currently active.
+     * Special navigation modes include inventory navigation and fence navigation.
+     * @return true if any special navigation mode is active, false otherwise
+     */
+    private boolean isSpecialNavigationActive() {
+        return inventoryNavigationMode || fenceNavigationMode;
+    }
+    
+    /**
+     * Determine if player movement should be blocked due to active navigation modes.
+     * Movement is blocked when special navigation modes are active or targeting is active.
+     * @return true if player movement should be blocked, false otherwise
+     */
+    private boolean shouldBlockPlayerMovement() {
+        return currentModeBlocksMovement() || (targetingSystem != null && targetingSystem.isActive());
+    }
+    
+    /**
+     * Get the current navigation mode.
+     * @return The currently active navigation mode
+     */
+    public NavigationMode getCurrentNavigationMode() {
+        return currentNavigationMode;
+    }
+    
+    /**
+     * Request a navigation mode change with priority validation and exclusivity logic.
+     * Higher priority modes can override lower priority modes.
+     * Lower priority modes cannot override higher priority modes.
+     * Only one special navigation mode can be active at a time.
+     * 
+     * @param requestedMode The navigation mode to activate
+     * @return true if the mode change was accepted, false if rejected due to priority or exclusivity
+     */
+    public boolean requestNavigationMode(NavigationMode requestedMode) {
+        if (requestedMode == null) {
+            requestedMode = NavigationMode.NORMAL;
+        }
+        
+        // If requesting the same mode, no change needed
+        if (requestedMode == currentNavigationMode) {
+            return true;
+        }
+        
+        // Check mode exclusivity rules
+        if (!isNavigationModeChangeAllowed(requestedMode)) {
+            System.out.println("[NavMode] Mode change blocked by exclusivity rules: " + 
+                             requestedMode.getDescription() + " cannot be activated while " + 
+                             currentNavigationMode.getDescription() + " is active");
+            return false;
+        }
+        
+        // Check if the requested mode has higher or equal priority
+        if (requestedMode.hasHigherPriorityThan(currentNavigationMode) || requestedMode == NavigationMode.NORMAL) {
+            setNavigationMode(requestedMode);
+            System.out.println("[NavMode] Mode change accepted: " + currentNavigationMode.getDescription() + 
+                             " (priority " + currentNavigationMode.getPriority() + ")");
+            return true;
+        } else {
+            System.out.println("[NavMode] Mode change rejected: " + requestedMode.getDescription() + 
+                             " (priority " + requestedMode.getPriority() + ") cannot override " + 
+                             currentNavigationMode.getDescription() + " (priority " + currentNavigationMode.getPriority() + ")");
+            return false;
+        }
+    }
+    
+    /**
+     * Check if a navigation mode change is allowed based on exclusivity rules.
+     * Implements the core exclusivity logic for navigation modes.
+     * 
+     * @param requestedMode The mode being requested
+     * @return true if the mode change is allowed, false if blocked by exclusivity rules
+     */
+    private boolean isNavigationModeChangeAllowed(NavigationMode requestedMode) {
+        // NORMAL mode can always be activated (it's the default/exit mode)
+        if (requestedMode == NavigationMode.NORMAL) {
+            return true;
+        }
+        
+        // TARGETING mode can override any other mode (highest priority)
+        if (requestedMode == NavigationMode.TARGETING) {
+            return true;
+        }
+        
+        // Special navigation modes (INVENTORY, FENCE_BUILDING) are mutually exclusive
+        // They cannot be activated when another special mode is active
+        if (requestedMode == NavigationMode.INVENTORY || requestedMode == NavigationMode.FENCE_BUILDING) {
+            // Can only activate if currently in NORMAL mode or the same mode
+            return currentNavigationMode == NavigationMode.NORMAL || currentNavigationMode == requestedMode;
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Force a navigation mode change without priority validation.
+     * Use with caution - this bypasses the priority system.
+     * 
+     * @param mode The navigation mode to activate
+     */
+    public void forceNavigationMode(NavigationMode mode) {
+        if (mode == null) {
+            mode = NavigationMode.NORMAL;
+        }
+        setNavigationMode(mode);
+        System.out.println("[NavMode] Mode forced: " + currentNavigationMode.getDescription());
+    }
+    
+    /**
+     * Internal method to set the navigation mode and update legacy compatibility fields.
+     * Also handles cleanup when exiting modes.
+     * 
+     * @param mode The navigation mode to set
+     */
+    private void setNavigationMode(NavigationMode mode) {
+        NavigationMode previousMode = currentNavigationMode;
+        currentNavigationMode = mode;
+        
+        // Update legacy compatibility fields
+        inventoryNavigationMode = (mode == NavigationMode.INVENTORY);
+        fenceNavigationMode = (mode == NavigationMode.FENCE_BUILDING);
+        
+        // Handle mode transition cleanup
+        if (previousMode != currentNavigationMode) {
+            handleModeTransition(previousMode, currentNavigationMode);
+        }
+    }
+    
+    /**
+     * Handle cleanup and initialization when transitioning between navigation modes.
+     * 
+     * @param fromMode The previous navigation mode
+     * @param toMode The new navigation mode
+     */
+    private void handleModeTransition(NavigationMode fromMode, NavigationMode toMode) {
+        System.out.println("[NavMode] Transitioning from " + fromMode.getDescription() + 
+                         " to " + toMode.getDescription());
+        
+        // Cleanup for exiting modes
+        switch (fromMode) {
+            case INVENTORY:
+                if (inventoryManager != null) {
+                    inventoryManager.clearSelection();
+                }
+                break;
+            case FENCE_BUILDING:
+                wagemaker.uk.ui.FenceItemRenderer fenceItemRenderer = getFenceItemRenderer();
+                if (fenceItemRenderer != null) {
+                    fenceItemRenderer.setFenceSelectionActive(false);
+                }
+                // Deactivate targeting when exiting fence building mode
+                if (targetingSystem != null && targetingSystem.isActive()) {
+                    targetingSystem.deactivate();
+                }
+                // Reset fence navigation stability flags
+                fenceNavigationStable = false;
+                framesSinceFenceActivation = 0;
+                buildingModeJustEntered = false;
+                break;
+            case TARGETING:
+                if (targetingSystem != null && targetingSystem.isActive()) {
+                    targetingSystem.deactivate();
+                }
+                break;
+        }
+        
+        // Initialization for entering modes
+        switch (toMode) {
+            case INVENTORY:
+                if (inventoryManager != null) {
+                    inventoryManager.setSelectedSlot(0);
+                    updateTargetingForSelection(0);
+                }
+                break;
+            case FENCE_BUILDING:
+                wagemaker.uk.ui.FenceItemRenderer fenceItemRenderer = getFenceItemRenderer();
+                if (fenceItemRenderer != null) {
+                    fenceItemRenderer.setFenceSelectionActive(true);
+                    fenceItemRenderer.setSelectedFencePieceIndex(0);
+                }
+                activateFenceTargeting();
+                break;
+            case NORMAL:
+                // Restore original planting validator when returning to normal mode
+                updateTargetingValidator();
+                break;
+        }
+    }
+    
+    /**
+     * Check if the current navigation mode blocks player movement.
+     * @return true if the current mode blocks player movement
+     */
+    public boolean currentModeBlocksMovement() {
+        return currentNavigationMode.blocksPlayerMovement();
+    }
+    
+    /**
+     * Check if a specific navigation mode is currently active.
+     * @param mode The navigation mode to check
+     * @return true if the specified mode is currently active
+     */
+    public boolean isNavigationModeActive(NavigationMode mode) {
+        return currentNavigationMode == mode;
+    }
+    
+    /**
+     * Check if any special navigation mode is currently active.
+     * Special modes are any mode other than NORMAL.
+     * @return true if a special navigation mode is active
+     */
+    public boolean isAnySpecialNavigationModeActive() {
+        return currentNavigationMode != NavigationMode.NORMAL;
+    }
+    
+    /**
+     * Check if inventory navigation can be activated.
+     * Inventory navigation is blocked when fence building or targeting is active.
+     * @return true if inventory navigation can be activated
+     */
+    public boolean canActivateInventoryNavigation() {
+        return currentNavigationMode == NavigationMode.NORMAL || currentNavigationMode == NavigationMode.INVENTORY;
+    }
+    
+    /**
+     * Check if fence building navigation can be activated.
+     * Fence building navigation is blocked when inventory navigation or targeting is active.
+     * @return true if fence building navigation can be activated
+     */
+    public boolean canActivateFenceNavigation() {
+        return currentNavigationMode == NavigationMode.NORMAL || currentNavigationMode == NavigationMode.FENCE_BUILDING;
+    }
+    
+    /**
+     * Get a description of why a navigation mode change was rejected.
+     * @param requestedMode The mode that was requested
+     * @return A human-readable explanation of why the mode change was rejected
+     */
+    public String getNavigationModeRejectionReason(NavigationMode requestedMode) {
+        if (requestedMode == currentNavigationMode) {
+            return "Mode is already active";
+        }
+        
+        if (!isNavigationModeChangeAllowed(requestedMode)) {
+            return "Mode blocked by exclusivity rules - " + currentNavigationMode.getDescription() + " is active";
+        }
+        
+        if (!requestedMode.hasHigherPriorityThan(currentNavigationMode) && requestedMode != NavigationMode.NORMAL) {
+            return "Mode has lower priority than current mode (" + currentNavigationMode.getDescription() + ")";
+        }
+        
+        return "Unknown reason";
     }
     
     public void setPosition(float newX, float newY) {
@@ -1475,23 +1823,18 @@ public class Player {
      * Toggle inventory navigation mode on/off.
      * When ON, arrow keys navigate inventory slots instead of moving player.
      * When OFF, arrow keys move player normally.
+     * Uses the new priority-based navigation mode system.
      */
     private void toggleInventoryNavigationMode() {
-        inventoryNavigationMode = !inventoryNavigationMode;
-        
-        if (inventoryNavigationMode) {
-            // Entering mode: auto-select first slot
-            if (inventoryManager != null) {
-                inventoryManager.setSelectedSlot(0);
-                updateTargetingForSelection(0);
-            }
-            System.out.println("Inventory navigation mode: ON (slot 0 selected)");
+        if (isNavigationModeActive(NavigationMode.INVENTORY)) {
+            // Currently in inventory mode - try to return to normal mode
+            requestNavigationMode(NavigationMode.NORMAL);
         } else {
-            // Exiting mode: deselect everything
-            if (inventoryManager != null) {
-                inventoryManager.clearSelection();
+            // Not in inventory mode - try to enter inventory mode
+            boolean accepted = requestNavigationMode(NavigationMode.INVENTORY);
+            if (!accepted) {
+                System.out.println("Cannot enter inventory navigation mode - higher priority mode is active");
             }
-            System.out.println("Inventory navigation mode: OFF (deselected)");
         }
     }
     
@@ -1537,6 +1880,181 @@ public class Player {
             
             // Update targeting system based on new selection
             updateTargetingForSelection(newSelection);
+        }
+    }
+    
+    /**
+     * Handle arrow key navigation in fence selection mode.
+     * LEFT/RIGHT cycle through fence pieces.
+     * Integrates with FenceItemRenderer for selection and activates targeting.
+     */
+    private void handleFenceNavigation() {
+        // Get the fence item renderer from the game instance
+        wagemaker.uk.ui.FenceItemRenderer fenceItemRenderer = getFenceItemRenderer();
+        if (fenceItemRenderer == null) {
+            return;
+        }
+        
+        boolean selectionChanged = false;
+        
+        // Handle LEFT/RIGHT arrow keys for fence piece selection
+        if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
+            int currentIndex = fenceItemRenderer.getSelectedFencePieceIndex();
+            int newIndex = (currentIndex + 1) % 8; // Wrap around after 7
+            fenceItemRenderer.setSelectedFencePieceIndex(newIndex);
+            selectionChanged = true;
+            System.out.println("Selected fence piece: " + fenceItemRenderer.getSelectedFencePieceType().getDescription());
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
+            int currentIndex = fenceItemRenderer.getSelectedFencePieceIndex();
+            int newIndex = (currentIndex - 1 + 8) % 8; // Wrap around before 0
+            fenceItemRenderer.setSelectedFencePieceIndex(newIndex);
+            selectionChanged = true;
+            System.out.println("Selected fence piece: " + fenceItemRenderer.getSelectedFencePieceType().getDescription());
+        }
+        
+        // Activate targeting for fence placement when first entering fence navigation
+        // Don't reactivate on selection changes to prevent cancellation loops
+        if (!targetingSystem.isActive()) {
+            activateFenceTargeting();
+        } else if (selectionChanged) {
+            // Just update the validator when selection changes, don't reactivate targeting
+            wagemaker.uk.fence.FenceBuildingManager fenceBuildingManager = getFenceBuildingManager();
+            if (fenceBuildingManager != null) {
+                wagemaker.uk.targeting.FenceTargetValidator fenceValidator = 
+                    new wagemaker.uk.targeting.FenceTargetValidator(fenceBuildingManager);
+                targetingSystem.setValidator(fenceValidator);
+                System.out.println("[FenceNav] Updated fence validator for new selection");
+            }
+        }
+    }
+    
+    /**
+     * Activate targeting system for fence placement.
+     */
+    private void activateFenceTargeting() {
+        if (targetingSystem != null) {
+            // Set fence-specific validator
+            wagemaker.uk.fence.FenceBuildingManager fenceBuildingManager = getFenceBuildingManager();
+            if (fenceBuildingManager != null) {
+                wagemaker.uk.targeting.FenceTargetValidator fenceValidator = 
+                    new wagemaker.uk.targeting.FenceTargetValidator(fenceBuildingManager);
+                targetingSystem.setValidator(fenceValidator);
+            }
+            
+            // Only activate if not already active to prevent cancellation loops
+            if (!targetingSystem.isActive()) {
+                targetingSystem.activate(x, y, wagemaker.uk.targeting.TargetingMode.ADJACENT, new wagemaker.uk.targeting.TargetingCallback() {
+                    @Override
+                    public void onTargetConfirmed(float targetX, float targetY) {
+                        handleFencePlacement(targetX, targetY);
+                    }
+                    
+                    @Override
+                    public void onTargetCancelled() {
+                        System.out.println("Fence placement cancelled");
+                        // Exit fence navigation mode when targeting is cancelled
+                        requestNavigationMode(NavigationMode.NORMAL);
+                    }
+                });
+                System.out.println("[FenceNav] Targeting system activated for fence placement");
+            } else {
+                System.out.println("[FenceNav] Targeting system already active, just updated validator");
+            }
+        }
+    }
+    
+    /**
+     * Handle fence placement at the confirmed target coordinates.
+     * Called when the player confirms a target position for fence placement.
+     * Integrates fence piece selection with fence placement system and provides proper error handling.
+     */
+    private void handleFencePlacement(float targetX, float targetY) {
+        System.out.println("Fence placement at (" + targetX + ", " + targetY + ")");
+        
+        wagemaker.uk.fence.FenceBuildingManager fenceBuildingManager = getFenceBuildingManager();
+        wagemaker.uk.ui.FenceItemRenderer fenceItemRenderer = getFenceItemRenderer();
+        
+        if (fenceBuildingManager == null) {
+            System.err.println("Cannot place fence: FenceBuildingManager not available");
+            return;
+        }
+        
+        if (fenceItemRenderer == null) {
+            System.err.println("Cannot place fence: FenceItemRenderer not available");
+            return;
+        }
+        
+        // Ensure building mode is still active
+        if (!fenceBuildingManager.isBuildingModeActive()) {
+            System.err.println("Cannot place fence: Building mode is not active");
+            return;
+        }
+        
+        try {
+            // Convert world coordinates to grid coordinates
+            wagemaker.uk.fence.FenceGrid fenceGrid = fenceBuildingManager.getStructureManager().getGrid();
+            java.awt.Point gridPos = fenceGrid.worldToGrid(targetX, targetY);
+            
+            // Get the selected fence piece type (for logging/debugging)
+            wagemaker.uk.fence.FencePieceType selectedPieceType = fenceItemRenderer.getSelectedFencePieceType();
+            System.out.println("Attempting to place fence piece: " + selectedPieceType.getDescription() + 
+                             " at grid position (" + gridPos.x + ", " + gridPos.y + ")");
+            
+            // Attempt to place the fence (FenceBuildingManager handles automatic piece type selection)
+            boolean placed = fenceBuildingManager.placeFenceSegment(gridPos.x, gridPos.y);
+            
+            if (placed) {
+                System.out.println("Fence piece placed successfully at (" + targetX + ", " + targetY + ")");
+                // Keep targeting active for multiple placements
+                activateFenceTargeting();
+            } else {
+                System.out.println("Failed to place fence piece - see error details above");
+                // Targeting remains active so user can try a different position
+            }
+        } catch (Exception e) {
+            System.err.println("Error during fence placement: " + e.getMessage());
+            e.printStackTrace();
+            // Targeting remains active so user can try again
+        }
+    }
+    
+    /**
+     * Get the fence item renderer from the game instance.
+     * @return The fence item renderer, or null if not available
+     */
+    private wagemaker.uk.ui.FenceItemRenderer getFenceItemRenderer() {
+        if (gameInstance == null) {
+            return null;
+        }
+        
+        try {
+            // Use reflection to get the fenceItemRenderer field from MyGdxGame
+            java.lang.reflect.Field field = gameInstance.getClass().getDeclaredField("fenceItemRenderer");
+            field.setAccessible(true);
+            return (wagemaker.uk.ui.FenceItemRenderer) field.get(gameInstance);
+        } catch (Exception e) {
+            System.err.println("Could not access fence item renderer: " + e.getMessage());
+            return null;
+        }
+    }
+    
+    /**
+     * Get the fence building manager from the game instance.
+     * @return The fence building manager, or null if not available
+     */
+    private wagemaker.uk.fence.FenceBuildingManager getFenceBuildingManager() {
+        if (gameInstance == null) {
+            return null;
+        }
+        
+        try {
+            // Use reflection to get the fenceBuildingManager field from MyGdxGame
+            java.lang.reflect.Field field = gameInstance.getClass().getDeclaredField("fenceBuildingManager");
+            field.setAccessible(true);
+            return (wagemaker.uk.fence.FenceBuildingManager) field.get(gameInstance);
+        } catch (Exception e) {
+            System.err.println("Could not access fence building manager: " + e.getMessage());
+            return null;
         }
     }
     
@@ -1672,14 +2190,18 @@ public class Player {
         int mouseY = Gdx.input.getY();
         targetingSystem.setTargetFromMouse(mouseX, mouseY);
         
-        // Handle left mouse click for planting (same as spacebar/P key)
+        // Handle left mouse click for placement (context-sensitive)
         if (Gdx.input.justTouched()) {
             if (targetingSystem.isTargetValid()) {
                 // Get current target coordinates
                 float[] coords = targetingSystem.getTargetCoordinates();
                 
-                // Place the item at target location
-                handleItemPlacement(coords[0], coords[1]);
+                // Handle placement based on current navigation mode
+                if (fenceNavigationMode) {
+                    handleFencePlacement(coords[0], coords[1]);
+                } else {
+                    handleItemPlacement(coords[0], coords[1]);
+                }
                 
                 // Targeting remains active - don't deactivate
             }
@@ -1714,21 +2236,25 @@ public class Player {
     }
     
     /**
-     * Handle planting action when spacebar is pressed while targeting is active.
-     * This provides an alternative to the 'P' key for planting.
-     * Spacebar is context-sensitive: plants when targeting, attacks when not targeting.
+     * Handle placement action when spacebar is pressed while targeting is active.
+     * This provides an alternative to the 'P' key for placement.
+     * Spacebar is context-sensitive: places fence when in fence navigation mode, plants items otherwise.
      */
     private void handleSpacebarPlanting() {
-        // If targeting is active and target is valid, place the item
+        // If targeting is active and target is valid, place the item/fence
         if (targetingSystem.isActive() && targetingSystem.isTargetValid()) {
             // Get current target coordinates
             float[] coords = targetingSystem.getTargetCoordinates();
             
-            // Place the item at target location
-            handleItemPlacement(coords[0], coords[1]);
+            // Handle placement based on current navigation mode
+            if (fenceNavigationMode) {
+                handleFencePlacement(coords[0], coords[1]);
+            } else {
+                handleItemPlacement(coords[0], coords[1]);
+            }
             
             // Targeting remains active - don't deactivate
-            // It will only deactivate when the player deselects the item
+            // It will only deactivate when the player deselects the item or exits fence navigation
         }
     }
     
