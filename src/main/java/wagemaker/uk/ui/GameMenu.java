@@ -1649,6 +1649,14 @@ public class GameMenu implements LanguageChangeListener, FontChangeListener {
                 }
             }
             
+            // Get fence and respawn managers from game instance
+            wagemaker.uk.fence.FenceStructureManager fenceManager = null;
+            if (gameInstance.getFenceBuildingManager() != null) {
+                fenceManager = gameInstance.getFenceBuildingManager().getStructureManager();
+            }
+
+            wagemaker.uk.respawn.RespawnManager respawnManager = gameInstance.getRespawnManager();
+            
             boolean success = WorldSaveManager.saveWorld(
                 saveName, 
                 currentWorldState,
@@ -1656,7 +1664,9 @@ public class GameMenu implements LanguageChangeListener, FontChangeListener {
                 saveY, 
                 saveHealth,
                 currentInventory,
-                isMultiplayer
+                isMultiplayer,
+                respawnManager,
+                fenceManager
             );
             
             if (success) {

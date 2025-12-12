@@ -286,6 +286,16 @@ public class WorldSaveManager {
                 saveData.setPlantedBamboos(worldState.getPlantedBamboos());
                 System.out.println("Saved " + worldState.getPlantedBamboos().size() + " planted bamboos");
             }
+
+            if (worldState.getPlantedBananaTrees() != null) {
+                saveData.setPlantedBananaTrees(worldState.getPlantedBananaTrees());
+                System.out.println("Saved " + worldState.getPlantedBananaTrees().size() + " planted banana trees");
+            }
+
+            if (worldState.getPlantedAppleTrees() != null) {
+                saveData.setPlantedAppleTrees(worldState.getPlantedAppleTrees());
+                System.out.println("Saved " + worldState.getPlantedAppleTrees().size() + " planted apple trees");
+            }
             
             // Set respawn data if provided
             if (respawnManager != null) {

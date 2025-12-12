@@ -272,6 +272,12 @@ public class MyGdxGame extends ApplicationAdapter {
     static final int CAMERA_WIDTH = 1280;
     static final int CAMERA_HEIGHT = 1024;
 
+    public FenceBuildingManager getFenceBuildingManager() {
+        return fenceBuildingManager;
+    }
+
+
+
     @Override
     public void create() {
         // Initialize localization system first (before any UI components)
@@ -2436,13 +2442,24 @@ public class MyGdxGame extends ApplicationAdapter {
             plantedBamboos.clear();
             
             // Clear cleared positions map
-            clearedPositions.clear();
-            
-            long duration = System.currentTimeMillis() - startTime;
-            System.out.println("Local world cleared successfully in " + duration + "ms");
-            System.out.println("Cleared planted trees and bamboos to prevent singleplayer items in multiplayer");
-            
-        } catch (Exception e) {
+        clearedPositions.clear();
+        
+        // CRITICAL FIX: Clear fence structures to prevent singleplayer fences in multiplayer
+        if (fenceBuildingManager != null) {
+            try {
+                fenceBuildingManager.getStructureManager().clear();
+                fenceBuildingManager.rebuildCollisionBoundaries();
+                System.out.println("Cleared fence structures for multiplayer");
+            } catch (Exception e) {
+                System.err.println("Error clearing fence structures: " + e.getMessage());
+            }
+        }
+        
+        long duration = System.currentTimeMillis() - startTime;
+        System.out.println("Local world cleared successfully in " + duration + "ms");
+        System.out.println("Cleared planted trees and bamboos to prevent singleplayer items in multiplayer");
+        
+    } catch (Exception e) {
             System.err.println("Error clearing local world: " + e.getMessage());
             e.printStackTrace();
             // Continue anyway - server state will override
@@ -3649,6 +3666,24 @@ public class MyGdxGame extends ApplicationAdapter {
                 }
             }
             
+            // Restore fence structures from world save
+            if (saveData.getFenceStructures() != null && !saveData.getFenceStructures().isEmpty() && fenceBuildingManager != null) {
+                try {
+                    int restoredCount = wagemaker.uk.fence.FencePersistenceManager.deserializeFenceStructures(
+                        saveData.getFenceStructures(), 
+                        fenceBuildingManager.getStructureManager()
+                    );
+                    
+                    // Rebuild collision boundaries after restoration
+                    fenceBuildingManager.rebuildCollisionBoundaries();
+                    
+                    System.out.println("Restored " + restoredCount + " fence structures from world save");
+                } catch (Exception e) {
+                    System.err.println("Error restoring fence structures: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+            
             System.out.println("World state restoration completed successfully");
             return true;
             
@@ -3755,6 +3790,17 @@ public class MyGdxGame extends ApplicationAdapter {
             // Clear cleared positions
             clearedPositions.clear();
             
+            // Clear fence structures
+            if (fenceBuildingManager != null) {
+                try {
+                    fenceBuildingManager.getStructureManager().clear();
+                    fenceBuildingManager.rebuildCollisionBoundaries();
+                    System.out.println("Cleared fence structures during world cleanup");
+                } catch (Exception e) {
+                    System.err.println("Error clearing fence structures: " + e.getMessage());
+                }
+            }
+                        
             System.out.println("Existing world state cleaned up successfully");
             
         } catch (Exception e) {
