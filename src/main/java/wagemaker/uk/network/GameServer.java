@@ -584,15 +584,61 @@ public class GameServer {
         int endX = ((int)centerX / chunkSize + chunksRadius) * chunkSize;
         int endY = ((int)centerY / chunkSize + chunksRadius) * chunkSize;
         
+        Map<String, TreeState> newTrees = new HashMap<>();
+        int newStonesCount = 0;
+        
         for (int x = startX; x <= endX; x += chunkSize) {
             for (int y = startY; y <= endY; y += chunkSize) {
-                // Generate tree at this position (if it should exist)
-                // This populates the server's WorldState only
-                worldState.generateTreeAt(x, y);
+                String key = x + "," + y;
                 
-                // Generate stone at this position (if it should exist)
-                worldState.generateStoneAt(x, y, centerX, centerY);
+                // Generate tree at this position (only if it doesn't already exist)
+                // We check existence first to avoid re-broadcasting existing trees
+                if (!worldState.getTrees().containsKey(key)) {
+                    TreeState newTree = worldState.generateTreeAt(x, y);
+                    // generateTreeAt returns the tree if it was just created OR if it already existed (race condition)
+                    // We only want to broadcast if we are relatively sure it's new, or forcing a sync.
+                    // Given the outer check, if we get a tree back, it's likely new or we missed it.
+                    if (newTree != null) {
+                        newTrees.put(newTree.getTreeId(), newTree);
+                    }
+                }
+                
+                // Generate stone at this position (only if it doesn't already exist)
+                if (!worldState.getStones().containsKey(key)) {
+                    StoneState newStone = worldState.generateStoneAt(x, y, centerX, centerY);
+                    if (newStone != null) {
+                        // Broadcast new stone immediately
+                        StoneCreatedMessage stoneMsg = new StoneCreatedMessage(
+                            "server", 
+                            newStone.getStoneId(), 
+                            newStone.getX(), 
+                            newStone.getY(), 
+                            newStone.getHealth()
+                        );
+                        broadcastToAll(stoneMsg);
+                        newStonesCount++;
+                    }
+                }
             }
+        }
+        
+        // Broadcast new trees in a batch update
+        if (!newTrees.isEmpty()) {
+            System.out.println("[GameServer] Generated " + newTrees.size() + " new trees around (" + centerX + "," + centerY + ")");
+            
+            WorldStateUpdateMessage updateMsg = new WorldStateUpdateMessage(
+                "server",
+                new HashMap<>(), // no player updates
+                newTrees,        // tree updates
+                new HashMap<>(), // no item updates
+                new HashMap<>()  // no fence updates
+            );
+            
+            broadcastToAll(updateMsg);
+        }
+        
+        if (newStonesCount > 0) {
+            System.out.println("[GameServer] Generated " + newStonesCount + " new stones around (" + centerX + "," + centerY + ")");
         }
     }
 }

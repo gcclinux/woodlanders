@@ -98,20 +98,15 @@ public class WorldState implements Serializable {
         
         // Create a temporary BiomeManager for biome queries during initial generation
         // This ensures server-side tree generation respects biome boundaries
-        wagemaker.uk.biome.BiomeManager biomeManager = null;
-        boolean useBiomeAwareness = true;
+        wagemaker.uk.biome.BiomeManager biomeMgr = getBiomeManager();
+        boolean useBiomeAwareness = (biomeMgr != null);
         
-        try {
-            biomeManager = new wagemaker.uk.biome.BiomeManager();
-            biomeManager.initialize();
+        if (useBiomeAwareness) {
             System.out.println("BiomeManager initialized successfully in WorldState (thread: " + Thread.currentThread().getName() + ")");
-        } catch (Exception e) {
+        } else {
             // BiomeManager initialization failed (likely due to OpenGL context issues on background thread)
             // Fall back to generating trees without biome awareness
-            System.err.println("BiomeManager initialization failed in WorldState, generating trees without biome awareness: " + e.getMessage());
-            e.printStackTrace();
-            useBiomeAwareness = false;
-            biomeManager = null;
+            System.err.println("BiomeManager unavailable in WorldState, generating trees without biome awareness");
         }
         
         // Generate trees in a 5000x5000 area around spawn (-2500 to +2500)
@@ -150,11 +145,14 @@ public class WorldState implements Serializable {
                         treeY = y + offsetY;
                         
                         // Check biome type first to determine minimum distance
-                        wagemaker.uk.biome.BiomeType biomeCheck = null;
-                        if (useBiomeAwareness && biomeManager != null) {
-                            biomeCheck = biomeManager.getBiomeAtPosition(treeX, treeY);
+                        float minDistance = 192f; // Default for grass
+                        
+                        if (useBiomeAwareness) {
+                            wagemaker.uk.biome.BiomeType biomeCheck = biomeMgr.getBiomeAtPosition(treeX, treeY);
+                            if (biomeCheck == wagemaker.uk.biome.BiomeType.SAND) {
+                                minDistance = 50f;
+                            }
                         }
-                        float minDistance = (biomeCheck == wagemaker.uk.biome.BiomeType.SAND) ? 50f : 192f;
                         
                         // Check if any tree is too close (192px for grass, 50px for sand)
                         if (!isTreeTooClose(treeX, treeY, minDistance)) {
@@ -178,8 +176,13 @@ public class WorldState implements Serializable {
                     // This ensures server generates the same biome-specific trees as clients
                     TreeType treeType = null;
                     
-                    if (useBiomeAwareness && biomeManager != null) {
-                        wagemaker.uk.biome.BiomeType biome = biomeManager.getBiomeAtPosition(treeX, treeY);
+                    if (useBiomeAwareness && biomeMgr != null) {
+                        wagemaker.uk.biome.BiomeType biome = biomeMgr.getBiomeAtPosition(treeX, treeY);
+                        
+                        // BIOME RULE 1: Nothing spawns in water
+                        if (biome == wagemaker.uk.biome.BiomeType.WATER) {
+                            continue;
+                        }
                         
                         // STEP 5: Generate tree based on biome type (SAME LOGIC AS CLIENT)
                         if (biome == wagemaker.uk.biome.BiomeType.SAND) {
@@ -189,10 +192,6 @@ public class WorldState implements Serializable {
                             }
                         } else {
                             // Grass biomes: adjusted tree type distribution
-                            // SmallTree: 42.5% (increased by 30% from 32.5%)
-                            // AppleTree: 12.5% (reduced by 50% from 25%)
-                            // CoconutTree: 32.5% (unchanged)
-                            // BananaTree: 12.5% (reduced by 50% from 25%)
                             float treeTypeRoll = random.nextFloat();
                             
                             if (treeTypeRoll < 0.425f) {
@@ -232,11 +231,6 @@ public class WorldState implements Serializable {
                     this.trees.put(key, tree);
                 }
             }
-        }
-        
-        // Clean up temporary BiomeManager
-        if (biomeManager != null) {
-            biomeManager.dispose();
         }
         
         if (useBiomeAwareness) {
@@ -311,13 +305,13 @@ public class WorldState implements Serializable {
         // Check if position has a planted sapling
         if (plantedTrees.containsKey(key) || plantedBamboos.containsKey(key) || 
             plantedBananaTrees.containsKey(key) || plantedAppleTrees.containsKey(key)) {
-            System.out.println("[DEBUG] Skipping generation at " + key + " - sapling exists");
+            // System.out.println("[DEBUG] Skipping generation at " + key + " - sapling exists");
             return null;
         }
         
         // Check if position was cleared (prevents immediate regeneration)
         if (clearedPositions.contains(key)) {
-            System.out.println("[DEBUG] Skipping generation at " + key + " - position cleared");
+            // System.out.println("[DEBUG] Skipping generation at " + key + " - position cleared");
             return null;
         }
         
@@ -325,13 +319,16 @@ public class WorldState implements Serializable {
         java.util.Random random = new java.util.Random();
         random.setSeed(worldSeed + x * 31L + y * 17L);
         
-        // Check spawn probability (2% chance, increased by 30%)
+        // Check spawn probability (2.6% chance)
         if (random.nextFloat() < 0.026f) {
             // Add random offset to break grid pattern (±32px in each direction)
             // Try multiple times to find a position without overlapping trees
             float treeX = 0, treeY = 0;
             boolean validPosition = false;
             int maxAttempts = 5;
+            
+            wagemaker.uk.biome.BiomeManager biomeMgr = getBiomeManager();
+            boolean useBiomeAwareness = (biomeMgr != null);
             
             for (int attempt = 0; attempt < maxAttempts; attempt++) {
                 float offsetX = (random.nextFloat() - 0.5f) * 64; // -32 to +32
@@ -340,12 +337,14 @@ public class WorldState implements Serializable {
                 treeY = y + offsetY;
                 
                 // Check biome type first to determine minimum distance
-                wagemaker.uk.biome.BiomeManager tempBiomeManager = new wagemaker.uk.biome.BiomeManager();
-                tempBiomeManager.initialize();
-                wagemaker.uk.biome.BiomeType biomeCheck = tempBiomeManager.getBiomeAtPosition(treeX, treeY);
-                tempBiomeManager.dispose();
+                float minDistance = 192f; // Default for grass
                 
-                float minDistance = (biomeCheck == wagemaker.uk.biome.BiomeType.SAND) ? 50f : 192f;
+                if (useBiomeAwareness) {
+                    wagemaker.uk.biome.BiomeType biomeCheck = biomeMgr.getBiomeAtPosition(treeX, treeY);
+                    if (biomeCheck == wagemaker.uk.biome.BiomeType.SAND) {
+                        minDistance = 50f;
+                    }
+                }
                 
                 // Check if any tree is too close (192px for grass, 50px for sand)
                 if (!isTreeTooClose(treeX, treeY, minDistance)) {
@@ -360,21 +359,21 @@ public class WorldState implements Serializable {
             }
             
             // Don't spawn trees too close to spawn point (within 200px)
-            // This is deterministic based on coordinates only
             float distanceFromSpawn = (float) Math.sqrt(treeX * treeX + treeY * treeY);
             if (distanceFromSpawn < 200) {
                 return null;
             }
             
-            // Determine tree type using biome-aware logic (if available)
+            // Determine tree type
             TreeType treeType = null;
             
-            // Try to use biome manager for tree type determination
-            try {
-                wagemaker.uk.biome.BiomeManager biomeManager = new wagemaker.uk.biome.BiomeManager();
-                biomeManager.initialize();
-                wagemaker.uk.biome.BiomeType biome = biomeManager.getBiomeAtPosition(treeX, treeY);
-                biomeManager.dispose();
+            if (useBiomeAwareness) {
+                wagemaker.uk.biome.BiomeType biome = biomeMgr.getBiomeAtPosition(treeX, treeY);
+                
+                // BIOME RULE 1: Nothing spawns in water
+                if (biome == wagemaker.uk.biome.BiomeType.WATER) {
+                    return null;
+                }
                 
                 if (biome == wagemaker.uk.biome.BiomeType.SAND) {
                     // Sand biomes: bamboo trees with 30% spawn rate (reduced by 70%)
@@ -382,14 +381,9 @@ public class WorldState implements Serializable {
                         treeType = TreeType.BAMBOO;
                     }
                 } else {
-                    // Grass biomes: increased tree type distribution
-                    // Normalized from 130% to 100% while maintaining 30% increase ratios
-                    // SmallTree: 42.5% (55.25/1.3 = 42.5%)
-                    // AppleTree: 12.5% (16.25/1.3 = 12.5%)  
-                    // CoconutTree: 32.5% (42.25/1.3 = 32.5%)
-                    // BananaTree: 12.5% (16.25/1.3 = 12.5%)
-                    // Note: Overall spawn rate increased by 30% to achieve desired effect
+                    // Grass biomes: adjusted tree type distribution
                     float treeTypeRoll = random.nextFloat();
+                    
                     if (treeTypeRoll < 0.425f) {
                         treeType = TreeType.SMALL;
                     } else if (treeTypeRoll < 0.55f) {
@@ -400,9 +394,10 @@ public class WorldState implements Serializable {
                         treeType = TreeType.BANANA;
                     }
                 }
-            } catch (Exception e) {
-                // Fallback: generate without biome awareness
+            } else {
+                // Fallback: generate trees without biome awareness
                 float treeTypeRoll = random.nextFloat();
+                
                 if (treeTypeRoll < 0.2f) {
                     treeType = TreeType.SMALL;
                 } else if (treeTypeRoll < 0.4f) {
@@ -464,17 +459,15 @@ public class WorldState implements Serializable {
                 return null;
             }
             
-            // Only spawn stones on sand biomes
-            try {
-                wagemaker.uk.biome.BiomeManager biomeManager = new wagemaker.uk.biome.BiomeManager();
-                biomeManager.initialize();
-                wagemaker.uk.biome.BiomeType biome = biomeManager.getBiomeAtPosition(stoneX, stoneY);
-                biomeManager.dispose();
-                
+            // Only spawn stones on sand biomes (never in water or grass)
+            wagemaker.uk.biome.BiomeManager biomeMgr = getBiomeManager();
+            if (biomeMgr != null) {
+                wagemaker.uk.biome.BiomeType biome = biomeMgr.getBiomeAtPosition(stoneX, stoneY);
                 if (biome != wagemaker.uk.biome.BiomeType.SAND) {
                     return null;
                 }
-            } catch (Exception e) {
+            } else {
+                // If biome manager fails, do not spawn stones to be safe
                 return null;
             }
             
@@ -494,6 +487,30 @@ public class WorldState implements Serializable {
     }
 
     
+    private transient wagemaker.uk.biome.BiomeManager biomeManager;
+    
+    /**
+     * Gets or initializes the persistent BiomeManager instance.
+     * Use this method instead of creating new instances to ensure performance and consistency.
+     * Handles server-side initialization where OpenGL might be missing.
+     */
+    private wagemaker.uk.biome.BiomeManager getBiomeManager() {
+        if (biomeManager == null) {
+            try {
+                biomeManager = new wagemaker.uk.biome.BiomeManager();
+                biomeManager.initialize();
+            } catch (Exception e) {
+                System.err.println("WorldState: Failed to initialize BiomeManager: " + e.getMessage());
+                // Try to force initialization if possible, or just leave it null
+                // BiomeManager usually handles its own headless fallback in initialize()
+                // so if it throws here, something is very wrong.
+                // We'll leave it null so logic falls back to non-biome behavior somewhat safely (though desync risk remains)
+                // Ideally BiomeManager.initialize() should act as a safe barrier.
+            }
+        }
+        return biomeManager;
+    }
+
     /**
      * Creates a complete snapshot of the current world state.
      * This is used when a new client connects to get the full state.
