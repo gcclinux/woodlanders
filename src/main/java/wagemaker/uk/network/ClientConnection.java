@@ -1564,6 +1564,7 @@ public class ClientConnection implements Runnable {
         if (!isValidInventoryCount(message.getAppleCount()) ||
             !isValidInventoryCount(message.getBananaCount()) ||
             !isValidInventoryCount(message.getAppleSaplingCount()) ||
+            !isValidInventoryCount(message.getBananaSaplingCount()) ||
             !isValidInventoryCount(message.getBambooSaplingCount()) ||
             !isValidInventoryCount(message.getBambooStackCount()) ||
             !isValidInventoryCount(message.getTreeSaplingCount()) ||
@@ -1571,7 +1572,11 @@ public class ClientConnection implements Runnable {
             !isValidInventoryCount(message.getPebbleCount()) ||
             !isValidInventoryCount(message.getPalmFiberCount()) ||
             !isValidInventoryCount(message.getFishCount()) ||
-            !isValidInventoryCount(message.getFrontFenceCount())) {
+            !isValidInventoryCount(message.getFrontFenceCount()) ||
+            !isValidInventoryCount(message.getBackFenceCount()) ||
+            !isValidInventoryCount(message.getBowAndArrowCount()) ||
+            !isValidInventoryCount(message.getWoodFenceMaterialCount()) ||
+            !isValidInventoryCount(message.getBambooFenceMaterialCount())) {
             System.err.println("Invalid inventory counts from " + clientId);
             logSecurityViolation("Invalid inventory counts");
             return;
@@ -1590,6 +1595,10 @@ public class ClientConnection implements Runnable {
         playerState.setPalmFiberCount(message.getPalmFiberCount());
         playerState.setFishCount(message.getFishCount());
         playerState.setFrontFenceCount(message.getFrontFenceCount());
+        playerState.setBackFenceCount(message.getBackFenceCount());
+        playerState.setBowAndArrowCount(message.getBowAndArrowCount());
+        playerState.setWoodFenceMaterialCount(message.getWoodFenceMaterialCount());
+        playerState.setBambooFenceMaterialCount(message.getBambooFenceMaterialCount());
         
         // Update in world state
         server.getWorldState().addOrUpdatePlayer(playerState);
@@ -1606,7 +1615,11 @@ public class ClientConnection implements Runnable {
                          ", Pebbles=" + message.getPebbleCount() +
                          ", PalmFiber=" + message.getPalmFiberCount() +
                          ", Fish=" + message.getFishCount() +
-                         ", FrontFence=" + message.getFrontFenceCount());
+                         ", FrontFence=" + message.getFrontFenceCount() +
+                         ", BackFence=" + message.getBackFenceCount() +
+                         ", BowAndArrow=" + message.getBowAndArrowCount() +
+                         ", WoodFenceMat=" + message.getWoodFenceMaterialCount() +
+                         ", BambooFenceMat=" + message.getBambooFenceMaterialCount());
     }
     
     /**
