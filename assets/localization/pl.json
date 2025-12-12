@@ -97,6 +97,7 @@
     "fence_place": "Lewy klik - Umieść ogrodzenia",
     "fence_remove": "Prawy klik - Usuń ogrodzenia",
     "fence_select": "Mysz - Wybierz lokalizację elementu ogrodzenia",
+    "fence_delete_enclosure": "C - Usuń Ogrodzony Teren",
     "system_header": "System",
     "system_menu": "ESC - Otwórz menu",
     "system_delete_world": "X - Usuń świat",

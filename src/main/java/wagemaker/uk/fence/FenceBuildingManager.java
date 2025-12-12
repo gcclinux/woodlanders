@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.Vector3;
 import java.awt.Point;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Central coordinator for all fence building operations.
@@ -133,9 +134,9 @@ public class FenceBuildingManager {
             enterBuildingMode();
         }
         
-        // Handle clear all fences (C key) when in building mode
+        // Handle clear nearest enclosure (C key) when in building mode
         if (buildingModeActive && Gdx.input.isKeyJustPressed(Input.Keys.C)) {
-            clearAllFences();
+            clearNearestEnclosure();
         }
         
         // Handle rebuild collision boundaries (R key) when in building mode
@@ -860,6 +861,76 @@ public class FenceBuildingManager {
         }
     }
     
+    /**
+     * Clears the fence enclosure nearest to the targeting cursor.
+     * Finds the closest fence piece, identifies all connected pieces, and removes them.
+     * Returns materials to inventory and plays a single removal sound.
+     */
+    public void clearNearestEnclosure() {
+        if (structureManager == null) return;
+        
+        // Get mouse position in world coordinates
+        Vector3 mousePos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+        camera.unproject(mousePos);
+        
+        // Find closest fence piece
+        Map<Point, FencePiece> allPieces = structureManager.getAllFencePieces();
+        if (allPieces.isEmpty()) {
+            return;
+        }
+        
+        Point closestPos = null;
+        float minDistanceSq = Float.MAX_VALUE;
+        
+        for (Map.Entry<Point, FencePiece> entry : allPieces.entrySet()) {
+            FencePiece piece = entry.getValue();
+            float dx = piece.getX() - mousePos.x;
+            float dy = piece.getY() - mousePos.y;
+            float distSq = dx*dx + dy*dy;
+            
+            if (distSq < minDistanceSq) {
+                minDistanceSq = distSq;
+                closestPos = entry.getKey();
+            }
+        }
+        
+        if (closestPos != null) {
+            // Get connected pieces (the enclosure)
+            Set<Point> connectedPoints = structureManager.findConnectedPieces(closestPos);
+            
+            if (!connectedPoints.isEmpty()) {
+                System.out.println("[FenceBuildingManager] Clearing enclosure of " + connectedPoints.size() + " pieces nearest to " + closestPos);
+                
+                int removedCount = 0;
+                
+                // Remove each piece
+                for (Point pos : connectedPoints) {
+                    FencePiece removedPiece = structureManager.removeFencePiece(pos);
+                    if (removedPiece != null) {
+                        updateCollisionBoundaries(pos, false);
+                        removedCount++;
+                        // Trigger visual effect for each piece
+                        if (visualEffectsManager != null) {
+                            visualEffectsManager.triggerRemovalAnimation(pos, selectedMaterialType);
+                        }
+                    }
+                }
+                
+                // Return materials
+                FenceMaterialProvider materialProvider = validator.getMaterialProvider();
+                if (materialProvider != null && removedCount > 0) {
+                    materialProvider.returnMaterials(selectedMaterialType, removedCount);
+                    System.out.println("Returned " + removedCount + " " + selectedMaterialType.getDisplayName() + " materials");
+                }
+                
+                // Play sound once
+                if (soundManager != null) {
+                    soundManager.playRemovalSound();
+                }
+            }
+        }
+    }
+
     /**
      * Clears all fence pieces from the world.
      * Useful for debugging and testing.

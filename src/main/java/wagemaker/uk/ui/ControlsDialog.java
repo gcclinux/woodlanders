@@ -193,6 +193,8 @@ public class ControlsDialog implements LanguageChangeListener, FontChangeListene
         dialogFont.draw(batch, loc.getText("controls_dialog.fence_remove"), leftColumnX, currentY);
         currentY -= 20;
         dialogFont.draw(batch, loc.getText("controls_dialog.fence_select"), leftColumnX, currentY);
+        currentY -= 20;
+        dialogFont.draw(batch, loc.getText("controls_dialog.fence_delete_enclosure"), leftColumnX, currentY);
         
         // Reset Y for right column
         currentY = dialogY + DIALOG_HEIGHT - 70;

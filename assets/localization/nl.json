@@ -97,6 +97,7 @@
     "fence_place": "Linker klik - Hekken plaatsen",
     "fence_remove": "Rechter klik - Hekken verwijderen",
     "fence_select": "Muis - Hekstuk locatie selecteren",
+    "fence_delete_enclosure": "C - Verwijder Hek Omheining",
     "system_header": "Systeem",
     "system_menu": "ESC - Menu openen",
     "system_delete_world": "X - Wereld verwijderen",

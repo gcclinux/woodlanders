@@ -330,7 +330,7 @@ public class FenceStructureManager {
      * @param startPos Starting grid position
      * @return Set of all connected grid positions
      */
-    private Set<Point> findConnectedPieces(Point startPos) {
+    public Set<Point> findConnectedPieces(Point startPos) {
         Set<Point> visited = new HashSet<>();
         Queue<Point> queue = new LinkedList<>();
         

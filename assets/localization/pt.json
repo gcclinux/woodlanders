@@ -97,6 +97,7 @@
     "fence_place": "Clique esquerdo - Colocar cercas",
     "fence_remove": "Clique direito - Remover cercas",
     "fence_select": "Mouse - Selecionar localização da peça de cerca",
+    "fence_delete_enclosure": "C - Excluir Cerca",
     "system_header": "Sistema",
     "system_menu": "ESC - Abrir menu",
     "system_delete_world": "X - Excluir mundo",

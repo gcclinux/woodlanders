@@ -97,6 +97,7 @@
     "fence_place": "Left-click - Place fences",
     "fence_remove": "Right-click - Remove fences",
     "fence_select": "Mouse - Select fence piece location",
+    "fence_delete_enclosure": "C - Delete Fence Enclosure",
     "system_header": "System",
     "system_menu": "ESC - Open menu",
     "system_delete_world": "X - Delete world",
