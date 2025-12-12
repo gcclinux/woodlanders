@@ -350,10 +350,13 @@ public class Inventory {
     }
     
     public boolean removeWoodFenceMaterial(int amount) {
+        System.out.println("DEBUG: Removing " + amount + " wood fence materials. Current count: " + woodFenceMaterialCount);
         if (woodFenceMaterialCount >= amount) {
             woodFenceMaterialCount -= amount;
+            System.out.println("DEBUG: Wood fence materials removed. New count: " + woodFenceMaterialCount);
             return true;
         }
+        System.out.println("DEBUG: Not enough wood fence materials to remove");
         return false;
     }
     
@@ -371,10 +374,13 @@ public class Inventory {
     }
     
     public boolean removeBambooFenceMaterial(int amount) {
+        System.out.println("DEBUG: Removing " + amount + " bamboo fence materials. Current count: " + bambooFenceMaterialCount);
         if (bambooFenceMaterialCount >= amount) {
             bambooFenceMaterialCount -= amount;
+            System.out.println("DEBUG: Bamboo fence materials removed. New count: " + bambooFenceMaterialCount);
             return true;
         }
+        System.out.println("DEBUG: Not enough bamboo fence materials to remove");
         return false;
     }
     

@@ -993,8 +993,20 @@ public class Player {
             }
         }
         
+        // Check collision with fences using standard collision detection
+        wagemaker.uk.fence.FenceBuildingManager fenceBuildingManager = getFenceBuildingManager();
+        if (fenceBuildingManager != null) {
+            // Use standard player collision rectangle (collision boundaries are now shifted left)
+            com.badlogic.gdx.math.Rectangle playerRect = new com.badlogic.gdx.math.Rectangle(newX, newY, 64, 64);
+            if (fenceBuildingManager.checkFenceCollision(playerRect)) {
+                return true;
+            }
+        }
+        
         return false;
     }
+    
+
     
     /**
      * Check if any special navigation mode is currently active.
@@ -1151,6 +1163,11 @@ public class Player {
                 if (targetingSystem != null && targetingSystem.isActive()) {
                     targetingSystem.deactivate();
                 }
+                // Re-enable direct mouse input when exiting fence building
+                wagemaker.uk.fence.FenceBuildingManager fenceBuildingManager = getFenceBuildingManager();
+                if (fenceBuildingManager != null) {
+                    fenceBuildingManager.setDirectMouseInputDisabled(false);
+                }
                 // Reset fence navigation stability flags
                 fenceNavigationStable = false;
                 framesSinceFenceActivation = 0;
@@ -1159,6 +1176,11 @@ public class Player {
             case TARGETING:
                 if (targetingSystem != null && targetingSystem.isActive()) {
                     targetingSystem.deactivate();
+                }
+                // Re-enable direct mouse input when exiting targeting mode
+                wagemaker.uk.fence.FenceBuildingManager fenceManager = getFenceBuildingManager();
+                if (fenceManager != null) {
+                    fenceManager.setDirectMouseInputDisabled(false);
                 }
                 break;
         }
@@ -1933,12 +1955,15 @@ public class Player {
      */
     private void activateFenceTargeting() {
         if (targetingSystem != null) {
-            // Set fence-specific validator
+            // Set fence-specific validator and disable direct mouse input
             wagemaker.uk.fence.FenceBuildingManager fenceBuildingManager = getFenceBuildingManager();
             if (fenceBuildingManager != null) {
                 wagemaker.uk.targeting.FenceTargetValidator fenceValidator = 
                     new wagemaker.uk.targeting.FenceTargetValidator(fenceBuildingManager);
                 targetingSystem.setValidator(fenceValidator);
+                
+                // Disable direct mouse input to prevent double placement
+                fenceBuildingManager.setDirectMouseInputDisabled(true);
             }
             
             // Only activate if not already active to prevent cancellation loops
@@ -1958,6 +1983,11 @@ public class Player {
                     @Override
                     public void onTargetCancelled() {
                         System.out.println("Fence placement cancelled");
+                        // Re-enable direct mouse input when targeting is cancelled
+                        wagemaker.uk.fence.FenceBuildingManager fenceBuildingManager = getFenceBuildingManager();
+                        if (fenceBuildingManager != null) {
+                            fenceBuildingManager.setDirectMouseInputDisabled(false);
+                        }
                         // Exit fence navigation mode when targeting is cancelled
                         requestNavigationMode(NavigationMode.NORMAL);
                     }

@@ -853,17 +853,18 @@ public class MyGdxGame extends ApplicationAdapter {
         drawPebbles();
         drawPalmFibers();
         drawCactus();
+        
+        // Render fence structures before player so player appears above fences
+        if (fenceBuildingManager != null) {
+            fenceBuildingManager.renderFences(batch);
+        }
+        
         // draw player before apple trees so foliage appears in front
         batch.draw(player.getCurrentFrame(), player.getX(), player.getY(), 100, 100);
         // draw remote players at same z-order as local player
         renderRemotePlayers();
         drawAppleTrees();
         drawBananaTrees();
-        
-        // Render fence structures using main batch
-        if (fenceBuildingManager != null) {
-            fenceBuildingManager.renderFences(batch);
-        }
         
         batch.end();
         
@@ -925,8 +926,9 @@ public class MyGdxGame extends ApplicationAdapter {
         }
         
         // render fence item selection UI (only when fence building mode is active)
-        if (fenceItemRenderer != null) {
-            fenceItemRenderer.render(batch, camera.position.x, camera.position.y, 
+        if (fenceItemRenderer != null && inventoryManager != null) {
+            fenceItemRenderer.render(batch, inventoryManager.getCurrentInventory(), 
+                                   camera.position.x, camera.position.y, 
                                    viewport.getWorldWidth(), viewport.getWorldHeight(),
                                    wagemaker.uk.ui.InventoryRenderer.getPanelWidth());
         }

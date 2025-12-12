@@ -292,17 +292,18 @@ public class FenceItemRenderer {
      * Only renders when fence building mode is active.
      * 
      * @param batch The SpriteBatch to use for rendering
+     * @param inventory The inventory to get fence material counts from
      * @param camX Camera X position
      * @param camY Camera Y position
      * @param viewWidth Viewport width
      * @param viewHeight Viewport height
      * @param inventoryPanelWidth Width of the inventory panel (to align fence panel with inventory)
      */
-    public void render(SpriteBatch batch, float camX, float camY, 
+    public void render(SpriteBatch batch, wagemaker.uk.inventory.Inventory inventory, float camX, float camY, 
                       float viewWidth, float viewHeight, float inventoryPanelWidth) {
         
         // Only render when fence building mode is active
-        if (fenceBuildingManager == null || !fenceBuildingManager.isBuildingModeActive()) {
+        if (fenceBuildingManager == null || !fenceBuildingManager.isBuildingModeActive() || inventory == null) {
             return;
         }
         
@@ -316,8 +317,10 @@ public class FenceItemRenderer {
         // Draw wooden background
         batch.draw(woodenBackground, panelX, panelY, PANEL_WIDTH, PANEL_HEIGHT);
         
-        // Draw title label using localization with improved readability
+        // Draw title label with actual fence material count
         String titleText = LocalizationManager.getInstance().getText("fence_inventory.title");
+        int totalMaterialCount = inventory.getWoodFenceMaterialCount() + inventory.getBambooFenceMaterialCount();
+        String titleWithCount = titleText + " (" + totalMaterialCount + ")";
         
         // Calculate title position with more space from top edge
         float titleX = panelX + PANEL_PADDING;
@@ -325,7 +328,7 @@ public class FenceItemRenderer {
         
         // Draw title text (font already has built-in border and shadow for smooth rendering)
         labelFont.setColor(1.0f, 1.0f, 1.0f, 1.0f); // Bright white
-        labelFont.draw(batch, titleText, titleX, titleY);
+        labelFont.draw(batch, titleWithCount, titleX, titleY);
         
 
         

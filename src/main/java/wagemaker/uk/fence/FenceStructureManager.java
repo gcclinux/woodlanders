@@ -75,6 +75,7 @@ public class FenceStructureManager {
         
         // Determine the appropriate piece type based on adjacent pieces
         FencePieceType pieceType = determinePieceType(gridPos);
+        System.out.println("[FenceStructureManager] Placing " + pieceType + " at grid (" + gridPos.x + ", " + gridPos.y + ")");
         
         // Convert grid coordinates to world coordinates
         com.badlogic.gdx.math.Vector2 worldPos = grid.gridToWorld(gridPos);
@@ -152,9 +153,31 @@ public class FenceStructureManager {
      * @return The appropriate FencePieceType for this position
      */
     public FencePieceType determinePieceType(Point gridPos) {
+        // Try to detect if we're building a rectangular pattern
+        Rectangle detectedBounds = detectRectangularPattern(gridPos);
+        
+        if (detectedBounds != null) {
+            // Use the proven FencePieceFactory logic for rectangular enclosures
+            int relativeX = gridPos.x - (int)detectedBounds.x;
+            int relativeY = gridPos.y - (int)detectedBounds.y;
+            int width = (int)detectedBounds.width;
+            int height = (int)detectedBounds.height;
+            
+            // Invert Y coordinate to match FencePieceFactory's coordinate system
+            // where Y=0 is top and Y=height-1 is bottom
+            int invertedY = (height - 1) - relativeY;
+            
+            try {
+                return FencePieceFactory.determinePieceTypeForPosition(relativeX, invertedY, width, height);
+            } catch (IllegalArgumentException e) {
+                // Fall back to adjacency-based logic if position is not on perimeter
+            }
+        }
+        
+        // Fall back to adjacency-based piece type determination
         List<Point> adjacentOccupied = grid.getAdjacentOccupiedPositions(gridPos);
         
-        // If no adjacent pieces, default to a corner piece (can be refined later)
+        // If no adjacent pieces, start with top-left corner
         if (adjacentOccupied.isEmpty()) {
             return FencePieceType.FENCE_BACK_LEFT;
         }
@@ -165,31 +188,70 @@ public class FenceStructureManager {
         boolean hasEast = adjacentOccupied.contains(new Point(gridPos.x + 1, gridPos.y));
         boolean hasWest = adjacentOccupied.contains(new Point(gridPos.x - 1, gridPos.y));
         
-        // Determine piece type based on adjacent connections
-        if (hasNorth && hasEast && !hasSouth && !hasWest) {
+        // Corner pieces (two perpendicular connections)
+        if (hasSouth && hasEast && !hasNorth && !hasWest) {
             return FencePieceType.FENCE_BACK_LEFT; // Top-left corner
-        } else if (hasNorth && hasWest && !hasSouth && !hasEast) {
-            return FencePieceType.FENCE_BACK_RIGHT; // Top-right corner
         } else if (hasSouth && hasWest && !hasNorth && !hasEast) {
+            return FencePieceType.FENCE_BACK_RIGHT; // Top-right corner
+        } else if (hasNorth && hasWest && !hasSouth && !hasEast) {
             return FencePieceType.FENCE_FRONT_RIGHT; // Bottom-right corner
-        } else if (hasSouth && hasEast && !hasNorth && !hasWest) {
+        } else if (hasNorth && hasEast && !hasSouth && !hasWest) {
             return FencePieceType.FENCE_FRONT_LEFT; // Bottom-left corner
-        } else if (hasEast && hasWest && !hasNorth && !hasSouth) {
-            return FencePieceType.FENCE_BACK; // Horizontal edge (top or bottom)
-        } else if (hasNorth && hasSouth && !hasEast && !hasWest) {
-            return FencePieceType.FENCE_MIDDLE_RIGHT; // Vertical edge (left or right)
-        } else if (hasEast && !hasWest && !hasNorth && !hasSouth) {
-            return FencePieceType.FENCE_MIDDLE_LEFT; // Left edge piece
-        } else if (hasWest && !hasEast && !hasNorth && !hasSouth) {
-            return FencePieceType.FENCE_MIDDLE_RIGHT; // Right edge piece
-        } else if (hasNorth && !hasSouth && !hasEast && !hasWest) {
-            return FencePieceType.FENCE_FRONT; // Bottom edge piece
-        } else if (hasSouth && !hasNorth && !hasEast && !hasWest) {
-            return FencePieceType.FENCE_BACK; // Top edge piece
         }
         
-        // Default to corner piece if pattern is unclear
+        // Edge pieces
+        else if (hasEast && hasWest && !hasNorth && !hasSouth) {
+            return FencePieceType.FENCE_BACK; // Horizontal edge
+        } else if (hasNorth && hasSouth && !hasEast && !hasWest) {
+            return FencePieceType.FENCE_MIDDLE_LEFT; // Vertical edge (assume left for now)
+        }
+        
+        // Single connections - try to infer intended direction
+        else if (hasEast && !hasWest && !hasNorth && !hasSouth) {
+            return FencePieceType.FENCE_MIDDLE_LEFT; // Extending right from left edge
+        } else if (hasWest && !hasEast && !hasNorth && !hasSouth) {
+            return FencePieceType.FENCE_MIDDLE_RIGHT; // Extending left from right edge
+        } else if (hasSouth && !hasNorth && !hasEast && !hasWest) {
+            return FencePieceType.FENCE_BACK; // Extending down from top edge
+        } else if (hasNorth && !hasSouth && !hasEast && !hasWest) {
+            return FencePieceType.FENCE_FRONT; // Extending up from bottom edge
+        }
+        
+        // Default fallback
         return FencePieceType.FENCE_BACK_LEFT;
+    }
+    
+    /**
+     * Attempts to detect if the current fence pieces form a rectangular pattern
+     * and returns the bounding rectangle if so.
+     */
+    private Rectangle detectRectangularPattern(Point newPos) {
+        if (placedFences.isEmpty()) {
+            return null;
+        }
+        
+        // Get all current fence positions including the new position
+        Set<Point> allPositions = new HashSet<>(placedFences.keySet());
+        allPositions.add(newPos);
+        
+        // Find bounding rectangle
+        int minX = allPositions.stream().mapToInt(p -> p.x).min().orElse(0);
+        int maxX = allPositions.stream().mapToInt(p -> p.x).max().orElse(0);
+        int minY = allPositions.stream().mapToInt(p -> p.y).min().orElse(0);
+        int maxY = allPositions.stream().mapToInt(p -> p.y).max().orElse(0);
+        
+        int width = maxX - minX + 1;
+        int height = maxY - minY + 1;
+        
+        // Only consider it rectangular if it's at least 2x2 and the new position is on the perimeter
+        if (width >= 2 && height >= 2) {
+            boolean onPerimeter = (newPos.x == minX || newPos.x == maxX || newPos.y == minY || newPos.y == maxY);
+            if (onPerimeter) {
+                return new Rectangle(minX, minY, width, height);
+            }
+        }
+        
+        return null;
     }
     
     /**
@@ -209,6 +271,7 @@ public class FenceStructureManager {
                 
                 // If the type should change, replace the piece
                 if (adjacentPiece.getType() != newType) {
+                    System.out.println("[FenceStructureManager] Updating adjacent piece at (" + adjacentPos.x + ", " + adjacentPos.y + ") from " + adjacentPiece.getType() + " to " + newType);
                     replacePieceType(adjacentPos, newType);
                 }
             }

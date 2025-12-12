@@ -102,8 +102,8 @@ public class FenceCollisionManager {
         Rectangle collisionRect;
         
         if (piece.getType().isCornerPiece()) {
-            // Corner pieces have full collision boundaries
-            collisionRect = new Rectangle(worldPos.x, worldPos.y, FenceGrid.GRID_SIZE, FenceGrid.GRID_SIZE);
+            // Corner pieces have custom collision boundaries to match adjacent edges
+            collisionRect = generateCornerCollisionRect(worldPos, piece.getType());
         } else {
             // Edge pieces have directional collision boundaries
             collisionRect = generateDirectionalCollisionRect(worldPos, piece.getType());
@@ -128,23 +128,66 @@ public class FenceCollisionManager {
         
         switch (pieceType) {
             case FENCE_BACK:
-                // Top edge - blocks vertical movement
-                return new Rectangle(x, y + gridSize * 0.8f, gridSize, gridSize * 0.2f);
+                // Top edge - blocks vertical movement (shifted left by 15px)
+                return new Rectangle(x - 15f, y + gridSize * 0.8f, gridSize, gridSize * 0.2f);
                 
             case FENCE_FRONT:
-                // Bottom edge - blocks vertical movement
-                return new Rectangle(x, y, gridSize, gridSize * 0.2f);
+                // Bottom edge - blocks vertical movement (shifted left by 15px)
+                return new Rectangle(x - 15f, y, gridSize, gridSize * 0.2f);
                 
             case FENCE_MIDDLE_LEFT:
-                // Left edge - blocks horizontal movement
-                return new Rectangle(x, y, gridSize * 0.2f, gridSize);
+                // Left edge - blocks horizontal movement (shifted left by 15px)
+                return new Rectangle(x - 15f, y, gridSize * 0.044f, gridSize);
                 
             case FENCE_MIDDLE_RIGHT:
-                // Right edge - blocks horizontal movement
-                return new Rectangle(x + gridSize * 0.8f, y, gridSize * 0.2f, gridSize);
+                // Right edge - blocks horizontal movement (shifted left by 15px, collision starts at 10px from left edge)
+                Rectangle rightEdgeRect = new Rectangle(x + 10f, y, gridSize - 10f, gridSize);
+                System.out.println("FENCE_MIDDLE_RIGHT collision: x=" + (x + 10f) + ", y=" + y + ", width=" + (gridSize - 10f) + ", height=" + gridSize);
+                return rightEdgeRect;
                 
             default:
                 // Default to full collision for unknown types
+                return new Rectangle(x, y, gridSize, gridSize);
+        }
+    }
+    
+    /**
+     * Generates collision rectangles for corner pieces that match adjacent edge collision boundaries.
+     * This ensures consistent collision when approaching corners from different directions.
+     * 
+     * @param worldPos World position of the corner piece
+     * @param pieceType Type of the corner piece
+     * @return Rectangle representing the corner collision boundary
+     */
+    private Rectangle generateCornerCollisionRect(com.badlogic.gdx.math.Vector2 worldPos, 
+                                                 FencePieceType pieceType) {
+        float x = worldPos.x;
+        float y = worldPos.y;
+        float gridSize = FenceGrid.GRID_SIZE;
+        
+        switch (pieceType) {
+            case FENCE_BACK_LEFT:
+                // Top-left corner - shifted left by 15px
+                return new Rectangle(x - 15f, y, gridSize, gridSize);
+                
+            case FENCE_BACK_RIGHT:
+                // Top-right corner - shifted left by 15px, collision starts at 10px from left edge
+                Rectangle backRightRect = new Rectangle(x + 10f, y, gridSize - 10f, gridSize);
+                System.out.println("FENCE_BACK_RIGHT collision: x=" + (x + 10f) + ", y=" + y + ", width=" + (gridSize - 10f) + ", height=" + gridSize);
+                return backRightRect;
+                
+            case FENCE_FRONT_RIGHT:
+                // Bottom-right corner - shifted left by 15px, collision starts at 10px from left edge
+                Rectangle frontRightRect = new Rectangle(x + 10f, y, gridSize - 10f, gridSize);
+                System.out.println("FENCE_FRONT_RIGHT collision: x=" + (x + 10f) + ", y=" + y + ", width=" + (gridSize - 10f) + ", height=" + gridSize);
+                return frontRightRect;
+                
+            case FENCE_FRONT_LEFT:
+                // Bottom-left corner - shifted left by 15px
+                return new Rectangle(x - 15f, y, gridSize * 0.044f, gridSize);
+                
+            default:
+                // Default to full collision for unknown corner types
                 return new Rectangle(x, y, gridSize, gridSize);
         }
     }

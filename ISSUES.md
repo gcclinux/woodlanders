@@ -1,0 +1,3 @@
+- unable to create more than 1 closed fense
+- collision detection on the inside now very good
+- "c" clear not only the fence in the visable space from the place it clear everything

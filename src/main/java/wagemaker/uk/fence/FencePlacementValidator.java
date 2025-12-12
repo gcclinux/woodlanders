@@ -79,7 +79,9 @@ public class FencePlacementValidator {
      */
     public ValidationResult validateRemoval(Point gridPos, String playerId) {
         // Check if there's actually a fence piece at this position
-        if (!grid.isOccupied(gridPos)) {
+        boolean isOccupied = grid.isOccupied(gridPos);
+        System.out.println("DEBUG: validateRemoval at (" + gridPos.x + ", " + gridPos.y + ") - isOccupied: " + isOccupied);
+        if (!isOccupied) {
             return ValidationResult.invalid("No fence piece exists at position (" + gridPos.x + ", " + gridPos.y + ")");
         }
         

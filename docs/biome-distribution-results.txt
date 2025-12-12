@@ -1,0 +1,15 @@
+=== BIOME DISTRIBUTION MEASUREMENT ===
+Sample size: 50000
+Current thresholds:
+  - WATER_NOISE_THRESHOLD: 0.53
+  - Sand threshold (hardcoded): 0.50
+
+=== RESULTS ===
+Grass: 39671 (79.34%)
+Sand:  5135 (10.27%)
+Water: 5194 (10.39%)
+
+=== DEVIATION FROM TARGET ===
+Grass: +29.34%
+Sand:  -24.73%
+Water: -4.61%

@@ -73,6 +73,9 @@ public class FenceBuildingManager {
     /** Flag to prevent targeting system interference after direct mouse operations */
     private boolean suppressTargetingCallback = false;
     
+    /** Flag to disable direct mouse input when targeting system is handling input */
+    private boolean disableDirectMouseInput = false;
+    
     /**
      * Creates a new FenceBuildingManager with the specified dependencies.
      * 
@@ -133,6 +136,11 @@ public class FenceBuildingManager {
         // Handle clear all fences (C key) when in building mode
         if (buildingModeActive && Gdx.input.isKeyJustPressed(Input.Keys.C)) {
             clearAllFences();
+        }
+        
+        // Handle rebuild collision boundaries (R key) when in building mode
+        if (buildingModeActive && Gdx.input.isKeyJustPressed(Input.Keys.R)) {
+            rebuildCollisionBoundaries();
         }
         
 
@@ -325,17 +333,20 @@ public class FenceBuildingManager {
             return;
         }
         
-        // Handle placement (left click)
-        if (leftClicked) {
+        // Handle placement (left click) - skip if targeting system is handling input
+        if (leftClicked && !disableDirectMouseInput) {
             System.out.println("[FenceBuildingManager] Left click detected at grid (" + gridPos.x + ", " + gridPos.y + ")");
             if (placeFenceSegment(gridPos.x, gridPos.y)) {
                 lastProcessedGridPos = new Point(gridPos.x, gridPos.y);
             }
         }
         
-        // Handle removal (right click)
+        // Handle removal (right click) - always allow right-click removal
         if (rightClicked) {
             System.out.println("[FenceBuildingManager] Right click detected at grid (" + gridPos.x + ", " + gridPos.y + ")");
+            // Debug: Check what fence pieces exist
+            FencePiece existingPiece = structureManager.getFencePiece(gridPos);
+            System.out.println("DEBUG: Fence piece at (" + gridPos.x + ", " + gridPos.y + "): " + (existingPiece != null ? existingPiece.getType() : "null"));
             if (removeFenceSegment(gridPos.x, gridPos.y)) {
                 lastProcessedGridPos = new Point(gridPos.x, gridPos.y);
                 // Suppress targeting system callback to prevent immediate replacement
@@ -389,7 +400,9 @@ public class FenceBuildingManager {
                 // Consume materials from inventory
                 FenceMaterialProvider materialProvider = validator.getMaterialProvider();
                 if (materialProvider != null) {
+                    System.out.println("DEBUG: Consuming 1 " + selectedMaterialType + " fence material");
                     materialProvider.consumeMaterials(selectedMaterialType, 1);
+                    System.out.println("DEBUG: Material consumption completed");
                     
                     // Update collision boundaries immediately
                     updateCollisionBoundaries(gridPos, true);
@@ -406,6 +419,7 @@ public class FenceBuildingManager {
                     }
                     return true;
                 } else {
+                    System.out.println("DEBUG: Material provider is null - no materials consumed");
                     // Rollback placement if material consumption fails
                     structureManager.removeFencePiece(gridPos);
                     displayPlacementError("Failed to consume materials", gridPos);
@@ -644,6 +658,15 @@ public class FenceBuildingManager {
     }
     
     /**
+     * Set whether direct mouse input should be disabled.
+     * Used to prevent double placement when targeting system is active.
+     * @param disabled true to disable direct mouse input, false to enable
+     */
+    public void setDirectMouseInputDisabled(boolean disabled) {
+        this.disableDirectMouseInput = disabled;
+    }
+    
+    /**
      * Gets the currently selected material type.
      * 
      * @return Current material type
@@ -722,6 +745,20 @@ public class FenceBuildingManager {
      */
     public FenceCollisionManager getCollisionManager() {
         return collisionManager;
+    }
+    
+    /**
+     * Rebuilds all fence collision boundaries.
+     * Useful after code changes to collision rectangle generation.
+     */
+    public void rebuildCollisionBoundaries() {
+        if (collisionManager != null) {
+            System.out.println("[FenceBuildingManager] Starting collision boundary rebuild...");
+            collisionManager.rebuildAllCollisionBoundaries();
+            System.out.println("[FenceBuildingManager] Collision boundaries rebuilt successfully");
+        } else {
+            System.out.println("[FenceBuildingManager] Cannot rebuild - collision manager is null");
+        }
     }
     
     /**
