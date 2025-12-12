@@ -860,9 +860,9 @@ public class MyGdxGame extends ApplicationAdapter {
         drawAppleTrees();
         drawBananaTrees();
         
-        // Render fence structures
+        // Render fence structures using main batch
         if (fenceBuildingManager != null) {
-            fenceBuildingManager.renderFences();
+            fenceBuildingManager.renderFences(batch);
         }
         
         batch.end();

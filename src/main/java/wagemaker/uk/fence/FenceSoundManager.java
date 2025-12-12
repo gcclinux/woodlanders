@@ -49,15 +49,15 @@ public class FenceSoundManager {
     private void loadSounds() {
         try {
             // Load placement sound
-            placementSound = Gdx.audio.newSound(Gdx.files.internal("sound/fence_place.wav"));
+            placementSound = Gdx.audio.newSound(Gdx.files.internal("sound/fence_place.mp3"));
             System.out.println("[FENCE] Placement sound loaded successfully");
             
             // Load removal sound
-            removalSound = Gdx.audio.newSound(Gdx.files.internal("sound/fence_remove.wav"));
+            removalSound = Gdx.audio.newSound(Gdx.files.internal("sound/fence_remove.mp3"));
             System.out.println("[FENCE] Removal sound loaded successfully");
             
             // Load error sound
-            errorSound = Gdx.audio.newSound(Gdx.files.internal("sound/fence_error.wav"));
+            errorSound = Gdx.audio.newSound(Gdx.files.internal("sound/fence_error.mp3"));
             System.out.println("[FENCE] Error sound loaded successfully");
             
             soundsLoaded = true;

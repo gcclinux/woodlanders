@@ -3,11 +3,14 @@ package wagemaker.uk.fence;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import java.awt.Point;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Central coordinator for all fence building operations.
@@ -67,6 +70,9 @@ public class FenceBuildingManager {
     /** Flag to indicate building mode was just activated this frame */
     private boolean buildingModeJustActivated = false;
     
+    /** Flag to prevent targeting system interference after direct mouse operations */
+    private boolean suppressTargetingCallback = false;
+    
     /**
      * Creates a new FenceBuildingManager with the specified dependencies.
      * 
@@ -124,6 +130,13 @@ public class FenceBuildingManager {
             enterBuildingMode();
         }
         
+        // Handle clear all fences (C key) when in building mode
+        if (buildingModeActive && Gdx.input.isKeyJustPressed(Input.Keys.C)) {
+            clearAllFences();
+        }
+        
+
+        
         // Only process building input when in building mode and stable
         if (buildingModeActive && !buildingModeJustActivated) {
             processBuildingInput();
@@ -142,6 +155,45 @@ public class FenceBuildingManager {
     public void renderFences() {
         if (fenceRenderer != null) {
             fenceRenderer.render(structureManager);
+        }
+    }
+    
+    /**
+     * Renders all fence structures using the provided SpriteBatch.
+     * This ensures proper rendering order with other game elements.
+     * 
+     * @param batch The SpriteBatch to use for rendering
+     */
+    public void renderFences(SpriteBatch batch) {
+        if (structureManager == null) {
+            return;
+        }
+        
+        Map<Point, FencePiece> allPieces = structureManager.getAllFencePieces();
+        if (allPieces.isEmpty()) {
+            return;
+        }
+        
+        // Get the texture atlas from the fence renderer
+        FenceTextureAtlas textureAtlas = null;
+        if (fenceRenderer != null) {
+            textureAtlas = fenceRenderer.getTextureAtlas();
+        }
+        
+        if (textureAtlas == null || !textureAtlas.isInitialized()) {
+            System.err.println("[FenceBuildingManager] Texture atlas not available for rendering");
+            return;
+        }
+        
+        // Render all fence pieces using the main batch
+        for (FencePiece piece : allPieces.values()) {
+            TextureRegion region = textureAtlas.getTextureRegion(piece.getType());
+            if (region != null) {
+                batch.draw(region, piece.getX(), piece.getY(), 
+                          textureAtlas.getPieceSize(), textureAtlas.getPieceSize());
+            } else {
+                System.err.println("[FenceBuildingManager] No texture region for " + piece.getType());
+            }
         }
     }
     
@@ -174,6 +226,7 @@ public class FenceBuildingManager {
      * Validates material availability before allowing entry.
      */
     private void enterBuildingMode() {
+
         // Check if player has any fence materials
         FenceMaterialProvider materialProvider = validator.getMaterialProvider();
         if (materialProvider != null) {
@@ -203,6 +256,8 @@ public class FenceBuildingManager {
         
         System.out.println("[FenceBuildingManager] Entered fence building mode - Press " + Input.Keys.toString(buildingModeToggleKey) + " to exit");
         System.out.println("[FenceBuildingManager] Left click to place fence, Right click to remove fence");
+        System.out.println("[FenceBuildingManager] Press C to clear all fences");
+
         System.out.println("[FenceBuildingManager] Current material: " + selectedMaterialType.getDisplayName());
         System.out.println("[FenceBuildingManager] State: buildingModeActive=" + buildingModeActive + 
                          ", buildingModeJustActivated=" + buildingModeJustActivated + 
@@ -245,6 +300,23 @@ public class FenceBuildingManager {
         Vector3 mousePos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
         camera.unproject(mousePos);
         
+        // Constrain fence placement to be within reasonable distance from camera (viewport area)
+        float maxDistance = Math.min(camera.viewportWidth, camera.viewportHeight) / 2f; // Half viewport size
+        float cameraX = camera.position.x;
+        float cameraY = camera.position.y;
+        
+        // Calculate distance from camera center
+        float dx = mousePos.x - cameraX;
+        float dy = mousePos.y - cameraY;
+        float distance = (float) Math.sqrt(dx * dx + dy * dy);
+        
+        // If click is too far from camera, clamp it to viewport area
+        if (distance > maxDistance) {
+            float ratio = maxDistance / distance;
+            mousePos.x = cameraX + dx * ratio;
+            mousePos.y = cameraY + dy * ratio;
+        }
+        
         // Convert to grid coordinates
         Point gridPos = structureManager.getGrid().worldToGrid(mousePos.x, mousePos.y);
         
@@ -255,6 +327,7 @@ public class FenceBuildingManager {
         
         // Handle placement (left click)
         if (leftClicked) {
+            System.out.println("[FenceBuildingManager] Left click detected at grid (" + gridPos.x + ", " + gridPos.y + ")");
             if (placeFenceSegment(gridPos.x, gridPos.y)) {
                 lastProcessedGridPos = new Point(gridPos.x, gridPos.y);
             }
@@ -262,8 +335,11 @@ public class FenceBuildingManager {
         
         // Handle removal (right click)
         if (rightClicked) {
+            System.out.println("[FenceBuildingManager] Right click detected at grid (" + gridPos.x + ", " + gridPos.y + ")");
             if (removeFenceSegment(gridPos.x, gridPos.y)) {
                 lastProcessedGridPos = new Point(gridPos.x, gridPos.y);
+                // Suppress targeting system callback to prevent immediate replacement
+                suppressTargetingCallback = true;
             }
         }
         
@@ -304,10 +380,12 @@ public class FenceBuildingManager {
         }
         
         try {
+            System.out.println("[FenceBuildingManager] Attempting to place fence at grid (" + gridPos.x + ", " + gridPos.y + ") with material " + selectedMaterialType);
             // Attempt to place the fence piece with automatic piece type selection
             FencePiece placedPiece = structureManager.addFencePiece(gridPos, selectedMaterialType);
             
             if (placedPiece != null) {
+                System.out.println("[FenceBuildingManager] Fence piece created: " + placedPiece.getType() + " at world (" + placedPiece.getX() + ", " + placedPiece.getY() + ")");
                 // Consume materials from inventory
                 FenceMaterialProvider materialProvider = validator.getMaterialProvider();
                 if (materialProvider != null) {
@@ -554,6 +632,18 @@ public class FenceBuildingManager {
     }
     
     /**
+     * Checks if targeting system callbacks should be suppressed.
+     * Used to prevent targeting system interference after direct mouse operations.
+     * 
+     * @return true if targeting callbacks should be suppressed, false otherwise
+     */
+    public boolean shouldSuppressTargetingCallback() {
+        boolean suppress = suppressTargetingCallback;
+        suppressTargetingCallback = false; // Reset flag after checking
+        return suppress;
+    }
+    
+    /**
      * Gets the currently selected material type.
      * 
      * @return Current material type
@@ -732,6 +822,26 @@ public class FenceBuildingManager {
             collisionManager.removeCollisionBoundary(gridPos);
         }
     }
+    
+    /**
+     * Clears all fence pieces from the world.
+     * Useful for debugging and testing.
+     */
+    public void clearAllFences() {
+        if (structureManager != null) {
+            int fenceCount = structureManager.getFencePieceCount();
+            structureManager.clear();
+            
+            // Clear collision boundaries
+            if (collisionManager != null) {
+                collisionManager.clear();
+            }
+            
+            System.out.println("[FenceBuildingManager] Cleared " + fenceCount + " fence pieces");
+        }
+    }
+    
+
     
     /**
      * Disposes of resources used by this manager.

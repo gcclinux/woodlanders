@@ -1946,6 +1946,12 @@ public class Player {
                 targetingSystem.activate(x, y, wagemaker.uk.targeting.TargetingMode.ADJACENT, new wagemaker.uk.targeting.TargetingCallback() {
                     @Override
                     public void onTargetConfirmed(float targetX, float targetY) {
+                        // Check if targeting callback should be suppressed (e.g., after direct mouse removal)
+                        wagemaker.uk.fence.FenceBuildingManager fenceBuildingManager = getFenceBuildingManager();
+                        if (fenceBuildingManager != null && fenceBuildingManager.shouldSuppressTargetingCallback()) {
+                            System.out.println("Suppressing targeting callback after direct mouse operation");
+                            return;
+                        }
                         handleFencePlacement(targetX, targetY);
                     }
                     
@@ -2198,6 +2204,12 @@ public class Player {
                 
                 // Handle placement based on current navigation mode
                 if (fenceNavigationMode) {
+                    // Check if targeting callback should be suppressed
+                    wagemaker.uk.fence.FenceBuildingManager fenceBuildingManager = getFenceBuildingManager();
+                    if (fenceBuildingManager != null && fenceBuildingManager.shouldSuppressTargetingCallback()) {
+                        System.out.println("Suppressing fence placement after direct mouse operation");
+                        return;
+                    }
                     handleFencePlacement(coords[0], coords[1]);
                 } else {
                     handleItemPlacement(coords[0], coords[1]);
@@ -2248,6 +2260,12 @@ public class Player {
             
             // Handle placement based on current navigation mode
             if (fenceNavigationMode) {
+                // Check if targeting callback should be suppressed
+                wagemaker.uk.fence.FenceBuildingManager fenceBuildingManager = getFenceBuildingManager();
+                if (fenceBuildingManager != null && fenceBuildingManager.shouldSuppressTargetingCallback()) {
+                    System.out.println("Suppressing fence placement after direct mouse operation");
+                    return;
+                }
                 handleFencePlacement(coords[0], coords[1]);
             } else {
                 handleItemPlacement(coords[0], coords[1]);

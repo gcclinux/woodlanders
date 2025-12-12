@@ -103,6 +103,7 @@ public class FenceRenderer implements Disposable {
      */
     public void render(FenceStructureManager structureManager) {
         if (!textureAtlas.isInitialized()) {
+            System.err.println("[FenceRenderer] Texture atlas not initialized - cannot render fences");
             return;
         }
         
@@ -115,6 +116,8 @@ public class FenceRenderer implements Disposable {
             return;
         }
         
+        System.out.println("[FenceRenderer] Rendering " + allPieces.size() + " fence pieces");
+        
         // Begin batch rendering
         spriteBatch.begin();
         
@@ -126,8 +129,10 @@ public class FenceRenderer implements Disposable {
             if (isInViewport(piece)) {
                 renderPiece(piece);
                 rendered++;
+                System.out.println("[FenceRenderer] Rendered " + piece.getType() + " at (" + piece.getX() + ", " + piece.getY() + ")");
             } else {
                 culled++;
+                System.out.println("[FenceRenderer] Culled " + piece.getType() + " at (" + piece.getX() + ", " + piece.getY() + ") - outside viewport");
             }
         }
         
@@ -136,6 +141,8 @@ public class FenceRenderer implements Disposable {
         // Update statistics
         renderedPiecesLastFrame = rendered;
         culledPiecesLastFrame = culled;
+        
+        System.out.println("[FenceRenderer] Rendered: " + rendered + ", Culled: " + culled);
     }
     
     /**
@@ -192,12 +199,21 @@ public class FenceRenderer implements Disposable {
      */
     private boolean isInViewport(FencePiece piece) {
         if (camera == null) {
+            System.out.println("[FenceRenderer] No camera - rendering all pieces");
             return true; // No culling if no camera
         }
         
         float pieceSize = textureAtlas.getPieceSize();
         Rectangle pieceRect = new Rectangle(piece.getX(), piece.getY(), pieceSize, pieceSize);
-        return viewportBounds.overlaps(pieceRect);
+        boolean inViewport = viewportBounds.overlaps(pieceRect);
+        
+        if (!inViewport) {
+            System.out.println("[FenceRenderer] Piece at (" + piece.getX() + ", " + piece.getY() + ") outside viewport bounds: " + 
+                             "viewport=(" + viewportBounds.x + ", " + viewportBounds.y + ", " + viewportBounds.width + ", " + viewportBounds.height + "), " +
+                             "camera=(" + camera.position.x + ", " + camera.position.y + ")");
+        }
+        
+        return inViewport;
     }
     
     /**
