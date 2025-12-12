@@ -230,15 +230,15 @@ public class FenceStructureManager {
             return null;
         }
         
-        // Get all current fence positions including the new position
-        Set<Point> allPositions = new HashSet<>(placedFences.keySet());
-        allPositions.add(newPos);
+        // Only consider pieces connected to the new position
+        // This ensures that separate fence holdings don't interfere with each other
+        Set<Point> connectedPositions = findConnectedPieces(newPos);
         
         // Find bounding rectangle
-        int minX = allPositions.stream().mapToInt(p -> p.x).min().orElse(0);
-        int maxX = allPositions.stream().mapToInt(p -> p.x).max().orElse(0);
-        int minY = allPositions.stream().mapToInt(p -> p.y).min().orElse(0);
-        int maxY = allPositions.stream().mapToInt(p -> p.y).max().orElse(0);
+        int minX = connectedPositions.stream().mapToInt(p -> p.x).min().orElse(0);
+        int maxX = connectedPositions.stream().mapToInt(p -> p.x).max().orElse(0);
+        int minY = connectedPositions.stream().mapToInt(p -> p.y).min().orElse(0);
+        int maxY = connectedPositions.stream().mapToInt(p -> p.y).max().orElse(0);
         
         int width = maxX - minX + 1;
         int height = maxY - minY + 1;
