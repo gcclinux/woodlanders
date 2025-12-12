@@ -43,10 +43,7 @@ public class ControlsDialog implements LanguageChangeListener, FontChangeListene
      * Updates the dialog font to use the current font from FontManager.
      */
     private void updateDialogFont() {
-        // Dispose of old font if it exists
-        if (dialogFont != null) {
-            dialogFont.dispose();
-        }
+
         
         // Get the current font from FontManager
         dialogFont = FontManager.getInstance().getCurrentFont();

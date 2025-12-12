@@ -58,8 +58,8 @@ public class FreeWorldManager {
         inventory.setBowAndArrowCount(250);
         
         // Add fence materials for the new fence building system
-        inventory.setWoodFenceMaterialCount(250);
-        inventory.setBambooFenceMaterialCount(250);
+        inventory.setWoodFenceMaterialCount(125);
+        inventory.setBambooFenceMaterialCount(125);
         
         System.out.println("Granted 250 of each item type (including fence materials)");
     }
