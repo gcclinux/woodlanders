@@ -86,7 +86,6 @@
     "item_header": "Gegenstände",
     "item_plant_p": "P - Gegenstand pflanzen",
     "item_plant_space": "LEERTASTE - Gegenstand pflanzen/konsumieren",
-    "item_consume": "LEERTASTE - Gegenstand konsumieren",
     "targeting_header": "Zielen",
     "targeting_up": "W - Nach oben zielen",
     "targeting_down": "S - Nach unten zielen",
@@ -94,6 +93,11 @@
     "targeting_right": "D - Nach rechts zielen",
     "combat_header": "Kampf",
     "combat_attack": "LEERTASTE - Angreifen",
+    "fence_header": "Zaunbau",
+    "fence_enter_mode": "B - Zaunbau-Modus aktivieren",
+    "fence_place": "Linksklick - Zäune platzieren",
+    "fence_remove": "Rechtsklick - Zäune entfernen",
+    "fence_select": "Maus - Zaunstück-Position auswählen",
     "system_header": "System",
     "system_menu": "ESC - Menü öffnen",
     "system_delete_world": "X - Welt löschen",
@@ -242,5 +246,8 @@
     "free_world_activated": "Gegenstandswelt Aktiviert",
     "free_world_message": "Du hast 250 von jedem Gegenstand erhalten.\n\nSpeichern ist jetzt deaktiviert.",
     "save_disabled_free_world": "Speichern im Gegenstandswelt Modus deaktiviert"
+  },
+  "fence_inventory": {
+    "title": "Zaun-Inventar - Drücke B zum Schließen"
   }
 }

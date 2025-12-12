@@ -84,8 +84,7 @@
     "inventory_navigate_right": "RIGHT Arrow - Navigate inventory right",
     "item_header": "Items",
     "item_plant_p": "P - Plant item",
-    "item_plant_space": "SPACE - Plant/consume item",
-    "item_consume": "SPACE - Consume item",
+    "item_plant_space": "SPACE - Plant/Consume item",
     "targeting_header": "Targeting",
     "targeting_up": "W - Target up",
     "targeting_down": "S - Target down",
@@ -93,6 +92,11 @@
     "targeting_right": "D - Target right",
     "combat_header": "Combat",
     "combat_attack": "SPACE - Attack",
+    "fence_header": "Fence Building",
+    "fence_enter_mode": "B - Enter fence building mode",
+    "fence_place": "Left-click - Place fences",
+    "fence_remove": "Right-click - Remove fences",
+    "fence_select": "Mouse - Select fence piece location",
     "system_header": "System",
     "system_menu": "ESC - Open menu",
     "system_delete_world": "X - Delete world",
@@ -241,5 +245,8 @@
     "free_world_activated": "Item World Activated",
     "free_world_message": "You have received 250 of each item.\n\nSaving is now disabled.",
     "save_disabled_free_world": "Saving disabled in Item World mode"
+  },
+  "fence_inventory": {
+    "title": "Fence Inventory - Press B to close"
   }
 }

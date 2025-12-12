@@ -84,8 +84,7 @@
     "inventory_navigate_right": "PRAWO Strzałka - Nawiguj ekwipunek w prawo",
     "item_header": "Przedmioty",
     "item_plant_p": "P - Posadź przedmiot",
-    "item_plant_space": "SPACJA - Posadź/skonsumuj przedmiot",
-    "item_consume": "SPACJA - Skonsumuj przedmiot",
+    "item_plant_space": "SPACJA - Posadź/Skonsumuj przedmiot",
     "targeting_header": "Celowanie",
     "targeting_up": "W - Celuj w górę",
     "targeting_down": "S - Celuj w dół",
@@ -93,6 +92,11 @@
     "targeting_right": "D - Celuj w prawo",
     "combat_header": "Walka",
     "combat_attack": "SPACJA - Atak",
+    "fence_header": "Budowa Ogrodzeń",
+    "fence_enter_mode": "B - Wejdź w tryb budowy ogrodzeń",
+    "fence_place": "Lewy klik - Umieść ogrodzenia",
+    "fence_remove": "Prawy klik - Usuń ogrodzenia",
+    "fence_select": "Mysz - Wybierz lokalizację elementu ogrodzenia",
     "system_header": "System",
     "system_menu": "ESC - Otwórz menu",
     "system_delete_world": "X - Usuń świat",
@@ -241,5 +245,8 @@
     "free_world_activated": "Świat Przedmiotów Aktywowany",
     "free_world_message": "Otrzymałeś 250 sztuk każdego przedmiotu.\n\nZapisywanie jest teraz wyłączone.",
     "save_disabled_free_world": "Zapisywanie wyłączone w trybie Świata Przedmiotów"
+  },
+  "fence_inventory": {
+    "title": "Inwentarz Ogrodzeń - Naciśnij B aby zamknąć"
   }
 }

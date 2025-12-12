@@ -41,7 +41,7 @@ public class FontManager {
             currentFontType = FontType.fromDisplayName(savedFontName);
             System.out.println("Using saved font preference: " + currentFontType.getDisplayName());
         } else {
-            currentFontType = FontType.SANCREEK;  // Default
+            currentFontType = FontType.STACK_SAN;  // Default
             System.out.println("Using default font: " + currentFontType.getDisplayName());
         }
     }
@@ -140,7 +140,7 @@ public class FontManager {
             System.err.println("Error loading font " + fontType.getDisplayName() + ": " + e.getMessage());
             
             // Fallback to default font if loading fails
-            if (fontType != FontType.SANCREEK) {
+            if (fontType != FontType.STACK_SAN) {
                 System.err.println("Falling back to default font");
                 BitmapFont fallbackFont = new BitmapFont();
                 fallbackFont.getData().setScale(1.2f);

@@ -7,10 +7,12 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import wagemaker.uk.fence.FencePieceType;
 import wagemaker.uk.fence.FenceMaterialType;
 import wagemaker.uk.fence.FenceBuildingManager;
+import wagemaker.uk.localization.LocalizationManager;
 
 /**
  * Renders the fence item selection UI panel above the inventory.
@@ -229,11 +231,34 @@ public class FenceItemRenderer {
     }
     
     /**
-     * Initialize the font for rendering labels.
+     * Initialize the font for rendering labels using StackSansText for better readability.
+     * Creates a separate font instance to avoid affecting other UI components.
      */
     private void initializeFont() {
-        labelFont = new BitmapFont();
-        labelFont.getData().setScale(0.8f);
+        try {
+            FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/StackSansText-Regular.ttf"));
+            FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+            
+            parameter.size = 14; // Slightly smaller for better fit
+            parameter.characters = FreeTypeFontGenerator.DEFAULT_CHARS + 
+                                  "ąćęłńóśźżĄĆĘŁŃÓŚŹŻ" +  // Polish
+                                  "ãõâêôáéíóúàçÃÕÂÊÔÁÉÍÓÚÀÇ" +  // Portuguese
+                                  "äöüßÄÖÜ";  // German
+            parameter.color = Color.WHITE;
+            parameter.borderWidth = 1; // Same border as main menu for smooth rendering
+            parameter.borderColor = Color.BLACK;
+            parameter.shadowOffsetX = 1; // Same shadow as main menu
+            parameter.shadowOffsetY = 1;
+            parameter.shadowColor = Color.BLACK;
+            
+            labelFont = generator.generateFont(parameter);
+            generator.dispose();
+        } catch (Exception e) {
+            System.err.println("Failed to load StackSansText font, using default: " + e.getMessage());
+            // Fallback to default font
+            labelFont = new BitmapFont();
+            labelFont.getData().setScale(0.8f);
+        }
     }
     
     /**
@@ -291,29 +316,18 @@ public class FenceItemRenderer {
         // Draw wooden background
         batch.draw(woodenBackground, panelX, panelY, PANEL_WIDTH, PANEL_HEIGHT);
         
-        // Draw title label with active indicator
-        String titleText = fenceSelectionActive ? "Fence Pieces (ACTIVE)" : "Fence Pieces (B to select)";
-        labelFont.setColor(fenceSelectionActive ? Color.GREEN : Color.WHITE);
+        // Draw title label using localization with improved readability
+        String titleText = LocalizationManager.getInstance().getText("fence_inventory.title");
+        
+        // Calculate title position with more space from top edge
         float titleX = panelX + PANEL_PADDING;
-        float titleY = panelY + PANEL_HEIGHT - 5;
+        float titleY = panelY + PANEL_HEIGHT - 8; // Moved higher by 2 pixels
+        
+        // Draw title text (font already has built-in border and shadow for smooth rendering)
+        labelFont.setColor(1.0f, 1.0f, 1.0f, 1.0f); // Bright white
         labelFont.draw(batch, titleText, titleX, titleY);
         
-        // Draw material type indicator
-        if (fenceBuildingManager != null) {
-            FenceMaterialType currentMaterial = fenceBuildingManager.getSelectedMaterialType();
-            String materialText = "Material: " + currentMaterial.getDisplayName();
-            labelFont.setColor(Color.YELLOW);
-            labelFont.draw(batch, materialText, titleX, titleY - 15);
-        }
-        
-        // Draw selection instructions when active
-        if (fenceSelectionActive) {
-            String instructionText = "LEFT/RIGHT: Select | A/W/D/S: Move cursor | SPACE: Place";
-            labelFont.setColor(Color.CYAN);
-            labelFont.getData().setScale(0.6f); // Smaller text for instructions
-            labelFont.draw(batch, instructionText, titleX, titleY - 30);
-            labelFont.getData().setScale(0.8f); // Reset scale
-        }
+
         
         // Draw slot borders and fence piece icons
         float slotX = panelX + PANEL_PADDING;
@@ -358,7 +372,7 @@ public class FenceItemRenderer {
                 float numberX = x + SLOT_SIZE - 8;
                 float numberY = slotY + SLOT_SIZE - 2;
                 labelFont.draw(batch, numberText, numberX, numberY);
-                labelFont.getData().setScale(0.8f); // Reset scale
+                labelFont.getData().setScale(1.0f); // Properly reset scale to 1.0f
             }
         }
         

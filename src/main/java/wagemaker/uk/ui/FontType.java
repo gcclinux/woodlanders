@@ -37,7 +37,7 @@ public enum FontType {
     /**
      * Gets a FontType by its display name.
      * @param displayName The display name to search for
-     * @return The matching FontType, or SANCREEK as default
+     * @return The matching FontType, or STACK_SAN as default
      */
     public static FontType fromDisplayName(String displayName) {
         for (FontType type : values()) {
@@ -45,7 +45,7 @@ public enum FontType {
                 return type;
             }
         }
-        return SANCREEK; // Default fallback
+        return STACK_SAN; // Default fallback
     }
     
     /**

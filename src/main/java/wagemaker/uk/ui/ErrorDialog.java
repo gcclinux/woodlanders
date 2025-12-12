@@ -15,8 +15,9 @@ import wagemaker.uk.localization.LanguageChangeListener;
 /**
  * ErrorDialog displays error messages with retry and cancel options.
  * Used for connection failures and other error scenarios.
+ * Uses FontManager to respect user's font preference.
  */
-public class ErrorDialog implements LanguageChangeListener {
+public class ErrorDialog implements LanguageChangeListener, FontChangeListener {
     private boolean isVisible = false;
     private boolean retrySelected = false;
     private boolean cancelled = false;
@@ -32,39 +33,27 @@ public class ErrorDialog implements LanguageChangeListener {
     private static final float DIALOG_HEIGHT = 250;
     
     /**
-     * Creates a new ErrorDialog with wooden plank background and custom font.
+     * Creates a new ErrorDialog with wooden plank background and font from FontManager.
      */
     public ErrorDialog() {
         woodenPlank = createWoodenPlank();
-        createDialogFont();
+        updateDialogFont();
         LocalizationManager.getInstance().addLanguageChangeListener(this);
+        FontManager.getInstance().addFontChangeListener(this);
     }
     
     /**
-     * Creates the custom font for dialog text using slkscr.ttf.
+     * Updates the dialog font to use the current font from FontManager.
      */
-    private void createDialogFont() {
-        try {
-            FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Sancreek-Regular.ttf"));
-            FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-            parameter.size = 16;
-            parameter.characters = FreeTypeFontGenerator.DEFAULT_CHARS + "ąćęłńóśźżĄĆĘŁŃÓŚŹŻãõâêôáéíóúàçÃÕÂÊÔÁÉÍÓÚÀÇäöüßÄÖÜ";
-            parameter.color = Color.WHITE;
-            parameter.borderWidth = 1;
-            parameter.borderColor = Color.BLACK;
-            parameter.shadowOffsetX = 1;
-            parameter.shadowOffsetY = 1;
-            parameter.shadowColor = Color.BLACK;
-            
-            dialogFont = generator.generateFont(parameter);
-            generator.dispose();
-        } catch (Exception e) {
-            System.out.println("Could not load custom font for error dialog, using default: " + e.getMessage());
-            // Fallback to default font
-            dialogFont = new BitmapFont();
-            dialogFont.getData().setScale(1.3f);
-            dialogFont.setColor(Color.WHITE);
+    private void updateDialogFont() {
+        // Dispose of old font if it exists
+        if (dialogFont != null) {
+            dialogFont.dispose();
         }
+        
+        // Get the current font from FontManager
+        dialogFont = FontManager.getInstance().getCurrentFont();
+        System.out.println("ErrorDialog: Updated to use font: " + FontManager.getInstance().getCurrentFontType().getDisplayName());
     }
     
     /**
@@ -425,14 +414,28 @@ public class ErrorDialog implements LanguageChangeListener {
     }
     
     /**
+     * Called when the font changes.
+     * Updates the dialog font to use the new font.
+     * 
+     * @param newFontType The new font type
+     */
+    @Override
+    public void onFontChanged(FontType newFontType) {
+        System.out.println("ErrorDialog: Font changed to " + newFontType.getDisplayName());
+        updateDialogFont();
+    }
+    
+    /**
      * Disposes of resources used by the dialog.
      */
     public void dispose() {
         if (woodenPlank != null) {
             woodenPlank.dispose();
         }
-        if (dialogFont != null) {
-            dialogFont.dispose();
-        }
+        // Note: Don't dispose dialogFont as it's managed by FontManager
+        
+        // Unregister from listeners
+        LocalizationManager.getInstance().removeLanguageChangeListener(this);
+        FontManager.getInstance().removeFontChangeListener(this);
     }
 }

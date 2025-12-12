@@ -84,8 +84,7 @@
     "inventory_navigate_right": "DIREITA Seta - Navegar inventário à direita",
     "item_header": "Itens",
     "item_plant_p": "P - Plantar item",
-    "item_plant_space": "ESPAÇO - Plantar/consumir item",
-    "item_consume": "ESPAÇO - Consumir item",
+    "item_plant_space": "ESPAÇO - Plantar/Consumir item",
     "targeting_header": "Mira",
     "targeting_up": "W - Mirar para cima",
     "targeting_down": "S - Mirar para baixo",
@@ -93,6 +92,11 @@
     "targeting_right": "D - Mirar para direita",
     "combat_header": "Combate",
     "combat_attack": "ESPAÇO - Atacar",
+    "fence_header": "Construção de Cercas",
+    "fence_enter_mode": "B - Entrar no modo de construção de cercas",
+    "fence_place": "Clique esquerdo - Colocar cercas",
+    "fence_remove": "Clique direito - Remover cercas",
+    "fence_select": "Mouse - Selecionar localização da peça de cerca",
     "system_header": "Sistema",
     "system_menu": "ESC - Abrir menu",
     "system_delete_world": "X - Excluir mundo",
@@ -241,5 +245,8 @@
     "free_world_activated": "Mundo de Itens Ativado",
     "free_world_message": "Você recebeu 250 de cada item.\n\nO salvamento está agora desativado.",
     "save_disabled_free_world": "Salvamento desativado no modo Mundo de Itens"
+  },
+  "fence_inventory": {
+    "title": "Inventário de Cercas - Pressione B para fechar"
   }
 }

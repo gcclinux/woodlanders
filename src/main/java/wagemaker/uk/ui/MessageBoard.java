@@ -16,8 +16,9 @@ import wagemaker.uk.localization.LocalizationManager;
  * MessageBoard displays important announcements and information to players.
  * Shows welcome messages, feature updates, and links to community discussions.
  * Supports multi-language localization and follows the game's wooden plank dialog style.
+ * Uses FontManager to respect user's font preference.
  */
-public class MessageBoard implements LanguageChangeListener {
+public class MessageBoard implements LanguageChangeListener, FontChangeListener {
     private boolean isVisible = false;
     private Texture woodenPlank;
     private BitmapFont dialogFont;
@@ -25,41 +26,31 @@ public class MessageBoard implements LanguageChangeListener {
     private static final float DIALOG_HEIGHT = 480;
     
     /**
-     * Creates a new MessageBoard with wooden plank background and custom font.
+     * Creates a new MessageBoard with wooden plank background and font from FontManager.
      */
     public MessageBoard() {
         woodenPlank = createWoodenPlank();
-        createDialogFont();
+        updateDialogFont();
         
         // Register as language change listener
         LocalizationManager.getInstance().addLanguageChangeListener(this);
+        
+        // Register as font change listener
+        FontManager.getInstance().addFontChangeListener(this);
     }
     
     /**
-     * Creates the custom font for dialog text using Sancreek-Regular.ttf.
+     * Updates the dialog font to use the current font from FontManager.
      */
-    private void createDialogFont() {
-        try {
-            FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Sancreek-Regular.ttf"));
-            FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-            parameter.size = 16;
-            parameter.characters = FreeTypeFontGenerator.DEFAULT_CHARS + "ąćęłńóśźżĄĆĘŁŃÓŚŹŻãõâêôáéíóúàçÃÕÂÊÔÁÉÍÓÚÀÇäöüßÄÖÜ🎉🚧";
-            parameter.color = Color.WHITE;
-            parameter.borderWidth = 1;
-            parameter.borderColor = Color.BLACK;
-            parameter.shadowOffsetX = 1;
-            parameter.shadowOffsetY = 1;
-            parameter.shadowColor = Color.BLACK;
-            
-            dialogFont = generator.generateFont(parameter);
-            generator.dispose();
-        } catch (Exception e) {
-            System.out.println("Could not load custom font for message board, using default: " + e.getMessage());
-            // Fallback to default font
-            dialogFont = new BitmapFont();
-            dialogFont.getData().setScale(1.3f);
-            dialogFont.setColor(Color.WHITE);
+    private void updateDialogFont() {
+        // Dispose of old font if it exists
+        if (dialogFont != null) {
+            dialogFont.dispose();
         }
+        
+        // Get the current font from FontManager
+        dialogFont = FontManager.getInstance().getCurrentFont();
+        System.out.println("MessageBoard: Updated to use font: " + FontManager.getInstance().getCurrentFontType().getDisplayName());
     }
     
     /**
@@ -230,17 +221,28 @@ public class MessageBoard implements LanguageChangeListener {
     }
     
     /**
+     * Called when the font changes.
+     * Updates the dialog font to use the new font.
+     * 
+     * @param newFontType The new font type
+     */
+    @Override
+    public void onFontChanged(FontType newFontType) {
+        System.out.println("MessageBoard: Font changed to " + newFontType.getDisplayName());
+        updateDialogFont();
+    }
+    
+    /**
      * Disposes of resources used by the dialog.
      */
     public void dispose() {
         if (woodenPlank != null) {
             woodenPlank.dispose();
         }
-        if (dialogFont != null) {
-            dialogFont.dispose();
-        }
+        // Note: Don't dispose dialogFont as it's managed by FontManager
         
-        // Unregister from language change listener
+        // Unregister from listeners
         LocalizationManager.getInstance().removeLanguageChangeListener(this);
+        FontManager.getInstance().removeFontChangeListener(this);
     }
 }

@@ -85,7 +85,6 @@
     "item_header": "Items",
     "item_plant_p": "P - Item planten",
     "item_plant_space": "SPATIE - Item planten/consumeren",
-    "item_consume": "SPATIE - Item consumeren",
     "targeting_header": "Richten",
     "targeting_up": "W - Richt omhoog",
     "targeting_down": "S - Richt omlaag",
@@ -93,6 +92,11 @@
     "targeting_right": "D - Richt naar rechts",
     "combat_header": "Gevecht",
     "combat_attack": "SPATIE - Aanvallen",
+    "fence_header": "Hek Bouwen",
+    "fence_enter_mode": "B - Hek bouw modus activeren",
+    "fence_place": "Linker klik - Hekken plaatsen",
+    "fence_remove": "Rechter klik - Hekken verwijderen",
+    "fence_select": "Muis - Hekstuk locatie selecteren",
     "system_header": "Systeem",
     "system_menu": "ESC - Menu openen",
     "system_delete_world": "X - Wereld verwijderen",
@@ -241,5 +245,8 @@
     "free_world_activated": "Item Wereld Geactiveerd",
     "free_world_message": "Je hebt 250 van elk item ontvangen.\n\nOpslaan is nu uitgeschakeld.",
     "save_disabled_free_world": "Opslaan uitgeschakeld in Item Wereld modus"
+  },
+  "fence_inventory": {
+    "title": "Hek Inventaris - Druk op B om te sluiten"
   }
 }
