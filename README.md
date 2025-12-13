@@ -49,9 +49,10 @@ For manual installation or building from source, see the **[Installation Guide](
 
 <div align="center">
 
-### First initial view of currently enabled features
-![Latest 0.0.29](screenshots/fully-loaded.png)
-*First view of all 3 biome's Grass, Water & Sand also Rain, Bird, Trees*
+### Build fences around your plantation in Item World --> Press B
+![Latest 0.0.30](www/images/protect-plantation.png)
+*v0.0.30 introduces the fence building system, get item in Item World, then open Fence inventory with "B"!*
+
 
 ### 📸 [More Woodland Screenshots](docs/SCREENSHOTS.md)
 

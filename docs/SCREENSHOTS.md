@@ -2,6 +2,10 @@ SOme screenshots are older the idea is to start adding them based on their versi
 
 <div align="center">
 
+### Latest 0.0.30
+![Latest 0.0.30](../www/images/protect-plantation.png)
+*v0.0.30 introduces the fence building system, protect your plantation from other!*
+
 ### First initial view of currently enabled features
 ![Latest 0.0.29](../screenshots/fully-loaded.png)
 *First view of all 3 biome's Grass, Water & Sand also Rain, Bird, Trees*
