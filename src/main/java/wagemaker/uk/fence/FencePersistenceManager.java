@@ -129,7 +129,7 @@ public class FencePersistenceManager {
                     
                     // Create and place the fence piece
                     try {
-                        FencePiece piece = FencePieceFactory.createPiece(pieceData.type, pieceData.x, pieceData.y);
+                        FencePiece piece = FencePieceFactory.createPiece(pieceData.type, pieceData.x, pieceData.y, pieceData.ownerId);
                         
                         // Create the fence piece and add it for restoration
                         boolean added = structureManager.addFencePieceForRestore(gridPos, piece);

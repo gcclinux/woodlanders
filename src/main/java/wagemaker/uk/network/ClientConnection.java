@@ -955,6 +955,9 @@ public class ClientConnection implements Runnable {
             case FRONT_FENCE:
                 playerState.setFrontFenceCount(playerState.getFrontFenceCount() + 1);
                 break;
+            case BACK_FENCE:
+                playerState.setBackFenceCount(playerState.getBackFenceCount() + 1);
+                break;
         }
         
         // Update player state in world

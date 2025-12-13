@@ -64,7 +64,32 @@ public class FenceStructureManager {
      * @return The created FencePiece, or null if placement failed
      * @throws IllegalArgumentException if the position is already occupied
      */
+    /**
+     * Adds a fence piece at the specified grid position.
+     * Automatically determines the correct piece type based on adjacent pieces.
+     * Updates connections with adjacent pieces.
+     * 
+     * @param gridPos Grid position where to place the fence piece
+     * @param materialType Type of material to use for the fence piece
+     * @return The created FencePiece, or null if placement failed
+     * @throws IllegalArgumentException if the position is already occupied
+     */
     public FencePiece addFencePiece(Point gridPos, FenceMaterialType materialType) {
+        return addFencePiece(gridPos, materialType, null);
+    }
+
+    /**
+     * Adds a fence piece at the specified grid position with ownership.
+     * Automatically determines the correct piece type based on adjacent pieces.
+     * Updates connections with adjacent pieces.
+     * 
+     * @param gridPos Grid position where to place the fence piece
+     * @param materialType Type of material to use for the fence piece
+     * @param ownerId ID of the player who owns this fence piece
+     * @return The created FencePiece, or null if placement failed
+     * @throws IllegalArgumentException if the position is already occupied
+     */
+    public FencePiece addFencePiece(Point gridPos, FenceMaterialType materialType, String ownerId) {
         if (placedFences.containsKey(gridPos)) {
             throw new IllegalArgumentException("Position " + gridPos + " is already occupied");
         }
@@ -81,7 +106,7 @@ public class FenceStructureManager {
         com.badlogic.gdx.math.Vector2 worldPos = grid.gridToWorld(gridPos);
         
         // Create the fence piece
-        FencePiece piece = FencePieceFactory.createPiece(pieceType, worldPos.x, worldPos.y);
+        FencePiece piece = FencePieceFactory.createPiece(pieceType, worldPos.x, worldPos.y, ownerId);
         
         // Add to our data structures
         placedFences.put(new Point(gridPos.x, gridPos.y), piece);
@@ -291,9 +316,9 @@ public class FenceStructureManager {
             return; // Nothing to replace
         }
         
-        // Create new piece with the same position
+        // Create new piece with the same position and owner
         com.badlogic.gdx.math.Vector2 worldPos = grid.gridToWorld(gridPos);
-        FencePiece newPiece = FencePieceFactory.createPiece(newType, worldPos.x, worldPos.y);
+        FencePiece newPiece = FencePieceFactory.createPiece(newType, worldPos.x, worldPos.y, oldPiece.getOwnerId());
         
         // Replace in the map
         placedFences.put(gridPos, newPiece);
@@ -427,7 +452,13 @@ public class FenceStructureManager {
             }
         }
         
-        FenceEnclosure enclosure = new FenceEnclosure(bounds, pieces, FenceMaterialType.WOOD);
+        String ownerId = null;
+        if (!pieces.isEmpty()) {
+            ownerId = pieces.get(0).getOwnerId();
+            // Verify all pieces have the same owner? Optional but good practice.
+        }
+        
+        FenceEnclosure enclosure = new FenceEnclosure(bounds, pieces, FenceMaterialType.WOOD, ownerId);
         enclosures.add(enclosure);
     }
     

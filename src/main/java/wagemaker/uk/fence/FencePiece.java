@@ -18,6 +18,8 @@ public abstract class FencePiece {
     protected static final int PIECE_SIZE = 64; // 64x64 pixel pieces
     protected static final String TEXTURE_PATH = "textures/fense.png";
 
+    protected String ownerId;
+
     /**
      * Creates a new fence piece at the specified position.
      * @param x World X coordinate
@@ -25,9 +27,21 @@ public abstract class FencePiece {
      * @param type The type of fence piece
      */
     public FencePiece(float x, float y, FencePieceType type) {
+        this(x, y, type, null);
+    }
+
+    /**
+     * Creates a new fence piece at the specified position with ownership.
+     * @param x World X coordinate
+     * @param y World Y coordinate
+     * @param type The type of fence piece
+     * @param ownerId The ID of the owner of this fence piece
+     */
+    public FencePiece(float x, float y, FencePieceType type, String ownerId) {
         this.x = x;
         this.y = y;
         this.type = type;
+        this.ownerId = ownerId;
         loadTexture();
     }
 
@@ -140,6 +154,22 @@ public abstract class FencePiece {
      */
     public Texture getTexture() {
         return texture;
+    }
+
+    /**
+     * Gets the owner ID of this fence piece.
+     * @return Owner ID, or null if not set
+     */
+    public String getOwnerId() {
+        return ownerId;
+    }
+
+    /**
+     * Sets the owner ID of this fence piece.
+     * @param ownerId New owner ID
+     */
+    public void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
     }
 
     /**

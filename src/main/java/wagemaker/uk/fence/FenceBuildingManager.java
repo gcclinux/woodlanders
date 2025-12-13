@@ -77,19 +77,25 @@ public class FenceBuildingManager {
     /** Flag to disable direct mouse input when targeting system is handling input */
     private boolean disableDirectMouseInput = false;
     
+    /** Player reference for ownership tracking */
+    private final wagemaker.uk.player.Player player;
+    
     /**
      * Creates a new FenceBuildingManager with the specified dependencies.
      * 
      * @param structureManager Manager for fence structure data
      * @param validator Validator for placement operations
      * @param camera Camera for input coordinate conversion
+     * @param player The player instance for ownership tracking
      */
     public FenceBuildingManager(FenceStructureManager structureManager, 
                                FencePlacementValidator validator,
-                               OrthographicCamera camera) {
+                               OrthographicCamera camera,
+                               wagemaker.uk.player.Player player) {
         this.structureManager = structureManager;
         this.validator = validator;
         this.camera = camera;
+        this.player = player;
         this.buildingModeActive = false;
         this.selectedMaterialType = FenceMaterialType.WOOD; // Default material
         this.lastProcessedGridPos = null;
@@ -107,6 +113,15 @@ public class FenceBuildingManager {
         this.fenceRenderer = new FenceRenderer(camera);
         
         // Visual effects manager will be set externally since it requires ShapeRenderer
+    }
+    
+    /**
+     * Gets the player instance associated with this manager.
+     * 
+     * @return The player instance
+     */
+    public wagemaker.uk.player.Player getPlayer() {
+        return player;
     }
     
     /**
@@ -373,9 +388,15 @@ public class FenceBuildingManager {
     public boolean placeFenceSegment(int gridX, int gridY) {
         Point gridPos = new Point(gridX, gridY);
         
+        String playerId = player.getPlayerId();
+        // Fallback for single player or during initialization
+        if (playerId == null) {
+            playerId = "local_player";
+        }
+        
         // Validate placement with comprehensive error handling
         FencePlacementValidator.ValidationResult result = 
-            validator.validatePlacement(gridPos, selectedMaterialType, "local_player");
+            validator.validatePlacement(gridPos, selectedMaterialType, playerId);
         
         if (!result.isValid()) {
             // Provide detailed error feedback to the user
@@ -392,9 +413,9 @@ public class FenceBuildingManager {
         }
         
         try {
-            System.out.println("[FenceBuildingManager] Attempting to place fence at grid (" + gridPos.x + ", " + gridPos.y + ") with material " + selectedMaterialType);
+            System.out.println("[FenceBuildingManager] Attempting to place fence at grid (" + gridPos.x + ", " + gridPos.y + ") with material " + selectedMaterialType + " for owner " + playerId);
             // Attempt to place the fence piece with automatic piece type selection
-            FencePiece placedPiece = structureManager.addFencePiece(gridPos, selectedMaterialType);
+            FencePiece placedPiece = structureManager.addFencePiece(gridPos, selectedMaterialType, playerId);
             
             if (placedPiece != null) {
                 System.out.println("[FenceBuildingManager] Fence piece created: " + placedPiece.getType() + " at world (" + placedPiece.getX() + ", " + placedPiece.getY() + ")");
@@ -492,9 +513,15 @@ public class FenceBuildingManager {
     public boolean removeFenceSegment(int gridX, int gridY) {
         Point gridPos = new Point(gridX, gridY);
         
+        String playerId = player.getPlayerId();
+        // Fallback for single player or during initialization
+        if (playerId == null) {
+            playerId = "local_player";
+        }
+        
         // Validate removal with comprehensive error handling
         FencePlacementValidator.ValidationResult result = 
-            validator.validateRemoval(gridPos, "local_player");
+            validator.validateRemoval(gridPos, playerId);
         
         if (!result.isValid()) {
             displayRemovalError(result.getErrorMessage(), gridPos);

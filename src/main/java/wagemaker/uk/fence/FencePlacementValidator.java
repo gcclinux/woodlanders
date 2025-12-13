@@ -180,9 +180,17 @@ public class FencePlacementValidator {
         }
         
         // Check if the piece belongs to the player
-        // For now, we'll allow all removals - in a full implementation,
-        // we'd check the piece's owner against the playerId
-        // This is a placeholder for future ownership tracking
+        String pieceOwner = piece.getOwnerId();
+        
+        // If piece has no owner, allow removal (or could be restricted based on game rules)
+        if (pieceOwner == null) {
+            return ValidationResult.valid();
+        }
+        
+        // Check if the requesting player is the owner
+        if (!pieceOwner.equals(playerId)) {
+            return ValidationResult.invalid("You cannot remove this fence because you do not own it");
+        }
         
         return ValidationResult.valid();
     }

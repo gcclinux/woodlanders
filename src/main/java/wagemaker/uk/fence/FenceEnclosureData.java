@@ -54,7 +54,7 @@ public class FenceEnclosureData implements Serializable {
         
         // Convert fence pieces to serializable data
         for (FencePiece piece : pieces) {
-            pieceData.add(new FencePieceData(piece.getX(), piece.getY(), piece.getType()));
+            pieceData.add(new FencePieceData(piece.getX(), piece.getY(), piece.getType(), piece.getOwnerId()));
         }
     }
     
@@ -68,7 +68,7 @@ public class FenceEnclosureData implements Serializable {
         
         // Recreate fence pieces from data
         for (FencePieceData data : pieceData) {
-            FencePiece piece = FencePieceFactory.createPiece(data.type, data.x, data.y);
+            FencePiece piece = FencePieceFactory.createPiece(data.type, data.x, data.y, data.ownerId);
             pieces.add(piece);
         }
         
@@ -121,6 +121,7 @@ public class FenceEnclosureData implements Serializable {
         
         public float x, y;
         public FencePieceType type;
+        public String ownerId;
         
         /**
          * Default constructor for serialization.
@@ -135,9 +136,22 @@ public class FenceEnclosureData implements Serializable {
          * @param type Fence piece type
          */
         public FencePieceData(float x, float y, FencePieceType type) {
+            this(x, y, type, null);
+        }
+
+        /**
+         * Creates fence piece data with owner.
+         * 
+         * @param x World X coordinate
+         * @param y World Y coordinate
+         * @param type Fence piece type
+         * @param ownerId Owner ID
+         */
+        public FencePieceData(float x, float y, FencePieceType type, String ownerId) {
             this.x = x;
             this.y = y;
             this.type = type;
+            this.ownerId = ownerId;
         }
         
         /**

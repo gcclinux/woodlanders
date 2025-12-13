@@ -460,7 +460,7 @@ public class MyGdxGame extends ApplicationAdapter {
         FenceMaterialProvider fenceMaterialProvider = new InventoryFenceMaterialProvider(inventoryManager);
         FencePlacementValidator fencePlacementValidator = new FencePlacementValidator(fenceGrid, fenceMaterialProvider, fenceStructureManager);
         
-        fenceBuildingManager = new FenceBuildingManager(fenceStructureManager, fencePlacementValidator, camera);
+        fenceBuildingManager = new FenceBuildingManager(fenceStructureManager, fencePlacementValidator, camera, player);
         fenceWorldIntegration = new FenceWorldIntegration();
         fenceWorldIntegration.setBuildingManager(fenceBuildingManager);
         
@@ -2050,6 +2050,11 @@ public class MyGdxGame extends ApplicationAdapter {
             gameClient.setMessageHandler(new GameMessageHandler(this));
             gameClient.connect("localhost", 25565);
             
+            // Enable fence ownership validation for multiplayer
+            if (fenceBuildingManager != null) {
+                fenceBuildingManager.getValidator().setOwnershipValidationEnabled(true);
+            }
+            
             // Set game mode to host
             gameMode = GameMode.MULTIPLAYER_HOST;
             
@@ -2136,6 +2141,11 @@ public class MyGdxGame extends ApplicationAdapter {
             gameClient = new GameClient();
             gameClient.setMessageHandler(new GameMessageHandler(this));
             gameClient.connect(serverAddress, port);
+            
+            // Enable fence ownership validation for multiplayer
+            if (fenceBuildingManager != null) {
+                fenceBuildingManager.getValidator().setOwnershipValidationEnabled(true);
+            }
             
             // Set game mode to client
             gameMode = GameMode.MULTIPLAYER_CLIENT;
@@ -3244,8 +3254,13 @@ public class MyGdxGame extends ApplicationAdapter {
             inventoryManager.setMultiplayerMode(false);
         }
         
-        // Reset world seed to 0 for singleplayer
-        worldSeed = 0;
+        // Disable fence ownership validation for single player
+    if (fenceBuildingManager != null) {
+        fenceBuildingManager.getValidator().setOwnershipValidationEnabled(false);
+    }
+    
+    // Reset world seed to 0 for singleplayer
+    worldSeed = 0;
         
         // Clear rain zones (dynamic rain manager will handle rain events)
         if (rainSystem != null) {

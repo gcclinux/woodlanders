@@ -42,6 +42,20 @@ public class FencePieceFactory {
                 throw new IllegalArgumentException("Unknown fence piece type: " + type);
         }
     }
+
+    /**
+     * Creates a fence piece of the specified type at the given position with ownership.
+     * @param type The type of fence piece to create
+     * @param x World X coordinate
+     * @param y World Y coordinate
+     * @param ownerId The ID of the owner
+     * @return A new FencePiece instance of the specified type
+     */
+    public static FencePiece createPiece(FencePieceType type, float x, float y, String ownerId) {
+        FencePiece piece = createPiece(type, x, y);
+        piece.setOwnerId(ownerId);
+        return piece;
+    }
     
     /**
      * Gets the sequence of fence piece types needed for a rectangular enclosure.

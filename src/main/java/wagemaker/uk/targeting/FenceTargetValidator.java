@@ -47,9 +47,18 @@ public class FenceTargetValidator implements TargetValidator {
         // Get the selected material type
         FenceMaterialType materialType = fenceBuildingManager.getSelectedMaterialType();
         
-        // Validate the placement (use empty player ID for single player)
+        // Get player ID for ownership validation
+        String playerId = "local_player";
+        if (fenceBuildingManager.getPlayer() != null) {
+            String id = fenceBuildingManager.getPlayer().getPlayerId();
+            if (id != null) {
+                playerId = id;
+            }
+        }
+        
+        // Validate the placement
         FencePlacementValidator.ValidationResult result = 
-            validator.validatePlacement(gridPos, materialType, "");
+            validator.validatePlacement(gridPos, materialType, playerId);
         
         return result.isValid();
     }
