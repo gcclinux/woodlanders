@@ -340,6 +340,9 @@ public class MyGdxGame extends ApplicationAdapter {
         pendingAppleTreePlants = new java.util.concurrent.ConcurrentLinkedQueue<>();
         pendingAppleTreeTransforms = new java.util.concurrent.ConcurrentLinkedQueue<>();
         pendingTreeTransforms = new java.util.concurrent.ConcurrentLinkedQueue<>();
+        pendingFencePlacements = new java.util.concurrent.ConcurrentLinkedQueue<>();
+        pendingFenceRemovals = new java.util.concurrent.ConcurrentLinkedQueue<>();
+        pendingFenceSyncs = new java.util.concurrent.ConcurrentLinkedQueue<>();
         
         // Initialize deferred operations queue
         pendingDeferredOperations = new java.util.concurrent.ConcurrentLinkedQueue<>();
@@ -502,6 +505,9 @@ public class MyGdxGame extends ApplicationAdapter {
         processPendingAppleTreePlants();
         processPendingAppleTreeTransforms();
         processPendingTreeCreations();
+        processPendingFencePlacements();
+        processPendingFenceRemovals();
+        processPendingFenceSyncs();
         
         // Process pending world load operations on main thread (for OpenGL context)
         processPendingWorldLoad();
@@ -4691,6 +4697,41 @@ public class MyGdxGame extends ApplicationAdapter {
         pendingAppleTreeTransforms.offer(message);
     }
     
+    // Fence synchronization queues
+    private java.util.concurrent.ConcurrentLinkedQueue<wagemaker.uk.network.FencePlaceMessage> pendingFencePlacements;
+    private java.util.concurrent.ConcurrentLinkedQueue<wagemaker.uk.network.FenceRemoveMessage> pendingFenceRemovals;
+    private java.util.concurrent.ConcurrentLinkedQueue<wagemaker.uk.network.FenceSyncMessage> pendingFenceSyncs;
+    
+    /**
+     * Queues a fence place to be processed on the main thread.
+     * @param message The fence place message
+     */
+    public void queueFencePlace(wagemaker.uk.network.FencePlaceMessage message) {
+        if (pendingFencePlacements != null) {
+            pendingFencePlacements.offer(message);
+        }
+    }
+    
+    /**
+     * Queues a fence remove to be processed on the main thread.
+     * @param message The fence remove message
+     */
+    public void queueFenceRemove(wagemaker.uk.network.FenceRemoveMessage message) {
+        if (pendingFenceRemovals != null) {
+            pendingFenceRemovals.offer(message);
+        }
+    }
+    
+    /**
+     * Queues a fence sync to be processed on the main thread.
+     * @param message The fence sync message
+     */
+    public void queueFenceSync(wagemaker.uk.network.FenceSyncMessage message) {
+        if (pendingFenceSyncs != null) {
+            pendingFenceSyncs.offer(message);
+        }
+    }
+    
     /**
      * Processes pending bamboo plants on the main render thread.
      * This ensures OpenGL operations happen in the correct context.
@@ -5220,5 +5261,71 @@ public class MyGdxGame extends ApplicationAdapter {
         PlantedBamboo.disposeSharedTexture();
         PlantedTree.disposeSharedTexture();
         wagemaker.uk.planting.PlantedBananaTree.disposeSharedTexture();
+    }
+    
+    /**
+     * Processes pending fence placements on the main render thread.
+     * This ensures OpenGL operations happen in the correct context.
+     */
+    private void processPendingFencePlacements() {
+        wagemaker.uk.network.FencePlaceMessage message;
+        while ((message = pendingFencePlacements.poll()) != null) {
+            if (fenceBuildingManager != null) {
+                java.awt.Point gridPos = new java.awt.Point(message.getGridX(), message.getGridY());
+                fenceBuildingManager.getStructureManager().addFencePiece(
+                    gridPos,
+                    message.getMaterialType(),
+                    message.getPlayerId(),
+                    message.getFenceId()
+                );
+                fenceBuildingManager.rebuildCollisionBoundaries();
+                System.out.println("[FENCE] Remote fence placed at (" + message.getGridX() + ", " + message.getGridY() + ") by " + message.getPlayerId());
+            }
+        }
+    }
+    
+    /**
+     * Processes pending fence removals on the main render thread.
+     * This ensures OpenGL operations happen in the correct context.
+     */
+    private void processPendingFenceRemovals() {
+        wagemaker.uk.network.FenceRemoveMessage message;
+        while ((message = pendingFenceRemovals.poll()) != null) {
+            if (fenceBuildingManager != null) {
+                java.awt.Point gridPos = new java.awt.Point(message.getGridX(), message.getGridY());
+                fenceBuildingManager.getStructureManager().removeFencePiece(gridPos);
+                fenceBuildingManager.rebuildCollisionBoundaries();
+                System.out.println("[FENCE] Remote fence removed at (" + message.getGridX() + ", " + message.getGridY() + ") by " + message.getPlayerId());
+            }
+        }
+    }
+    
+    /**
+     * Processes pending fence syncs on the main render thread.
+     * This ensures OpenGL operations happen in the correct context.
+     */
+    private void processPendingFenceSyncs() {
+        wagemaker.uk.network.FenceSyncMessage message;
+        while ((message = pendingFenceSyncs.poll()) != null) {
+            if (fenceBuildingManager != null && message.getFenceStates() != null) {
+                // Clear existing fences
+                fenceBuildingManager.getStructureManager().clear();
+                
+                // Add all fences from sync message
+                for (wagemaker.uk.network.FenceState fenceState : message.getFenceStates().values()) {
+                    java.awt.Point gridPos = new java.awt.Point(fenceState.getGridX(), fenceState.getGridY());
+                    fenceBuildingManager.getStructureManager().addFencePiece(
+                        gridPos,
+                        fenceState.getMaterialType(),
+                        fenceState.getOwnerId(),
+                        fenceState.getFenceId()
+                    );
+                }
+                
+                // Rebuild collision boundaries
+                fenceBuildingManager.rebuildCollisionBoundaries();
+                System.out.println("[FENCE] Synced " + message.getFenceStates().size() + " fences from server");
+            }
+        }
     }
 }

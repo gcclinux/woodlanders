@@ -2176,11 +2176,16 @@ public class ClientConnection implements Runnable {
             return;
         }
         
-        // Validate fence ID matches
+        // Validate fence ID matches (with special handling for fallback IDs)
         if (!existingFence.getFenceId().equals(fenceId)) {
-            System.err.println("Fence ID mismatch at position (" + gridX + ", " + gridY + ") from " + clientId);
-            logSecurityViolation("Fence ID mismatch in remove operation");
-            return;
+            // Allow removal if using fallback ID and player owns the fence
+            if (fenceId.startsWith("unknown-") && existingFence.getOwnerId().equals(playerId)) {
+                System.out.println("Allowing fence removal with fallback ID for owner " + playerId + " at (" + gridX + ", " + gridY + ")");
+            } else {
+                System.err.println("Fence ID mismatch at position (" + gridX + ", " + gridY + ") from " + clientId);
+                logSecurityViolation("Fence ID mismatch in remove operation");
+                return;
+            }
         }
         
         // Validate ownership in multiplayer mode

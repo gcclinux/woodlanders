@@ -56,6 +56,22 @@ public class FencePieceFactory {
         piece.setOwnerId(ownerId);
         return piece;
     }
+
+    /**
+     * Creates a fence piece of the specified type at the given position with ownership and fence ID.
+     * @param type The type of fence piece to create
+     * @param x World X coordinate
+     * @param y World Y coordinate
+     * @param ownerId The ID of the owner
+     * @param fenceId The unique ID of the fence piece
+     * @return A new FencePiece instance of the specified type
+     */
+    public static FencePiece createPiece(FencePieceType type, float x, float y, String ownerId, String fenceId) {
+        FencePiece piece = createPiece(type, x, y);
+        piece.setOwnerId(ownerId);
+        piece.setFenceId(fenceId);
+        return piece;
+    }
     
     /**
      * Gets the sequence of fence piece types needed for a rectangular enclosure.

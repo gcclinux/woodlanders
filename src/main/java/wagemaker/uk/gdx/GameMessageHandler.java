@@ -72,6 +72,12 @@ public class GameMessageHandler extends DefaultMessageHandler {
         
         System.out.println("Connected to server. Client ID: " + message.getAssignedClientId());
         
+        // Set the player ID on the local player object for multiplayer
+        if (game.getPlayer() != null) {
+            game.getPlayer().setPlayerId(message.getAssignedClientId());
+            System.out.println("[CLIENT] Set local player ID to: " + message.getAssignedClientId());
+        }
+        
         // Send player info (character sprite) to server
         PlayerConfig config = PlayerConfig.load();
         String characterSprite = config.getSelectedCharacter();
@@ -656,5 +662,35 @@ public class GameMessageHandler extends DefaultMessageHandler {
             }
             System.out.println("Free World mode activated by host");
         }
+    }
+    
+    @Override
+    protected void handleFencePlace(wagemaker.uk.network.FencePlaceMessage message) {
+        // Don't process our own fence placement messages (already handled locally)
+        if (game.getGameClient() != null && 
+            message.getPlayerId().equals(game.getGameClient().getClientId())) {
+            return;
+        }
+        
+        // Queue fence placement to be processed on the main thread
+        game.queueFencePlace(message);
+    }
+    
+    @Override
+    protected void handleFenceRemove(wagemaker.uk.network.FenceRemoveMessage message) {
+        // Don't process our own fence removal messages (already handled locally)
+        if (game.getGameClient() != null && 
+            message.getPlayerId().equals(game.getGameClient().getClientId())) {
+            return;
+        }
+        
+        // Queue fence removal to be processed on the main thread
+        game.queueFenceRemove(message);
+    }
+    
+    @Override
+    protected void handleFenceSync(wagemaker.uk.network.FenceSyncMessage message) {
+        // Queue fence sync to be processed on the main thread
+        game.queueFenceSync(message);
     }
 }

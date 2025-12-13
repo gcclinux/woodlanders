@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import java.awt.Point;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -414,11 +415,30 @@ public class FenceBuildingManager {
         
         try {
             System.out.println("[FenceBuildingManager] Attempting to place fence at grid (" + gridPos.x + ", " + gridPos.y + ") with material " + selectedMaterialType + " for owner " + playerId);
+            
+            // Generate fence ID for both local and network use
+            String fenceId = java.util.UUID.randomUUID().toString();
+            
             // Attempt to place the fence piece with automatic piece type selection
-            FencePiece placedPiece = structureManager.addFencePiece(gridPos, selectedMaterialType, playerId);
+            FencePiece placedPiece = structureManager.addFencePiece(gridPos, selectedMaterialType, playerId, fenceId);
             
             if (placedPiece != null) {
-                System.out.println("[FenceBuildingManager] Fence piece created: " + placedPiece.getType() + " at world (" + placedPiece.getX() + ", " + placedPiece.getY() + ")");
+                System.out.println("[FenceBuildingManager] Fence piece created: " + placedPiece.getType() + " at world (" + placedPiece.getX() + ", " + placedPiece.getY() + ") with ID " + fenceId);
+                
+                // Send fence place message to server in multiplayer mode
+                wagemaker.uk.network.GameClient gameClient = player.getGameClient();
+                System.out.println("DEBUG: Sending fence place message - gameClient=" + (gameClient != null ? "exists" : "null") + 
+                                 ", connected=" + (gameClient != null ? gameClient.isConnected() : "N/A"));
+                if (gameClient != null && gameClient.isConnected()) {
+                    wagemaker.uk.network.FencePlaceMessage fenceMsg = new wagemaker.uk.network.FencePlaceMessage(
+                        playerId, fenceId, gridX, gridY, placedPiece.getType(), selectedMaterialType, playerId
+                    );
+                    gameClient.sendMessage(fenceMsg);
+                    System.out.println("DEBUG: Sent FencePlaceMessage to server: " + fenceMsg);
+                } else {
+                    System.out.println("DEBUG: NOT sending fence message - gameClient null or not connected");
+                }
+                
                 // Consume materials from inventory
                 FenceMaterialProvider materialProvider = validator.getMaterialProvider();
                 if (materialProvider != null) {
@@ -555,6 +575,28 @@ public class FenceBuildingManager {
             FencePiece removedPiece = structureManager.removeFencePiece(gridPos);
             
             if (removedPiece != null) {
+                // Get the fence ID from the removed piece
+                String fenceId = removedPiece.getFenceId();
+                if (fenceId == null) {
+                    // Fallback for pieces without IDs (shouldn't happen in multiplayer)
+                    fenceId = "unknown-" + System.currentTimeMillis();
+                    System.out.println("WARNING: Removed fence piece had no ID, using fallback: " + fenceId);
+                }
+                
+                // Send fence remove message to server in multiplayer mode
+                wagemaker.uk.network.GameClient gameClient = player.getGameClient();
+                System.out.println("DEBUG: Sending fence remove message - gameClient=" + (gameClient != null ? "exists" : "null") + 
+                                 ", connected=" + (gameClient != null ? gameClient.isConnected() : "N/A"));
+                if (gameClient != null && gameClient.isConnected()) {
+                    wagemaker.uk.network.FenceRemoveMessage fenceMsg = new wagemaker.uk.network.FenceRemoveMessage(
+                        playerId, fenceId, gridX, gridY, materialToReturn, playerId
+                    );
+                    gameClient.sendMessage(fenceMsg);
+                    System.out.println("DEBUG: Sent FenceRemoveMessage to server with fence ID: " + fenceId);
+                } else {
+                    System.out.println("DEBUG: NOT sending fence remove message - gameClient null or not connected");
+                }
+                
                 // Return materials to inventory
                 FenceMaterialProvider materialProvider = validator.getMaterialProvider();
                 if (materialProvider != null) {
@@ -922,20 +964,65 @@ public class FenceBuildingManager {
         }
         
         if (closestPos != null) {
+            // Get the current player's ID for ownership validation
+            String playerId = player.getPlayerId();
+            if (playerId == null) {
+                playerId = "local_player";
+            }
+            
+            // Check if the closest piece is owned by the current player
+            FencePiece closestPiece = structureManager.getFencePiece(closestPos);
+            if (closestPiece == null || !playerId.equals(closestPiece.getOwnerId())) {
+                System.out.println("[FenceBuildingManager] Cannot clear enclosure - closest fence piece is not owned by current player");
+                return;
+            }
+            
             // Get connected pieces (the enclosure)
             Set<Point> connectedPoints = structureManager.findConnectedPieces(closestPos);
             
             if (!connectedPoints.isEmpty()) {
-                System.out.println("[FenceBuildingManager] Clearing enclosure of " + connectedPoints.size() + " pieces nearest to " + closestPos);
+                // Filter to only include pieces owned by the current player
+                Set<Point> ownedPieces = new HashSet<>();
+                for (Point pos : connectedPoints) {
+                    FencePiece piece = structureManager.getFencePiece(pos);
+                    if (piece != null && playerId.equals(piece.getOwnerId())) {
+                        ownedPieces.add(pos);
+                    }
+                }
+                
+                if (ownedPieces.isEmpty()) {
+                    System.out.println("[FenceBuildingManager] Cannot clear enclosure - no pieces owned by current player");
+                    return;
+                }
+                
+                System.out.println("[FenceBuildingManager] Clearing " + ownedPieces.size() + " owned pieces out of " + connectedPoints.size() + " total pieces nearest to " + closestPos);
                 
                 int removedCount = 0;
                 
-                // Remove each piece
-                for (Point pos : connectedPoints) {
+                // Remove each owned piece and send network messages
+                for (Point pos : ownedPieces) {
                     FencePiece removedPiece = structureManager.removeFencePiece(pos);
                     if (removedPiece != null) {
                         updateCollisionBoundaries(pos, false);
                         removedCount++;
+                        
+                        // Send fence remove message to server in multiplayer mode
+                        
+                        wagemaker.uk.network.GameClient gameClient = player.getGameClient();
+                        if (gameClient != null && gameClient.isConnected()) {
+                            String fenceId = removedPiece.getFenceId();
+                            if (fenceId == null) {
+                                fenceId = "unknown-" + System.currentTimeMillis() + "-" + pos.x + "-" + pos.y;
+                                System.out.println("WARNING: Removed fence piece had no ID, using fallback: " + fenceId);
+                            }
+                            
+                            wagemaker.uk.network.FenceRemoveMessage fenceMsg = new wagemaker.uk.network.FenceRemoveMessage(
+                                playerId, fenceId, pos.x, pos.y, selectedMaterialType, playerId
+                            );
+                            gameClient.sendMessage(fenceMsg);
+                            System.out.println("DEBUG: Sent FenceRemoveMessage for enclosure clear - fence ID: " + fenceId + " at (" + pos.x + ", " + pos.y + ")");
+                        }
+                        
                         // Trigger visual effect for each piece
                         if (visualEffectsManager != null) {
                             visualEffectsManager.triggerRemovalAnimation(pos, selectedMaterialType);
