@@ -3,9 +3,19 @@ package wagemaker.uk.fence;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterAll;
+import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.backends.headless.HeadlessApplication;
+import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import wagemaker.uk.player.Player;
+import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 
 /**
  * Unit tests for fence building components.
@@ -13,10 +23,30 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class FenceBuildingUITest {
     
+    private static HeadlessApplication application;
+    
     private FenceBuildingManager buildingManager;
     private FenceStructureManager structureManager;
     private FencePlacementValidator validator;
     private OrthographicCamera camera;
+    private Player player;
+    
+    @BeforeAll
+    public static void setUpClass() {
+        // Initialize headless LibGDX application for testing
+        HeadlessApplicationConfiguration config = new HeadlessApplicationConfiguration();
+        application = new HeadlessApplication(new ApplicationAdapter() {}, config);
+        
+        // Mock GL20 to prevent OpenGL calls
+        Gdx.gl = Mockito.mock(GL20.class);
+    }
+    
+    @AfterAll
+    public static void tearDownClass() {
+        if (application != null) {
+            application.exit();
+        }
+    }
     
     @BeforeEach
     public void setUp() {
@@ -24,11 +54,14 @@ public class FenceBuildingUITest {
         camera = new OrthographicCamera();
         structureManager = new FenceStructureManager();
         
+        // Create a mock player for testing
+        player = mock(Player.class);
+        
         // Create mock material provider
         FenceMaterialProvider materialProvider = new MockFenceMaterialProvider();
         validator = new FencePlacementValidator(structureManager.getGrid(), materialProvider, structureManager);
         
-        buildingManager = new FenceBuildingManager(structureManager, validator, camera);
+        buildingManager = new FenceBuildingManager(structureManager, validator, camera, player, true);
         
         // Create UI without OpenGL-dependent components for testing
         // We'll test the logic without actual rendering

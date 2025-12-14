@@ -4,10 +4,20 @@ import com.pholser.junit.quickcheck.Property;
 import com.pholser.junit.quickcheck.runner.JUnitQuickcheck;
 import org.junit.runner.RunWith;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
+import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.backends.headless.HeadlessApplication;
+import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import wagemaker.uk.player.Player;
+import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.mock;
 
 /**
  * Property-based test for building mode UI consistency.
@@ -18,10 +28,30 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @RunWith(JUnitQuickcheck.class)
 public class BuildingModeUIConsistencyPropertyTest {
     
+    private static HeadlessApplication application;
+    
     private FenceBuildingManager buildingManager;
     private FenceStructureManager structureManager;
     private FencePlacementValidator validator;
     private OrthographicCamera camera;
+    private Player player;
+    
+    @BeforeClass
+    public static void setUpClass() {
+        // Initialize headless LibGDX application for testing
+        HeadlessApplicationConfiguration config = new HeadlessApplicationConfiguration();
+        application = new HeadlessApplication(new ApplicationAdapter() {}, config);
+        
+        // Mock GL20 to prevent OpenGL calls
+        Gdx.gl = Mockito.mock(GL20.class);
+    }
+    
+    @AfterClass
+    public static void tearDownClass() {
+        if (application != null) {
+            application.exit();
+        }
+    }
     
     @Before
     public void setUp() {
@@ -29,11 +59,14 @@ public class BuildingModeUIConsistencyPropertyTest {
         camera = new OrthographicCamera();
         structureManager = new FenceStructureManager();
         
+        // Create a mock player for testing
+        player = mock(Player.class);
+        
         // Create a mock material provider for testing
         FenceMaterialProvider materialProvider = new MockFenceMaterialProvider();
         validator = new FencePlacementValidator(structureManager.getGrid(), materialProvider, structureManager);
         
-        buildingManager = new FenceBuildingManager(structureManager, validator, camera);
+        buildingManager = new FenceBuildingManager(structureManager, validator, camera, player, true);
     }
     
     /**

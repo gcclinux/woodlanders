@@ -93,6 +93,24 @@ public class FenceBuildingManager {
                                FencePlacementValidator validator,
                                OrthographicCamera camera,
                                wagemaker.uk.player.Player player) {
+        this(structureManager, validator, camera, player, false);
+    }
+    
+    /**
+     * Creates a new FenceBuildingManager with the specified dependencies.
+     * This constructor allows disabling renderer creation for testing.
+     * 
+     * @param structureManager Manager for fence structure data
+     * @param validator Validator for placement operations
+     * @param camera Camera for input coordinate conversion
+     * @param player The player instance for ownership tracking
+     * @param testMode If true, skips renderer initialization for testing
+     */
+    public FenceBuildingManager(FenceStructureManager structureManager, 
+                               FencePlacementValidator validator,
+                               OrthographicCamera camera,
+                               wagemaker.uk.player.Player player,
+                               boolean testMode) {
         this.structureManager = structureManager;
         this.validator = validator;
         this.camera = camera;
@@ -110,8 +128,10 @@ public class FenceBuildingManager {
         // Initialize sound manager
         this.soundManager = new FenceSoundManager();
         
-        // Initialize optimized fence renderer
-        this.fenceRenderer = new FenceRenderer(camera);
+        // Initialize optimized fence renderer (skip in test mode)
+        if (!testMode) {
+            this.fenceRenderer = new FenceRenderer(camera);
+        }
         
         // Visual effects manager will be set externally since it requires ShapeRenderer
     }
