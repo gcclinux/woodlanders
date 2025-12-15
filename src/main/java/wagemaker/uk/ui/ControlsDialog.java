@@ -7,91 +7,93 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import wagemaker.uk.localization.LanguageChangeListener;
 import wagemaker.uk.localization.LocalizationManager;
 
 /**
- * ControlsDialog displays all keyboard controls in an organized reference dialog.
+ * ControlsDialog displays all keyboard controls in an organized reference
+ * dialog.
  * Shows movement, inventory, item, targeting, combat, and system controls.
- * Supports multi-language localization and follows the game's wooden plank dialog style.
+ * Supports multi-language localization and follows the game's wooden plank
+ * dialog style.
  * Uses FontManager to respect user's font preference.
  */
 public class ControlsDialog implements LanguageChangeListener, FontChangeListener {
     private boolean isVisible = false;
     private Texture woodenPlank;
     private BitmapFont dialogFont;
-    private static final float DIALOG_WIDTH = 840;  // Increased by 20% (700 * 1.20) to prevent text overlap
+    private static final float DIALOG_WIDTH = 840; // Increased by 20% (700 * 1.20) to prevent text overlap
     private static final float DIALOG_HEIGHT = 480; // Reduced by 20% (600 * 0.80) for better proportions
-    
+
     /**
-     * Creates a new ControlsDialog with wooden plank background and font from FontManager.
+     * Creates a new ControlsDialog with wooden plank background and font from
+     * FontManager.
      */
     public ControlsDialog() {
         woodenPlank = createWoodenPlank();
         updateDialogFont();
-        
+
         // Register as language change listener
         LocalizationManager.getInstance().addLanguageChangeListener(this);
-        
+
         // Register as font change listener
         FontManager.getInstance().addFontChangeListener(this);
     }
-    
+
     /**
      * Updates the dialog font to use the current font from FontManager.
      */
     private void updateDialogFont() {
 
-        
         // Get the current font from FontManager
         dialogFont = FontManager.getInstance().getCurrentFont();
-        System.out.println("ControlsDialog: Updated to use font: " + FontManager.getInstance().getCurrentFontType().getDisplayName());
+        System.out.println("ControlsDialog: Updated to use font: "
+                + FontManager.getInstance().getCurrentFontType().getDisplayName());
     }
-    
+
     /**
      * Creates a wooden plank texture for the dialog background.
      * 
      * @return The wooden plank texture
      */
     private Texture createWoodenPlank() {
-        Pixmap pixmap = new Pixmap((int)DIALOG_WIDTH, (int)DIALOG_HEIGHT, Pixmap.Format.RGBA8888);
-        
+        Pixmap pixmap = new Pixmap((int) DIALOG_WIDTH, (int) DIALOG_HEIGHT, Pixmap.Format.RGBA8888);
+
         // Base wood color
         pixmap.setColor(0.4f, 0.25f, 0.1f, 1.0f);
         pixmap.fill();
-        
+
         // Wood grain lines
         pixmap.setColor(0.3f, 0.18f, 0.08f, 1.0f);
         for (int y = 10; y < DIALOG_HEIGHT; y += 15) {
-            pixmap.drawLine(0, y, (int)DIALOG_WIDTH, y + 5);
+            pixmap.drawLine(0, y, (int) DIALOG_WIDTH, y + 5);
         }
-        
+
         // Border
         pixmap.setColor(0.2f, 0.12f, 0.05f, 1.0f);
-        pixmap.drawRectangle(0, 0, (int)DIALOG_WIDTH, (int)DIALOG_HEIGHT);
-        pixmap.drawRectangle(2, 2, (int)DIALOG_WIDTH - 4, (int)DIALOG_HEIGHT - 4);
-        
+        pixmap.drawRectangle(0, 0, (int) DIALOG_WIDTH, (int) DIALOG_HEIGHT);
+        pixmap.drawRectangle(2, 2, (int) DIALOG_WIDTH - 4, (int) DIALOG_HEIGHT - 4);
+
         Texture texture = new Texture(pixmap);
         pixmap.dispose();
         return texture;
     }
-    
+
     /**
      * Shows the controls dialog.
      */
     public void show() {
         this.isVisible = true;
     }
-    
+
     /**
      * Hides the controls dialog.
      */
     public void hide() {
         this.isVisible = false;
     }
-    
+
     /**
      * Checks if the dialog is currently visible.
      * 
@@ -100,7 +102,7 @@ public class ControlsDialog implements LanguageChangeListener, FontChangeListene
     public boolean isVisible() {
         return isVisible;
     }
-    
+
     /**
      * Handles keyboard input for the dialog.
      * ESC key closes the dialog.
@@ -109,52 +111,52 @@ public class ControlsDialog implements LanguageChangeListener, FontChangeListene
         if (!isVisible) {
             return;
         }
-        
+
         // Handle escape (close dialog)
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             hide();
         }
     }
-    
+
     /**
      * Renders the controls dialog with all control bindings.
      * 
-     * @param batch The sprite batch for rendering
+     * @param batch         The sprite batch for rendering
      * @param shapeRenderer The shape renderer (unused but kept for consistency)
-     * @param camX Camera X position
-     * @param camY Camera Y position
+     * @param camX          Camera X position
+     * @param camY          Camera Y position
      */
     public void render(SpriteBatch batch, ShapeRenderer shapeRenderer, float camX, float camY) {
         if (!isVisible) {
             return;
         }
-        
+
         batch.begin();
-        
+
         // Center the dialog on screen
         float dialogX = camX - DIALOG_WIDTH / 2;
         float dialogY = camY - DIALOG_HEIGHT / 2;
-        
+
         // Draw wooden plank background
         batch.draw(woodenPlank, dialogX, dialogY, DIALOG_WIDTH, DIALOG_HEIGHT);
-        
+
         // Get localized strings
         LocalizationManager loc = LocalizationManager.getInstance();
-        
+
         // Draw title
         dialogFont.setColor(Color.WHITE);
         String title = loc.getText("controls_dialog.title");
         dialogFont.draw(batch, title, dialogX + 20, dialogY + DIALOG_HEIGHT - 30);
-        
+
         float currentY = dialogY + DIALOG_HEIGHT - 70;
         float leftColumnX = dialogX + 30;
-        float rightColumnX = dialogX + 492;  // Moved further right to utilize increased width and prevent overlap
-        
+        float rightColumnX = dialogX + 492; // Moved further right to utilize increased width and prevent overlap
+
         // Movement Controls (Left Column)
         dialogFont.setColor(Color.YELLOW);
         dialogFont.draw(batch, loc.getText("controls_dialog.movement_header"), leftColumnX, currentY);
         currentY -= 25;
-        
+
         dialogFont.setColor(Color.WHITE);
         dialogFont.draw(batch, loc.getText("controls_dialog.movement_up"), leftColumnX, currentY);
         currentY -= 20;
@@ -164,12 +166,12 @@ public class ControlsDialog implements LanguageChangeListener, FontChangeListene
         currentY -= 20;
         dialogFont.draw(batch, loc.getText("controls_dialog.movement_right"), leftColumnX, currentY);
         currentY -= 30;
-        
+
         // Inventory Controls (Left Column)
         dialogFont.setColor(Color.YELLOW);
         dialogFont.draw(batch, loc.getText("controls_dialog.inventory_header"), leftColumnX, currentY);
         currentY -= 25;
-        
+
         dialogFont.setColor(Color.WHITE);
         dialogFont.draw(batch, loc.getText("controls_dialog.inventory_open"), leftColumnX, currentY);
         currentY -= 20;
@@ -177,33 +179,30 @@ public class ControlsDialog implements LanguageChangeListener, FontChangeListene
         currentY -= 20;
         dialogFont.draw(batch, loc.getText("controls_dialog.inventory_navigate_right"), leftColumnX, currentY);
         currentY -= 30;
-        
 
-        
         // Fence Building Controls (Left Column)
         dialogFont.setColor(Color.YELLOW);
         dialogFont.draw(batch, loc.getText("controls_dialog.fence_header"), leftColumnX, currentY);
         currentY -= 25;
-        
+
         dialogFont.setColor(Color.WHITE);
         dialogFont.draw(batch, loc.getText("controls_dialog.fence_enter_mode"), leftColumnX, currentY);
+        currentY -= 20;
+        dialogFont.draw(batch, loc.getText("controls_dialog.fence_delete_enclosure"), leftColumnX, currentY);
         currentY -= 20;
         dialogFont.draw(batch, loc.getText("controls_dialog.fence_place"), leftColumnX, currentY);
         currentY -= 20;
         dialogFont.draw(batch, loc.getText("controls_dialog.fence_remove"), leftColumnX, currentY);
         currentY -= 20;
-        dialogFont.draw(batch, loc.getText("controls_dialog.fence_select"), leftColumnX, currentY);
-        currentY -= 20;
-        dialogFont.draw(batch, loc.getText("controls_dialog.fence_delete_enclosure"), leftColumnX, currentY);
-        
+
         // Reset Y for right column
         currentY = dialogY + DIALOG_HEIGHT - 70;
-        
+
         // Targeting Controls (Right Column)
         dialogFont.setColor(Color.YELLOW);
         dialogFont.draw(batch, loc.getText("controls_dialog.targeting_header"), rightColumnX, currentY);
         currentY -= 25;
-        
+
         dialogFont.setColor(Color.WHITE);
         dialogFont.draw(batch, loc.getText("controls_dialog.targeting_up"), rightColumnX, currentY);
         currentY -= 20;
@@ -213,47 +212,47 @@ public class ControlsDialog implements LanguageChangeListener, FontChangeListene
         currentY -= 20;
         dialogFont.draw(batch, loc.getText("controls_dialog.targeting_right"), rightColumnX, currentY);
         currentY -= 30;
-        
+
         // Combat Controls (Right Column)
         dialogFont.setColor(Color.YELLOW);
         dialogFont.draw(batch, loc.getText("controls_dialog.combat_header"), rightColumnX, currentY);
         currentY -= 25;
-        
+
         dialogFont.setColor(Color.WHITE);
         dialogFont.draw(batch, loc.getText("controls_dialog.combat_attack"), rightColumnX, currentY);
         currentY -= 30;
-        
+
         // Item Controls (Right Column)
         dialogFont.setColor(Color.YELLOW);
         dialogFont.draw(batch, loc.getText("controls_dialog.item_header"), rightColumnX, currentY);
         currentY -= 25;
-        
+
         dialogFont.setColor(Color.WHITE);
         dialogFont.draw(batch, loc.getText("controls_dialog.item_plant_p"), rightColumnX, currentY);
         currentY -= 20;
         dialogFont.draw(batch, loc.getText("controls_dialog.item_plant_space"), rightColumnX, currentY);
         currentY -= 30;
-        
+
         // System Controls (Right Column)
         dialogFont.setColor(Color.YELLOW);
         dialogFont.draw(batch, loc.getText("controls_dialog.system_header"), rightColumnX, currentY);
         currentY -= 25;
-        
+
         dialogFont.setColor(Color.WHITE);
         dialogFont.draw(batch, loc.getText("controls_dialog.system_menu"), rightColumnX, currentY);
         currentY -= 20;
         dialogFont.draw(batch, loc.getText("controls_dialog.system_delete_world"), rightColumnX, currentY);
         currentY -= 20;
         dialogFont.draw(batch, loc.getText("controls_dialog.system_compass_target"), rightColumnX, currentY);
-        
+
         // Draw close instruction at bottom
         dialogFont.setColor(Color.LIGHT_GRAY);
         String closeInstruction = loc.getText("controls_dialog.close_instruction");
         dialogFont.draw(batch, closeInstruction, dialogX + 20, dialogY + 30);
-        
+
         batch.end();
     }
-    
+
     /**
      * Called when the application language changes.
      * The dialog will automatically use the new language on next render.
@@ -266,7 +265,7 @@ public class ControlsDialog implements LanguageChangeListener, FontChangeListene
         // The dialog will automatically use the new language on next render
         // because it calls LocalizationManager.getText() each time
     }
-    
+
     /**
      * Called when the font changes.
      * Updates the dialog font to use the new font.
@@ -278,7 +277,7 @@ public class ControlsDialog implements LanguageChangeListener, FontChangeListene
         System.out.println("ControlsDialog: Font changed to " + newFontType.getDisplayName());
         updateDialogFont();
     }
-    
+
     /**
      * Disposes of resources used by the dialog.
      */
@@ -287,7 +286,7 @@ public class ControlsDialog implements LanguageChangeListener, FontChangeListene
             woodenPlank.dispose();
         }
         // Note: Don't dispose dialogFont as it's managed by FontManager
-        
+
         // Unregister from listeners
         LocalizationManager.getInstance().removeLanguageChangeListener(this);
         FontManager.getInstance().removeFontChangeListener(this);
