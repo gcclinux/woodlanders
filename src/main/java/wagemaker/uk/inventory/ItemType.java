@@ -10,7 +10,7 @@ public enum ItemType {
     BANANA(false, 0, true),      // Reduces 5% hunger
     BANANA_SAPLING(false, 0, false),
     FISH(false, 0, false),
-    FRONT_FENCE(false, 0, false),
+    FRONT_FENCE(false, 0, false), // Fence item for building (shows total fence materials)
     BACK_FENCE(false, 0, false),
     BOW_AND_ARROW(false, 0, false),
     BABY_BAMBOO(false, 0, false),

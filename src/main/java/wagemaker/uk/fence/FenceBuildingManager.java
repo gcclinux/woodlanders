@@ -269,7 +269,7 @@ public class FenceBuildingManager {
      * Enters building mode if conditions are met.
      * Validates material availability before allowing entry.
      */
-    private void enterBuildingMode() {
+    public void enterBuildingMode() {
 
         // Check if player has any fence materials
         FenceMaterialProvider materialProvider = validator.getMaterialProvider();

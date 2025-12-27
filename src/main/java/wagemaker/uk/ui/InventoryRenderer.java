@@ -26,7 +26,7 @@ public class InventoryRenderer {
     private Texture appleSaplingIcon;
     private Texture bananaSaplingIcon;
     private Texture fishIcon;
-    private Texture frontFenceIcon;
+    private Texture frontFenceIcon; // Used as the fence building item
     private Texture backFenceIcon;
     private Texture bowAndArrowIcon;
     
@@ -103,13 +103,13 @@ public class InventoryRenderer {
         
         // Load fish icon (256, 256, 32, 64) - scale to 32x32
         fishIcon = extractIconFromSpriteSheet(256, 192, 64, 64);
+        
+        // Load front fence icon from fence texture (use as fence building item)
+        frontFenceIcon = extractIconFromFenceTexture(64, 128, 64, 64);
                 
         // Load bow and arrow icon (298, 192, 22x128) - scale to 32x32
         bowAndArrowIcon = extractIconFromSpriteSheet(256, 256, 64, 64);
 
-        // Load front fence icon (0, 320, 64x64) - scale to 32x32
-        frontFenceIcon = extractIconFromFenceSpriteSheet(64, 128, 64, 64);
-        
         // Load back fence icon (64, 320, 64x64) - scale to 32x32
         backFenceIcon = extractIconFromFenceSpriteSheet(64, 0, 64, 64);
     }
@@ -131,6 +131,39 @@ public class InventoryRenderer {
         spriteSheet.dispose();
         
         return icon;
+    }
+
+    /**
+     * Extract an icon from the fence texture at the specified coordinates.
+     */
+    private Texture extractIconFromFenceTexture(int srcX, int srcY, int width, int height) {
+        try {
+            Texture spriteSheet = new Texture("assets/textures/fense.png");
+            Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
+            spriteSheet.getTextureData().prepare();
+            Pixmap sheetPixmap = spriteSheet.getTextureData().consumePixmap();
+            
+            pixmap.drawPixmap(sheetPixmap, 0, 0, srcX, srcY, width, height);
+            
+            Texture icon = new Texture(pixmap);
+            pixmap.dispose();
+            sheetPixmap.dispose();
+            spriteSheet.dispose();
+            
+            return icon;
+        } catch (Exception e) {
+            System.err.println("Failed to load fence texture, creating fallback: " + e.getMessage());
+            // Create a simple brown rectangle as fallback
+            Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
+            pixmap.setColor(0.6f, 0.4f, 0.2f, 1.0f); // Brown color
+            pixmap.fill();
+            pixmap.setColor(0.3f, 0.2f, 0.1f, 1.0f); // Darker border
+            pixmap.drawRectangle(0, 0, width, height);
+            
+            Texture icon = new Texture(pixmap);
+            pixmap.dispose();
+            return icon;
+        }
     }
 
         /**
@@ -245,7 +278,7 @@ public class InventoryRenderer {
             batch.draw(slotBorder, x, slotY, SLOT_SIZE, SLOT_SIZE);
         }
         
-        // Render slots with icons and counts in order: Apple, Banana, BambooSapling, BambooStack, TreeSapling, WoodStack, Pebble, PalmFiber, AppleSapling, BananaSapling, Fish, FrontFence, BackFence, BowAndArrow
+        // Render slots with icons and counts in order: Apple, Banana, BambooSapling, BambooStack, TreeSapling, WoodStack, Pebble, PalmFiber, AppleSapling, BananaSapling, Fish, FrontFence (fence building), BackFence, BowAndArrow
         renderSlot(batch, appleIcon, inventory.getAppleCount(), slotX, slotY, selectedSlot == 0);
         renderSlot(batch, bananaIcon, inventory.getBananaCount(), slotX + (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 1);
         renderSlot(batch, bambooSaplingIcon, inventory.getBambooSaplingCount(), slotX + 2 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 2);
@@ -257,8 +290,8 @@ public class InventoryRenderer {
         renderSlot(batch, appleSaplingIcon, inventory.getAppleSaplingCount(), slotX + 8 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 8);
         renderSlot(batch, bananaSaplingIcon, inventory.getBananaSaplingCount(), slotX + 9 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 9);
         renderSlot(batch, fishIcon, inventory.getFishCount(), slotX + 10 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 10);
-        //renderSlot(batch, frontFenceIcon, inventory.getFrontFenceCount(), slotX + 11 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 11);
-        //renderSlot(batch, backFenceIcon, inventory.getBackFenceCount(), slotX + 12 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 12);
+        renderSlot(batch, frontFenceIcon, inventory.getTotalFenceMaterialCount(), slotX + 11 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 11);
+        renderSlot(batch, backFenceIcon, inventory.getBackFenceCount(), slotX + 12 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 12);
         renderSlot(batch, bowAndArrowIcon, inventory.getBowAndArrowCount(), slotX + 13 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 13);
         
         batch.end();

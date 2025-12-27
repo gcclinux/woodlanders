@@ -385,6 +385,15 @@ public class Inventory {
     }
     
     /**
+     * Get the total fence material count (wood + bamboo).
+     * Used for displaying fence item availability in inventory.
+     * @return Total fence materials available
+     */
+    public int getTotalFenceMaterialCount() {
+        return woodFenceMaterialCount + bambooFenceMaterialCount;
+    }
+    
+    /**
      * Clear all items from inventory, resetting all counts to 0.
      */
     public void clear() {

@@ -1879,7 +1879,7 @@ public class Player {
             if (currentSelection == -1) {
                 newSelection = 0; // Start at first slot
             } else {
-                newSelection = (currentSelection + 1) % 14; // Wrap to 0 after slot 13
+                newSelection = (currentSelection + 1) % 14; // Wrap to 0 after slot 13 (14 total slots: 0-13)
             }
         }
         // LEFT arrow: move to previous slot (wrap around)
@@ -2097,24 +2097,54 @@ public class Player {
     /**
      * Update targeting system when inventory selection changes.
      * Activates targeting for plantable items, deactivates for consumables.
+     * Activates fence building mode for fence item.
      */
     private void updateTargetingForSelection(int slot) {
         System.out.println("[DEBUG] updateTargetingForSelection called with slot: " + slot);
         
         if (slot == -1) {
-            // Item deselected - deactivate targeting
+            // Item deselected - deactivate targeting and fence building
             if (targetingSystem.isActive()) {
                 targetingSystem.deactivate();
             }
+            // Exit fence building mode if active
+            wagemaker.uk.fence.FenceBuildingManager fenceBuildingManager = getFenceBuildingManager();
+            if (fenceBuildingManager != null && fenceBuildingManager.isBuildingModeActive()) {
+                fenceBuildingManager.exitBuildingMode();
+                System.out.println("Exited fence building mode due to item deselection");
+            }
         } else {
-            // Item selected - check if it's a plantable item
+            // Item selected - check item type
             wagemaker.uk.inventory.ItemType selectedItemType = inventoryManager.getSelectedItemType();
             System.out.println("[DEBUG] Selected item type: " + selectedItemType);
             
-            // Only activate targeting for plantable items (not consumables)
+            // Handle fence item selection (slot 11 - FRONT_FENCE)
+            if (selectedItemType == wagemaker.uk.inventory.ItemType.FRONT_FENCE) {
+                System.out.println("[DEBUG] Front fence item selected - activating fence building mode");
+                
+                // Activate fence building mode
+                wagemaker.uk.fence.FenceBuildingManager fenceBuildingManager = getFenceBuildingManager();
+                if (fenceBuildingManager != null) {
+                    if (!fenceBuildingManager.isBuildingModeActive()) {
+                        fenceBuildingManager.enterBuildingMode();
+                        System.out.println("Entered fence building mode via front fence item selection");
+                    }
+                } else {
+                    System.err.println("FenceBuildingManager not available");
+                }
+                
+                // Deactivate targeting system as fence building has its own targeting
+                if (targetingSystem.isActive()) {
+                    targetingSystem.deactivate();
+                }
+                return;
+            }
+            
+            // Only activate targeting for plantable items (not consumables or front fence)
             boolean isPlantable = selectedItemType != null && 
                                  !selectedItemType.restoresHealth() && 
-                                 !selectedItemType.reducesHunger();
+                                 !selectedItemType.reducesHunger() &&
+                                 selectedItemType != wagemaker.uk.inventory.ItemType.FRONT_FENCE;
             System.out.println("[DEBUG] Is plantable: " + isPlantable);
             
             if (isPlantable) {
