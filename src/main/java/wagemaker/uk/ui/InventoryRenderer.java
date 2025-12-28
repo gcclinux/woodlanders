@@ -55,6 +55,12 @@ public class InventoryRenderer {
     private static final float HIGHLIGHT_ALPHA = 0.8f;
     private static final int HIGHLIGHT_BORDER_WIDTH = 3;
     
+    // Fence item highlight constants (light blue)
+    private static final float FENCE_HIGHLIGHT_R = 0.3f;
+    private static final float FENCE_HIGHLIGHT_G = 0.7f;
+    private static final float FENCE_HIGHLIGHT_B = 1.0f;
+    private static final float FENCE_HIGHLIGHT_ALPHA = 0.8f;
+    
     /**
      * Create a new InventoryRenderer and load all required assets.
      */
@@ -290,7 +296,8 @@ public class InventoryRenderer {
         renderSlot(batch, appleSaplingIcon, inventory.getAppleSaplingCount(), slotX + 8 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 8);
         renderSlot(batch, bananaSaplingIcon, inventory.getBananaSaplingCount(), slotX + 9 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 9);
         renderSlot(batch, fishIcon, inventory.getFishCount(), slotX + 10 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 10);
-        renderSlot(batch, backFenceIcon, inventory.getTotalFenceMaterialCount(), slotX + 11 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 11);
+        renderSlot(batch, backFenceIcon, inventory.getTotalFenceMaterialCount(), slotX + 11 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 11,
+                  FENCE_HIGHLIGHT_R, FENCE_HIGHLIGHT_G, FENCE_HIGHLIGHT_B, FENCE_HIGHLIGHT_ALPHA);
         renderSlot(batch, bowAndArrowIcon, inventory.getBowAndArrowCount(), slotX + 12 * (SLOT_SIZE + SLOT_SPACING), slotY, selectedSlot == 12);
         
         batch.end();
@@ -307,6 +314,25 @@ public class InventoryRenderer {
      * @param isSelected Whether this slot is currently selected
      */
     private void renderSlot(SpriteBatch batch, Texture icon, int count, float x, float y, boolean isSelected) {
+        renderSlot(batch, icon, count, x, y, isSelected, HIGHLIGHT_R, HIGHLIGHT_G, HIGHLIGHT_B, HIGHLIGHT_ALPHA);
+    }
+    
+    /**
+     * Render an individual inventory slot with icon and count with custom highlight color.
+     * 
+     * @param batch The SpriteBatch to use for rendering
+     * @param icon The item icon texture
+     * @param count The item count to display
+     * @param x The X position of the slot
+     * @param y The Y position of the slot
+     * @param isSelected Whether this slot is currently selected
+     * @param highlightR Red component of highlight color
+     * @param highlightG Green component of highlight color
+     * @param highlightB Blue component of highlight color
+     * @param highlightA Alpha component of highlight color
+     */
+    private void renderSlot(SpriteBatch batch, Texture icon, int count, float x, float y, boolean isSelected,
+                           float highlightR, float highlightG, float highlightB, float highlightA) {
         // Draw selection highlight if this slot is selected
         if (isSelected) {
             // Get the current projection matrix from the batch before ending it
@@ -317,7 +343,7 @@ public class InventoryRenderer {
             // Set ShapeRenderer to use the same projection matrix as the batch
             shapeRenderer.setProjectionMatrix(projectionMatrix);
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-            shapeRenderer.setColor(HIGHLIGHT_R, HIGHLIGHT_G, HIGHLIGHT_B, HIGHLIGHT_ALPHA);
+            shapeRenderer.setColor(highlightR, highlightG, highlightB, highlightA);
             Gdx.gl.glLineWidth(HIGHLIGHT_BORDER_WIDTH);
             
             // Draw highlight border (44x44) around selected slot

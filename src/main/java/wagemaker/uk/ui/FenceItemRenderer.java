@@ -302,8 +302,13 @@ public class FenceItemRenderer {
     public void render(SpriteBatch batch, wagemaker.uk.inventory.Inventory inventory, float camX, float camY, 
                       float viewWidth, float viewHeight, float inventoryPanelWidth) {
         
-        // Only render when fence building mode is active
+        // Only render when fence building mode is active AND not activated via inventory selection
         if (fenceBuildingManager == null || !fenceBuildingManager.isBuildingModeActive() || inventory == null) {
+            return;
+        }
+        
+        // Don't render fence inventory panel when activated via inventory selection
+        if (fenceBuildingManager.isActivatedViaInventorySelection()) {
             return;
         }
         

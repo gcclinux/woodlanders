@@ -849,6 +849,12 @@ public class MyGdxGame extends ApplicationAdapter {
                                           camera.position.x, camera.position.y,
                                           viewport.getWorldWidth(), viewport.getWorldHeight());
         }
+        
+        // Render fence structures before trees and other world objects
+        if (fenceBuildingManager != null) {
+            fenceBuildingManager.renderFences(batch);
+        }
+        
         // draw trees
         drawTrees();
         drawCoconutTrees();
@@ -865,11 +871,6 @@ public class MyGdxGame extends ApplicationAdapter {
         drawPebbles();
         drawPalmFibers();
         drawCactus();
-        
-        // Render fence structures before player so player appears above fences
-        if (fenceBuildingManager != null) {
-            fenceBuildingManager.renderFences(batch);
-        }
         
         // draw player before apple trees so foliage appears in front
         batch.draw(player.getCurrentFrame(), player.getX(), player.getY(), 100, 100);

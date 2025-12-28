@@ -431,62 +431,79 @@ public class Player {
         // Handle fence building mode - fence navigation is always active when building mode is active
         wagemaker.uk.fence.FenceBuildingManager fenceBuildingManager = getFenceBuildingManager();
         if (fenceBuildingManager != null && fenceBuildingManager.isBuildingModeActive()) {
-            // Ensure fence navigation mode is active when building mode is active
-            if (!isNavigationModeActive(NavigationMode.FENCE_BUILDING)) {
-                // If we're in inventory navigation mode, force exit it first to allow fence building
-                if (isNavigationModeActive(NavigationMode.INVENTORY)) {
-                    System.out.println("[FenceNav] Forcing exit from inventory navigation to allow fence building");
-                    forceNavigationMode(NavigationMode.NORMAL);
-                }
-                
-                boolean accepted = requestNavigationMode(NavigationMode.FENCE_BUILDING);
-                if (accepted) {
-                    fenceNavigationStable = false; // Reset stability flag
-                    framesSinceFenceActivation = 0; // Reset frame counter
-                    buildingModeJustEntered = true; // Mark that we just entered building mode
-                    System.out.println("[FenceNav] Fence navigation mode: ON (building mode active)");
-                    System.out.println("[FenceNav] State: fenceNavigationMode=" + fenceNavigationMode + 
-                                     ", fenceNavigationStable=" + fenceNavigationStable + 
-                                     ", framesSinceFenceActivation=" + framesSinceFenceActivation +
-                                     ", buildingModeJustEntered=" + buildingModeJustEntered);
-                } else {
-                    System.out.println("[FenceNav] Cannot activate fence navigation - higher priority mode is active");
-                }
-            }
-            
-            // Update frame counter and stability
-            if (isNavigationModeActive(NavigationMode.FENCE_BUILDING)) {
-                framesSinceFenceActivation++;
-                if (framesSinceFenceActivation >= 2) { // Stable after 2 frames
-                    fenceNavigationStable = true;
-                    // Clear the buildingModeJustEntered flag once we're stable
-                    if (buildingModeJustEntered) {
-                        buildingModeJustEntered = false;
-                        System.out.println("[FenceNav] Building mode stabilized, cleared buildingModeJustEntered flag");
+            // Only activate fence navigation mode if NOT activated via inventory selection
+            if (!fenceBuildingManager.isActivatedViaInventorySelection()) {
+                // Ensure fence navigation mode is active when building mode is active
+                if (!isNavigationModeActive(NavigationMode.FENCE_BUILDING)) {
+                    // If we're in inventory navigation mode, force exit it first to allow fence building
+                    if (isNavigationModeActive(NavigationMode.INVENTORY)) {
+                        System.out.println("[FenceNav] Forcing exit from inventory navigation to allow fence building");
+                        forceNavigationMode(NavigationMode.NORMAL);
+                    }
+                    
+                    boolean accepted = requestNavigationMode(NavigationMode.FENCE_BUILDING);
+                    if (accepted) {
+                        fenceNavigationStable = false; // Reset stability flag
+                        framesSinceFenceActivation = 0; // Reset frame counter
+                        buildingModeJustEntered = true; // Mark that we just entered building mode
+                        System.out.println("[FenceNav] Fence navigation mode: ON (building mode active)");
+                        System.out.println("[FenceNav] State: fenceNavigationMode=" + fenceNavigationMode + 
+                                         ", fenceNavigationStable=" + fenceNavigationStable + 
+                                         ", framesSinceFenceActivation=" + framesSinceFenceActivation +
+                                         ", buildingModeJustEntered=" + buildingModeJustEntered);
+                    } else {
+                        System.out.println("[FenceNav] Cannot activate fence navigation - higher priority mode is active");
                     }
                 }
-            }
-            
-            // Handle B key when in building mode - exit both modes
-            // Only process B key when fence navigation is stable AND we didn't just enter building mode
-            // AND the FenceBuildingManager didn't just activate building mode this frame
-            // This prevents double B key processing between FenceBuildingManager and Player
-            boolean fenceBuildingJustActivated = fenceBuildingManager.wasBuildingModeJustActivated();
-            if (Gdx.input.isKeyJustPressed(Input.Keys.B) && fenceNavigationStable && 
-                !buildingModeJustEntered && !fenceBuildingJustActivated) {
-                System.out.println("[FenceNav] B key pressed - exiting fence navigation and building mode");
-                // Exit fence navigation mode and building mode
-                requestNavigationMode(NavigationMode.NORMAL);
-                // Exit building mode
-                fenceBuildingManager.exitBuildingMode();
-                System.out.println("[FenceNav] Exited fence navigation mode and building mode");
-            }
-            
-            // ESC exits fence navigation mode only (stay in building mode)
-            if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-                System.out.println("[FenceNav] ESC key pressed - exiting fence navigation mode only");
-                requestNavigationMode(NavigationMode.NORMAL);
-                System.out.println("[FenceNav] Fence navigation mode: OFF (ESC pressed)");
+                
+                // Update frame counter and stability
+                if (isNavigationModeActive(NavigationMode.FENCE_BUILDING)) {
+                    framesSinceFenceActivation++;
+                    if (framesSinceFenceActivation >= 2) { // Stable after 2 frames
+                        fenceNavigationStable = true;
+                        // Clear the buildingModeJustEntered flag once we're stable
+                        if (buildingModeJustEntered) {
+                            buildingModeJustEntered = false;
+                            System.out.println("[FenceNav] Building mode stabilized, cleared buildingModeJustEntered flag");
+                        }
+                    }
+                }
+                
+                // Handle B key when in building mode - exit both modes
+                // Only process B key when fence navigation is stable AND we didn't just enter building mode
+                // AND the FenceBuildingManager didn't just activate building mode this frame
+                // This prevents double B key processing between FenceBuildingManager and Player
+                boolean fenceBuildingJustActivated = fenceBuildingManager.wasBuildingModeJustActivated();
+                if (Gdx.input.isKeyJustPressed(Input.Keys.B) && fenceNavigationStable && 
+                    !buildingModeJustEntered && !fenceBuildingJustActivated) {
+                    System.out.println("[FenceNav] B key pressed - exiting fence navigation and building mode");
+                    // Exit fence navigation mode and building mode
+                    requestNavigationMode(NavigationMode.NORMAL);
+                    // Exit building mode
+                    fenceBuildingManager.exitBuildingMode();
+                    System.out.println("[FenceNav] Exited fence navigation mode and building mode");
+                }
+                
+                // ESC exits fence navigation mode only (stay in building mode)
+                if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+                    System.out.println("[FenceNav] ESC key pressed - exiting fence navigation mode only");
+                    requestNavigationMode(NavigationMode.NORMAL);
+                    System.out.println("[FenceNav] Fence navigation mode: OFF (ESC pressed)");
+                }
+            } else {
+                // When activated via inventory selection, fence building works in background
+                // No navigation mode changes, inventory selection remains active
+                
+                // Handle ESC key to exit fence building when activated via inventory
+                if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+                    System.out.println("[FenceNav] ESC key pressed - exiting fence building mode (inventory activated)");
+                    fenceBuildingManager.exitBuildingMode();
+                    // Also clear inventory selection to exit fence item
+                    if (inventoryManager != null) {
+                        inventoryManager.clearSelection();
+                    }
+                    System.out.println("[FenceNav] Fence building mode: OFF (ESC pressed, inventory cleared)");
+                }
             }
         } else {
             // Exit fence navigation mode if fence building is no longer active
@@ -2126,26 +2143,39 @@ public class Player {
                 wagemaker.uk.fence.FenceBuildingManager fenceBuildingManager = getFenceBuildingManager();
                 if (fenceBuildingManager != null) {
                     if (!fenceBuildingManager.isBuildingModeActive()) {
+                        fenceBuildingManager.setActivatedViaInventorySelection(true);
                         fenceBuildingManager.enterBuildingMode();
-                        System.out.println("Entered fence building mode via front fence item selection");
+                        System.out.println("Entered fence building mode via back fence item selection");
                     }
                 } else {
                     System.err.println("FenceBuildingManager not available");
                 }
+                
+                // DON'T change navigation mode when fence item is selected from inventory
+                // This keeps the inventory selection active and visible
                 
                 // Deactivate targeting system as fence building has its own targeting
                 if (targetingSystem.isActive()) {
                     targetingSystem.deactivate();
                 }
                 return;
+            } else {
+                // Non-fence item selected - exit fence building mode if active
+                wagemaker.uk.fence.FenceBuildingManager fenceBuildingManager = getFenceBuildingManager();
+                if (fenceBuildingManager != null && fenceBuildingManager.isBuildingModeActive()) {
+                    fenceBuildingManager.exitBuildingMode();
+                    System.out.println("Exited fence building mode due to non-fence item selection");
+                }
             }
             
-            // Only activate targeting for plantable items (not consumables or front fence)
-            boolean isPlantable = selectedItemType != null && 
-                                 !selectedItemType.restoresHealth() && 
-                                 !selectedItemType.reducesHunger() &&
-                                 selectedItemType != wagemaker.uk.inventory.ItemType.BACK_FENCE;
-            System.out.println("[DEBUG] Is plantable: " + isPlantable);
+            // Only activate targeting for plantable items (saplings and baby items)
+            boolean isPlantable = selectedItemType != null && (
+                selectedItemType == wagemaker.uk.inventory.ItemType.APPLE_SAPLING ||
+                selectedItemType == wagemaker.uk.inventory.ItemType.BANANA_SAPLING ||
+                selectedItemType == wagemaker.uk.inventory.ItemType.BABY_BAMBOO ||
+                selectedItemType == wagemaker.uk.inventory.ItemType.BABY_TREE
+            );
+            System.out.println("[DEBUG] Is plantable: " + isPlantable + " for item: " + selectedItemType);
             
             if (isPlantable) {
                 // Plantable item - activate targeting at player position
@@ -2163,10 +2193,13 @@ public class Player {
                             System.out.println("Item placement cancelled");
                         }
                     });
+                } else {
+                    System.out.println("[DEBUG] Targeting system already active");
                 }
             } else {
-                // Consumable item - deactivate targeting if active
+                // Non-plantable item - deactivate targeting if active
                 if (targetingSystem.isActive()) {
+                    System.out.println("[DEBUG] Deactivating targeting system for non-plantable item: " + selectedItemType);
                     targetingSystem.deactivate();
                 }
             }

@@ -83,6 +83,9 @@ public class FenceBuildingManager {
     /** Player reference for ownership tracking */
     private final wagemaker.uk.player.Player player;
 
+    /** Flag to track if fence building was activated via inventory selection */
+    private boolean activatedViaInventorySelection = false;
+
     /**
      * Creates a new FenceBuildingManager with the specified dependencies.
      * 
@@ -170,6 +173,7 @@ public class FenceBuildingManager {
         // Add state validation to ensure we don't process B key inappropriately
         if (Gdx.input.isKeyJustPressed(buildingModeToggleKey) && !buildingModeActive) {
             System.out.println("[FenceBuildingManager] B key pressed - entering building mode");
+            activatedViaInventorySelection = false; // Clear inventory activation flag when using B key
             enterBuildingMode();
         }
 
@@ -298,6 +302,11 @@ public class FenceBuildingManager {
         leftMousePressed = false;
         rightMousePressed = false;
 
+        // Reset inventory activation flag when entering via B key
+        if (!activatedViaInventorySelection) {
+            activatedViaInventorySelection = false;
+        }
+
         System.out.println("[FenceBuildingManager] Entered fence building mode - Press "
                 + Input.Keys.toString(buildingModeToggleKey) + " to exit");
         System.out.println("[FenceBuildingManager] Left click to place fence, Right click to remove fence");
@@ -318,6 +327,7 @@ public class FenceBuildingManager {
         buildingModeJustActivated = false; // Clear activation flag
         framesSinceBuildingActivation = 0; // Reset frame counter
         lastProcessedGridPos = null;
+        activatedViaInventorySelection = false; // Reset inventory activation flag
         leftMousePressed = false;
         rightMousePressed = false;
 
@@ -792,6 +802,26 @@ public class FenceBuildingManager {
      */
     public int getBuildingModeToggleKey() {
         return buildingModeToggleKey;
+    }
+
+    /**
+     * Set whether fence building was activated via inventory selection.
+     * This affects whether the fence inventory panel is shown.
+     * 
+     * @param activatedViaInventory true if activated via inventory selection, false otherwise
+     */
+    public void setActivatedViaInventorySelection(boolean activatedViaInventory) {
+        this.activatedViaInventorySelection = activatedViaInventory;
+    }
+
+    /**
+     * Check if fence building was activated via inventory selection.
+     * When true, the fence inventory panel should be hidden.
+     * 
+     * @return true if activated via inventory selection, false otherwise
+     */
+    public boolean isActivatedViaInventorySelection() {
+        return activatedViaInventorySelection;
     }
 
     /**
