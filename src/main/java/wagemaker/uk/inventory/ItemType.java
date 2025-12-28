@@ -11,7 +11,7 @@ public enum ItemType {
     BANANA_SAPLING(false, 0, false),
     FISH(false, 0, false),
     FRONT_FENCE(false, 0, false), // Fence item for building (shows total fence materials)
-    BACK_FENCE(false, 0, false),
+    BACK_FENCE(false, 0, false), // Fence item for building (shows total fence materials, activates fence building mode)
     BOW_AND_ARROW(false, 0, false),
     BABY_BAMBOO(false, 0, false),
     BAMBOO_STACK(false, 0, false),

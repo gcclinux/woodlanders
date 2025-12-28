@@ -308,11 +308,10 @@ public class InventoryManager {
             case 8: return ItemType.APPLE_SAPLING;
             case 9: return ItemType.BANANA_SAPLING;
             case 10: return ItemType.FISH;
-            case 11: return ItemType.FRONT_FENCE; // Fence item that activates fence building
-            case 12: return ItemType.BACK_FENCE;
-            case 13: return ItemType.BOW_AND_ARROW;
-            case 14: return ItemType.WOOD_FENCE_MATERIAL;
-            case 15: return ItemType.BAMBOO_FENCE_MATERIAL;
+            case 11: return ItemType.BACK_FENCE; // Fence item that activates fence building
+            case 12: return ItemType.BOW_AND_ARROW;
+            case 13: return ItemType.WOOD_FENCE_MATERIAL;
+            case 14: return ItemType.BAMBOO_FENCE_MATERIAL;
             default: return null;
         }
     }
@@ -398,11 +397,10 @@ public class InventoryManager {
             case 8: itemCount = inventory.getAppleSaplingCount(); break;
             case 9: itemCount = inventory.getBananaSaplingCount(); break;
             case 10: itemCount = inventory.getFishCount(); break;
-            case 11: itemCount = inventory.getTotalFenceMaterialCount(); break; // FRONT_FENCE shows total fence materials
-            case 12: itemCount = inventory.getBackFenceCount(); break;
-            case 13: itemCount = inventory.getBowAndArrowCount(); break;
-            case 14: itemCount = inventory.getWoodFenceMaterialCount(); break;
-            case 15: itemCount = inventory.getBambooFenceMaterialCount(); break;
+            case 11: itemCount = inventory.getTotalFenceMaterialCount(); break; // BACK_FENCE shows total fence materials
+            case 12: itemCount = inventory.getBowAndArrowCount(); break;
+            case 13: itemCount = inventory.getWoodFenceMaterialCount(); break;
+            case 14: itemCount = inventory.getBambooFenceMaterialCount(); break;
         }
         
         if (itemCount == 0) {

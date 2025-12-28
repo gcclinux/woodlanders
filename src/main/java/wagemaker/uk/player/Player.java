@@ -2118,9 +2118,9 @@ public class Player {
             wagemaker.uk.inventory.ItemType selectedItemType = inventoryManager.getSelectedItemType();
             System.out.println("[DEBUG] Selected item type: " + selectedItemType);
             
-            // Handle fence item selection (slot 11 - FRONT_FENCE)
-            if (selectedItemType == wagemaker.uk.inventory.ItemType.FRONT_FENCE) {
-                System.out.println("[DEBUG] Front fence item selected - activating fence building mode");
+            // Handle fence item selection (slot 11 - BACK_FENCE)
+            if (selectedItemType == wagemaker.uk.inventory.ItemType.BACK_FENCE) {
+                System.out.println("[DEBUG] Back fence item selected - activating fence building mode");
                 
                 // Activate fence building mode
                 wagemaker.uk.fence.FenceBuildingManager fenceBuildingManager = getFenceBuildingManager();
@@ -2144,7 +2144,7 @@ public class Player {
             boolean isPlantable = selectedItemType != null && 
                                  !selectedItemType.restoresHealth() && 
                                  !selectedItemType.reducesHunger() &&
-                                 selectedItemType != wagemaker.uk.inventory.ItemType.FRONT_FENCE;
+                                 selectedItemType != wagemaker.uk.inventory.ItemType.BACK_FENCE;
             System.out.println("[DEBUG] Is plantable: " + isPlantable);
             
             if (isPlantable) {
