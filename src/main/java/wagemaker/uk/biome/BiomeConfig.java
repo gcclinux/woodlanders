@@ -207,28 +207,29 @@ public class BiomeConfig {
     
     /**
      * Threshold for base biome determination (grass vs sand).
-     * Adjusted to achieve 50% grass, 50% sand base distribution.
+     * Adjusted to achieve ~80% grass, ~15% sand, ~5% water distribution.
      * 
      * Gameplay impact: High
-     * Target: 50/50 split between grass and sand base areas
-     * Default: 0.5 (noise values > 0.5 = sand, <= 0.5 = grass)
+     * Target: More sand coverage (lowered threshold = more sand)
+     * Default: 0.45 (noise values > 0.45 = sand, <= 0.45 = grass)
+     * Adjusted from 0.5 to increase sand from ~10% to ~15%
      * 
-     * Requirements: 1.1, 2.1 - Water only spawns in sand areas, 50% grass/sand distribution
+     * Requirements: 1.1, 2.1 - Water only spawns in sand areas
      */
-    public static final float SAND_BASE_THRESHOLD = 0.5f;
+    public static final float SAND_BASE_THRESHOLD = 0.45f;
     
     /**
      * Threshold for water placement within sand areas.
      * Controls what percentage of sand areas contain water.
      * 
      * Gameplay impact: High
-     * Target: 40% of sand areas contain water
-     * Default: 0.55f (noise values > 0.55 = water within sand)
-     * Adjusted from 0.57f to account for corrected buffer distance validation
+     * Target: ~10% of sand areas contain water (reduced from 40%)
+     * Default: 0.75f (noise values > 0.75 = water within sand)
+     * Adjusted from 0.55f to reduce water coverage from ~10% to ~5%
      * 
-     * Requirements: 1.1, 1.4 - Water only in sand, 40% coverage in sand areas
+     * Requirements: 1.1, 1.4 - Water only in sand, reduced water coverage
      */
-    public static final float WATER_IN_SAND_THRESHOLD = 0.55f;
+    public static final float WATER_IN_SAND_THRESHOLD = 0.75f;
     
     /**
      * Minimum distance in pixels between water and grass biomes.

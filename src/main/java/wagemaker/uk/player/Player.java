@@ -1410,6 +1410,13 @@ public class Player {
                             }
                         }
                         
+                        // Plant a sapling at the tree's position (same as multiplayer behavior)
+                        if (plantedTrees != null) {
+                            PlantedTree plantedSapling = new PlantedTree(treeX, treeY);
+                            plantedTrees.put(targetKey, plantedSapling);
+                            System.out.println("Planted tree sapling at destroyed tree location: " + targetKey + " (" + treeX + ", " + treeY + ")");
+                        }
+                        
                         targetTree.dispose();
                         trees.remove(targetKey);
                         clearedPositions.put(targetKey, true);
@@ -1481,6 +1488,15 @@ public class Player {
                                     wagemaker.uk.network.TreeType.APPLE
                                 );
                             }
+                        }
+                        
+                        // Plant an apple tree sapling at the tree's position (same as multiplayer behavior)
+                        if (plantedAppleTrees != null) {
+                            float treeX = targetAppleTree.getX();
+                            float treeY = targetAppleTree.getY();
+                            wagemaker.uk.planting.PlantedAppleTree plantedSapling = new wagemaker.uk.planting.PlantedAppleTree(treeX, treeY);
+                            plantedAppleTrees.put(targetKey, plantedSapling);
+                            System.out.println("Planted apple tree sapling at destroyed tree location: " + targetKey + " (" + treeX + ", " + treeY + ")");
                         }
                         
                         targetAppleTree.dispose();
@@ -1651,6 +1667,15 @@ public class Player {
                             }
                         }
                         
+                        // Plant a bamboo sapling at the tree's position (same as multiplayer behavior)
+                        if (plantedBamboos != null) {
+                            float treeX = targetBambooTree.getX();
+                            float treeY = targetBambooTree.getY();
+                            PlantedBamboo plantedSapling = new PlantedBamboo(treeX, treeY);
+                            plantedBamboos.put(targetKey, plantedSapling);
+                            System.out.println("Planted bamboo sapling at destroyed tree location: " + targetKey + " (" + treeX + ", " + treeY + ")");
+                        }
+                        
                         targetBambooTree.dispose();
                         bambooTrees.remove(targetKey);
                         clearedPositions.put(targetKey, true);
@@ -1721,6 +1746,15 @@ public class Player {
                                     wagemaker.uk.network.TreeType.BANANA
                                 );
                             }
+                        }
+                        
+                        // Plant a banana tree sapling at the tree's position (same as multiplayer behavior)
+                        if (plantedBananaTrees != null) {
+                            float treeX = targetBananaTree.getX();
+                            float treeY = targetBananaTree.getY();
+                            wagemaker.uk.planting.PlantedBananaTree plantedSapling = new wagemaker.uk.planting.PlantedBananaTree(treeX, treeY);
+                            plantedBananaTrees.put(targetKey, plantedSapling);
+                            System.out.println("Planted banana tree sapling at destroyed tree location: " + targetKey + " (" + treeX + ", " + treeY + ")");
                         }
                         
                         targetBananaTree.dispose();

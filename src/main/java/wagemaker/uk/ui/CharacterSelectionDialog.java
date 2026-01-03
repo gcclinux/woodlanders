@@ -253,18 +253,17 @@ public class CharacterSelectionDialog implements LanguageChangeListener {
     
     /**
      * Confirms the current character selection.
-     * Does NOT save immediately - saving happens when user selects "Save Player" from menu.
+     * Saves immediately to PlayerConfig and reloads the player sprite.
      */
     private void confirmSelection() {
         int selectedIndex = getSelectedCharacterIndex();
         if (selectedIndex >= 0 && selectedIndex < characterOptions.length) {
             CharacterOption selected = characterOptions[selectedIndex];
             
-            // Store the selection in GameMenu's pending field
-            // It will be saved when user selects "Save Player"
-            wagemaker.uk.ui.GameMenu.setPendingCharacterSelection(selected.spriteFilename);
+            // Apply the character selection immediately (saves to config and reloads sprite)
+            wagemaker.uk.ui.GameMenu.applyCharacterSelectionImmediately(selected.spriteFilename);
             
-            System.out.println("Character selected (not yet saved): " + selected.spriteFilename);
+            System.out.println("Character selected and applied immediately: " + selected.spriteFilename);
             
             // Close dialog
             close();

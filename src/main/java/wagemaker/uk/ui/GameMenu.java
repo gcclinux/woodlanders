@@ -81,6 +81,9 @@ public class GameMenu implements LanguageChangeListener, FontChangeListener {
     // Pending character selection (set by CharacterSelectionDialog, saved by savePlayerPosition)
     private static String pendingCharacterSelection = null;
     
+    // Static reference to the current GameMenu instance for character selection callback
+    private static GameMenu currentInstance = null;
+    
     // World save/load components
     private WorldSaveDialog worldSaveDialog;
     private WorldLoadDialog worldLoadDialog;
@@ -122,6 +125,9 @@ public class GameMenu implements LanguageChangeListener, FontChangeListener {
         font = new BitmapFont();
         font.getData().setScale(1.5f);
         font.setColor(Color.WHITE);
+        
+        // Set static instance reference for character selection callback
+        currentInstance = this;
         
         // Create custom font for player name
         createPlayerNameFont();
@@ -2395,5 +2401,51 @@ public class GameMenu implements LanguageChangeListener, FontChangeListener {
      */
     private static void clearPendingCharacterSelection() {
         pendingCharacterSelection = null;
+    }
+    
+    /**
+     * Immediately applies a character selection by saving to PlayerConfig and reloading the player sprite.
+     * Called by CharacterSelectionDialog when a character is selected to apply changes immediately.
+     * 
+     * @param characterFilename The character sprite filename to apply
+     */
+    public static void applyCharacterSelectionImmediately(String characterFilename) {
+        if (characterFilename == null || characterFilename.isEmpty()) {
+            System.err.println("Cannot apply null or empty character selection");
+            return;
+        }
+        
+        // Save to PlayerConfig immediately
+        PlayerConfig playerConfig = PlayerConfig.load();
+        playerConfig.saveSelectedCharacter(characterFilename);
+        System.out.println("Character saved to PlayerConfig immediately: " + characterFilename);
+        
+        // Reload the player sprite if we have access to the player instance
+        if (currentInstance != null && currentInstance.player != null) {
+            System.out.println("Reloading player character sprite to apply changes immediately...");
+            currentInstance.player.reloadCharacter();
+            
+            // If in multiplayer, broadcast character change to other players
+            if (currentInstance.gameInstance != null && currentInstance.gameInstance.getGameClient() != null && 
+                currentInstance.gameInstance.getGameClient().isConnected()) {
+                String clientId = currentInstance.gameInstance.getGameClient().getClientId();
+                if (clientId != null) {
+                    String playerName = "Player_" + clientId.substring(0, Math.min(8, clientId.length()));
+                    wagemaker.uk.network.PlayerInfoMessage playerInfo = 
+                        new wagemaker.uk.network.PlayerInfoMessage(
+                            clientId,
+                            playerName,
+                            characterFilename
+                        );
+                    currentInstance.gameInstance.getGameClient().sendMessage(playerInfo);
+                    System.out.println("[CLIENT] Broadcasting character change to server: " + characterFilename);
+                }
+            }
+        } else {
+            System.out.println("Player instance not available, character will be applied on next game load");
+        }
+        
+        // Clear any pending selection since we've applied it immediately
+        clearPendingCharacterSelection();
     }
 }
